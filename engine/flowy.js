@@ -94,10 +94,8 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                             $(".arrowid[value=" + blockstemp[w].id + "]").parent().css("top", $(".arrowid[value=" + blockstemp[w].id + "]").parent().offset().top - canvas_div.offset().top + canvas_div.scrollTop() + "px");
                             $(".blockid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
                             $(".arrowid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
-
                             blockstemp[w].x = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().left + ($(".blockid[value=" + blockstemp[w].id + "]").innerWidth() / 2) + canvas_div.scrollLeft();
                             blockstemp[w].y = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().top + ($(".blockid[value=" + blockstemp[w].id + "]").parent().innerHeight() / 2) + canvas_div.scrollTop();
-
                         }
                     }
                     blockstemp.filter(a => a.id == 0)[0].x = drag.offset().left + (drag.innerWidth() / 2);
@@ -170,7 +168,6 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                                         $(".arrowid[value=" + blockstemp[w].id + "]").parent().css("top", $(".arrowid[value=" + blockstemp[w].id + "]").parent().offset().top - canvas_div.offset().top + canvas_div.scrollTop());
                                         $(".blockid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
                                         $(".arrowid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
-
                                         blockstemp[w].x = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().left + ($(".blockid[value=" + blockstemp[w].id + "]").innerWidth() / 2) + canvas_div.scrollLeft();
                                         blockstemp[w].y = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().top + ($(".blockid[value=" + blockstemp[w].id + "]").parent().innerHeight() / 2) + canvas_div.scrollTop();
 
@@ -389,9 +386,6 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                             $('.arrowid[value=' + blocko[w] + ']').parent().css("left", blocks.filter(id => id.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x - 20 - canvas_div.offset().left + "px");
                         }
                     }
-                }
-                for (var w = 0; w < blocks.length; w++) {
-                    //blocks[w].x = blocks[w].x+offsetleftold-20;
                 }
                 offsetleftold = 0;
             }
