@@ -7,7 +7,7 @@
 [Dribbble](demo.com) | [Twitter](demo.com) | [Live demo](https://alyssax.com/x/flowy)
 
 
-Flowy makes creating WebApps with flowchart functionality an incredibly simple task. Build automation software, mindmapping tools, or simple programming platforms in minutes by implementing the library into your project. 
+Flowy makes creating WebApps with flowchart functionality an incredibly simple task. Build automation software, mind mapping tools, or simple programming platforms in minutes by implementing the library into your project. 
 
 
 
