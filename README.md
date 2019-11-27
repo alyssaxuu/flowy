@@ -102,7 +102,9 @@ The JSON object that gets outputted looks like this:
 	]
 }
 ```
+
 Here's what each property means:
+
 Key | Value type | Description
 --- | --- | ---
    `id` | *integer* | Unique value that identifies a block 
