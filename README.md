@@ -2,7 +2,7 @@
 
 
 ![Demo](https://media.giphy.com/media/dv1C56OywrP7Cn20nr/giphy.gif)
-<br>An javascript library to create pretty flowcharts with ease ✨
+<br>A javascript library to create pretty flowcharts with ease ✨
 
 [Dribbble](https://dribbble.com/shots/8576286-Flowy-Flowchart-Engine) | [Twitter](https://twitter.com/alyssaxuu) | [Live demo](https://alyssax.com/x/flowy)
 
