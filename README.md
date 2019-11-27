@@ -4,7 +4,7 @@
 ![Demo](https://media.giphy.com/media/dv1C56OywrP7Cn20nr/giphy.gif)
 <br>An javascript library to create pretty flowcharts with ease ✨
 
-[Dribbble](demo.com) | [Twitter](demo.com) | [Live demo](https://alyssax.com/x/flowy)
+[Dribbble](demo.com) | [Twitter](https://dribbble.com/shots/8576286-Flowy-Flowchart-Engine) | [Live demo](https://alyssax.com/x/flowy)
 
 
 Flowy makes creating WebApps with flowchart functionality an incredibly simple task. Build automation software, mind mapping tools, or simple programming platforms in minutes by implementing the library into your project. 
