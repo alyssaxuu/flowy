@@ -101,8 +101,10 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                             $(".arrowid[value=" + blockstemp[w].id + "]").parent().css("top", $(".arrowid[value=" + blockstemp[w].id + "]").parent().offset().top - canvas_div.offset().top + canvas_div.scrollTop() + "px");
                             $(".blockid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
                             $(".arrowid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
+
                             blockstemp[w].x = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().left + ($(".blockid[value=" + blockstemp[w].id + "]").innerWidth() / 2) + canvas_div.scrollLeft();
                             blockstemp[w].y = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().top + ($(".blockid[value=" + blockstemp[w].id + "]").parent().innerHeight() / 2) + canvas_div.scrollTop();
+
                         }
                     }
                     blockstemp.filter(a => a.id == 0)[0].x = drag.offset().left + (drag.innerWidth() / 2);
@@ -110,7 +112,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                     blocks = $.merge(blocks, blockstemp);
                     blockstemp = [];
                 } else if (active && blocks.length == 0 && drag.offset().top > canvas_div.offset().top && drag.offset().left > canvas_div.offset().left) {
-                    blockSnap(drag, true);
+                    blockSnap(drag, true, undefined);
                     active = false;
                     drag.css("top", drag.offset().top - canvas_div.offset().top + canvas_div.scrollTop() + "px");
                     drag.css("left", drag.offset().left - canvas_div.offset().left + canvas_div.scrollLeft() + "px");
@@ -133,7 +135,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                     for (var i = 0; i < blocks.length; i++) {
                         if (xpos >= blocks.filter(a => a.id == blocko[i])[0].x - (blocks.filter(a => a.id == blocko[i])[0].width / 2) - paddingx && xpos <= blocks.filter(a => a.id == blocko[i])[0].x + (blocks.filter(a => a.id == blocko[i])[0].width / 2) + paddingx && ypos >= blocks.filter(a => a.id == blocko[i])[0].y - (blocks.filter(a => a.id == blocko[i])[0].height / 2) && ypos <= blocks.filter(a => a.id == blocko[i])[0].y + blocks.filter(a => a.id == blocko[i])[0].height) {
                                             active = false;
-                            if (!rearrange && blockSnap(drag, false)) {
+                            if (!rearrange && blockSnap(drag, false, blocks.filter(id => id.id == blocko[i])[0])) {
                                 snap(drag,i, blocko);
                             } else if (rearrange) {
                                 snap(drag,i,blocko);
@@ -193,6 +195,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                                         $(".arrowid[value=" + blockstemp[w].id + "]").parent().css("top", $(".arrowid[value=" + blockstemp[w].id + "]").parent().offset().top - canvas_div.offset().top + canvas_div.scrollTop());
                                         $(".blockid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
                                         $(".arrowid[value=" + blockstemp[w].id + "]").parent().appendTo(canvas_div);
+
                                         blockstemp[w].x = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().left + ($(".blockid[value=" + blockstemp[w].id + "]").innerWidth() / 2) + canvas_div.scrollLeft();
                                         blockstemp[w].y = $(".blockid[value=" + blockstemp[w].id + "]").parent().offset().top + ($(".blockid[value=" + blockstemp[w].id + "]").parent().innerHeight() / 2) + canvas_div.scrollTop();
 
@@ -399,6 +402,9 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                             $('.arrowid[value=' + blocko[w] + ']').parent().css("left", blocks.filter(id => id.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x - 20 - canvas_div.offset().left + "px");
                         }
                     }
+                }
+                for (var w = 0; w < blocks.length; w++) {
+                    //blocks[w].x = blocks[w].x+offsetleftold-20;
                 }
                 offsetleftold = 0;
             }
