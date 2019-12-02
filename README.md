@@ -121,11 +121,13 @@ function onSnap(block, first, parent){
 }
 ```
 Gets triggered when a block can attach to another parent block. You can either prevent the attachment, or allow it by using `return true;`
+
 Parameter | Type | Description
 --- | --- | ---
    `block` | *jQuery object* | The block that has been grabbed
    `first` | *boolean* | If true, the block that has been dragged is the first one in the canvas
    `parent` | *jQuery object* | The parent the block can attach to
+   
 ## Methods
 ### Get the flowchart data
 ```javascript
@@ -171,6 +173,7 @@ Key | Value type | Description
 flowy.import(output)
 ```
 Allows you to import entire flowcharts initially exported using the previous method, `flowy.output()`
+
 Parameter | Type | Description
 --- | --- | ---
    `output` | *JSON object* | The data from `flowy.output()`
