@@ -478,7 +478,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         release();
     }
 
-    function blockSnap(drag, first) {
-        return snapping(drag, first);
+    function blockSnap(drag, first, parent) {
+        return snapping(drag, first, parent);
     }
 }
