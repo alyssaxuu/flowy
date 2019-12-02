@@ -101,9 +101,11 @@ function onGrab(block){
 }
 ```
 Gets triggered when a user grabs a block with the class `create-flowy`
+
 Parameter | Type | Description
 --- | --- | ---
    `block` | *jQuery object* | The block that has been grabbed
+   
 ### On release
 ```javascript
 function onRelease(){
