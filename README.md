@@ -36,6 +36,7 @@ Currently, Flowy supports the following:
  - [ ] [ES6 to replace jQuery (no dependencies)](https://github.com/alyssaxuu/flowy/issues/5)<br>
  - [ ] [Import saved files](https://github.com/alyssaxuu/flowy/issues/4)<br>
  - [ ] [Multiple parents](https://github.com/alyssaxuu/flowy/issues/8)
+ - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/108)
  
 You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
  
