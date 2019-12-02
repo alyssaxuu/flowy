@@ -27,13 +27,17 @@ Made by [Alyssa X](https://alyssax.com)
 ## Features
 Currently, Flowy supports the following:
 
- - Responsive drag and drop
- - Automatic snapping
- - Block rearrangement
- - Delete blocks
- - Automatic block centering
+ - [x] Responsive drag and drop
+ - [x] Automatic snapping
+ - [x] Block rearrangement
+ - [x] Delete blocks
+ - [x] Automatic block centering
+ - [ ] [Conditional snapping](https://github.com/alyssaxuu/flowy/issues/3)<br>
+ - [ ] [ES6 to replace jQuery (no dependencies)](https://github.com/alyssaxuu/flowy/issues/5)<br>
+ - [ ] [Import saved files](https://github.com/alyssaxuu/flowy/issues/4)<br>
+ - [ ] [Multiple parents](https://github.com/alyssaxuu/flowy/issues/8)
  
- You can try out [the demo](https://alyssax.com/x/flowy) to see the library in action.
+You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
  
 
 ## Installation
