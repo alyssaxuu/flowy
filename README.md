@@ -59,7 +59,7 @@ Parameter | Type | Description
    `onrelease` | *function* (optional) |  Function that gets triggered when a block is released
    `onsnap` | *function* (optional) |  Function that gets triggered when a block snaps with another one
    `spacing_x` | *integer* (optional) |  Horizontal spacing between blocks (default 20px)
-   `spacing_Y` | *integer* (optional) |  Vertical spacing between blocks (default 80px)
+   `spacing_y` | *integer* (optional) |  Vertical spacing between blocks (default 80px)
 
 To define the blocks that can be dragged, you need to add the class `.create-flowy`
 
