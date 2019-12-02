@@ -2,9 +2,9 @@
 
 
 ![Demo](https://media.giphy.com/media/dv1C56OywrP7Cn20nr/giphy.gif)
-<br>An javascript library to create pretty flowcharts with ease ✨
+<br>A javascript library to create pretty flowcharts with ease ✨
 
-[Dribbble](demo.com) | [Twitter](demo.com) | [Live demo](https://alyssax.com/x/flowy)
+[Dribbble](https://dribbble.com/shots/8576286-Flowy-Flowchart-Engine) | [Twitter](https://twitter.com/alyssaxuu/status/1199724989353730048) | [Live demo](https://alyssax.com/x/flowy)
 
 
 Flowy makes creating WebApps with flowchart functionality an incredibly simple task. Build automation software, mind mapping tools, or simple programming platforms in minutes by implementing the library into your project. 
@@ -27,13 +27,18 @@ Made by [Alyssa X](https://alyssax.com)
 ## Features
 Currently, Flowy supports the following:
 
- - Responsive drag and drop
- - Automatic snapping
- - Block rearrangement
- - Delete blocks
- - Automatic block centering
+ - [x] Responsive drag and drop
+ - [x] Automatic snapping
+ - [x] Block rearrangement
+ - [x] Delete blocks
+ - [x] Automatic block centering
+ - [ ] [Conditional snapping](https://github.com/alyssaxuu/flowy/issues/3)<br>
+ - [ ] [ES6 to replace jQuery (no dependencies)](https://github.com/alyssaxuu/flowy/issues/5)<br>
+ - [ ] [Import saved files](https://github.com/alyssaxuu/flowy/issues/4)<br>
+ - [ ] [Multiple parents](https://github.com/alyssaxuu/flowy/issues/8)
+ - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/108)
  
- You can try out [the demo](https://alyssax.com/x/flowy) to see the library in action.
+You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
  
 
 ## Installation
@@ -55,7 +60,7 @@ Parameter | Type | Description
    `onrelease` | *function* (optional) |  Function that gets triggered when a block is released
    `onsnap` | *function* (optional) |  Function that gets triggered when a block snaps with another one
    `spacing_x` | *integer* (optional) |  Horizontal spacing between blocks (default 20px)
-   `spacing_Y` | *integer* (optional) |  Vertical spacing between blocks (default 80px)
+   `spacing_y` | *integer* (optional) |  Vertical spacing between blocks (default 80px)
 
 To define the blocks that can be dragged, you need to add the class `.create-flowy`
 
@@ -102,7 +107,9 @@ The JSON object that gets outputted looks like this:
 	]
 }
 ```
+
 Here's what each property means:
+
 Key | Value type | Description
 --- | --- | ---
    `id` | *integer* | Unique value that identifies a block 
