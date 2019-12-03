@@ -41,7 +41,6 @@ Currently, Flowy supports the following:
  - [x] [Conditional snapping](https://github.com/alyssaxuu/flowy/issues/3)
  - [x] [Import saved files](https://github.com/alyssaxuu/flowy/issues/4)
  - [ ] [ES6 to replace jQuery (no dependencies)](https://github.com/alyssaxuu/flowy/issues/5)
- - [ ] [Multiple parents](https://github.com/alyssaxuu/flowy/issues/8)
  - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/108)
  
 You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
