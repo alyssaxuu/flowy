@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest",
     "lint": "standard --fix src/*.js",
-    "build": "rimraf build docs && parcel build src/index.html -d docs && microbundle",
+    "build": "rimraf build docs && parcel build --public-url ./ src/index.html -d docs && microbundle",
     "pretest": "npm run build",
     "prepublish": "npm test",
     "start": "parcel src/index.html -d docs --open"

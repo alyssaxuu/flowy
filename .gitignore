@@ -2,4 +2,6 @@ node_modules
 *.log
 .DS_Store
 .cache
+
+# ignore dist not docs, for gh-pages
 dist
