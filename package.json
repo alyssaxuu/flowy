@@ -1,0 +1,42 @@
+{
+  "name": "flowy",
+  "version": "0.0.0",
+  "description": "The minimal javascript library to create flowcharts sparkles",
+  "source": "src/flowy.js",
+  "main": "dist/flowy.js",
+  "module": "dist/flowy.mjs",
+  "unpkg": "dist/flowy.umd.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "standard --fix src/*.js",
+    "build": "rimraf build docs && parcel build src/index.html -d docs && microbundle",
+    "pretest": "npm run build",
+    "prepublish": "npm test",
+    "start": "parcel src/index.html -d docs --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konsumer/flowy.git"
+  },
+  "keywords": [
+    "flow",
+    "flowchart",
+    "graph"
+  ],
+  "contributors": [
+    "Alyssa X <hi@alyssax.com> (http://alyssax.com/)",
+    "David Konsumer <konsumer@jetboystudio.com> (http://konsumer.js.org)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/konsumer/flowy/issues"
+  },
+  "homepage": "https://github.com/konsumer/flowy#readme",
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "microbundle": "^0.11.0",
+    "parcel-bundler": "^1.12.4",
+    "rimraf": "^3.0.0",
+    "standard": "^14.3.1"
+  }
+}

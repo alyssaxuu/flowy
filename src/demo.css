@@ -2,7 +2,7 @@ body, html {
     margin: 0px;
     padding: 0px;
     overflow: hidden;
-    background-image: url(assets/tile.png);
+    background-image: url(./assets/tile.png);
     background-repeat: repeat;
     background-size: 30px 30px;
     background-color: #FBFBFB;
