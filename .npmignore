@@ -1,0 +1,7 @@
+node_modules
+*.log
+.DS_Store
+.cache
+
+# ignore docs not dist, for npm-publish
+docs

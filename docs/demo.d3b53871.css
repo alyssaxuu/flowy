@@ -2,7 +2,7 @@ body, html {
     margin: 0px;
     padding: 0px;
     overflow: hidden;
-    background-image: url(assets/tile.png);
+    background-image: url(/tile.c3d794e6.png);
     background-repeat: repeat;
     background-size: 30px 30px;
     background-color: #FBFBFB;
@@ -638,3 +638,46 @@ transition: all .3s cubic-bezier(.05,.03,.35,1);
         display: none;
     }   
 }
+.dragging {
+	z-index: 111!important;
+}
+.block {
+	position: absolute;
+	z-index: 9;
+}
+.indicator {
+	width: 12px;
+	height: 12px;
+	border-radius: 60px;
+	background-color: #217CE8;
+	margin-top: -5px;
+	opacity: 1;
+	transition: all .3s cubic-bezier(.05,.03,.35,1);
+	transform: scale(1);
+	position: absolute;
+	z-index: 2;
+}
+.invisible {
+	opacity: 0!important;
+	transform: scale(0);
+}
+.indicator:after {
+	content: "";
+	display: block;
+	width: 12px;
+	height: 12px;
+	background-color: #217CE8;
+	transform: scale(1.7);
+	opacity: .2;
+	border-radius: 60px;
+}
+.arrowblock {
+	position: absolute;
+	width: 110%;
+	pointer-events: none
+}
+.arrowblock svg {
+	width: 110%;
+}
+
+/*# sourceMappingURL=/demo.d3b53871.css.map */
