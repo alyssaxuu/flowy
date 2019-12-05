@@ -38,8 +38,9 @@ Currently, Flowy supports the following:
  - [x] Block rearrangement
  - [x] Delete blocks
  - [x] Automatic block centering
- - [x] [Conditional snapping](https://github.com/alyssaxuu/flowy/issues/3)
- - [x] [Import saved files](https://github.com/alyssaxuu/flowy/issues/4)
+ - [x] Conditional snapping
+ - [x] Import saved files
+ - [x] Mobile support
  - [ ] [ES6 to replace jQuery (no dependencies)](https://github.com/alyssaxuu/flowy/issues/5)
  - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/108)
  
