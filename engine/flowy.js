@@ -272,7 +272,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         }
         $(document).on("mousedown touchstart", ".block", function(event) {
             $(document).on("mouseup mousemove touchmove", ".block", function handler(event) {
-                if (event.targetTouches[0]) {
+                if (event.targetTouches) {
                 mouse_x = event.targetTouches[0].clientX;
                 mouse_y = event.targetTouches[0].clientY;
             } else {
