@@ -42,16 +42,22 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                     json_data.blocks.push({
                         id: blocks[i].id,
                         parent: blocks[i].parent,
-                        data: []
+                        data: [],
+                        attr: []
                     });
-                    $(".blockid[value=" + blocks[i].id + "]").parent().children("input").each(function() {
+                    $(".blockid[value=" + blocks[i].id + "]").parent().find("input").each(function() {
                         var json_name = $(this).attr("name");
                         var json_value = $(this).val();
                         json_data.blocks[i].data.push({
                             name: json_name,
                             value: json_value
                         });
-                    })
+                    });
+                    $.each( $(".blockid[value=" + blocks[i].id + "]").parent()[0].attributes, function ( index, attribute ) {
+                        var jsonobj = {};
+                        jsonobj[attribute.name] = attribute.value;
+                        json_data.blocks[i].attr.push(jsonobj);
+                    });
                 }
                 return json_data;
             }
