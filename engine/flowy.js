@@ -44,7 +44,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                         parent: blocks[i].parent,
                         data: []
                     });
-                    $(".blockid[value=" + blocks[i].id + "]").parent().children("input").each(function() {
+                    $(".blockid[value=" + blocks[i].id + "]").parent().find("input").each(function() {
                         var json_name = $(this).attr("name");
                         var json_value = $(this).val();
                         json_data.blocks[i].data.push({
