@@ -150,6 +150,11 @@ The JSON object that gets outputted looks like this:
 				"name": "blockid",
 				"value": "1"
 				}
+			],
+			"attr": [
+				{
+				"id": "block-id",
+				"class": "block-class"
 			]
 		}
 	]
@@ -168,6 +173,7 @@ Key | Value type | Description
    `data` | *array of objects* |  An array of all the inputs within a certain block
    `name` | *string* |  The name attribute of the input
    `value` | *string* |  The value attribute of the input
+   `attr` | *array of objects* |  Contains all the data attributes of a certain block
 ### Import the flowchart data
 ```javascript
 flowy.import(output)
