@@ -618,7 +618,6 @@ transition: all .3s cubic-bezier(.05,.03,.35,1);
     text-indent: 0px;
 }
 .block {
-    padding-top: 5px;
     background-color: #FFF;
     margin-top: 0px!important;
     box-shadow: 0px 4px 30px rgba(22, 33, 74, 0.05);
