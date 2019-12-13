@@ -42,7 +42,7 @@ Currently, Flowy supports the following:
  - [x] Import saved files
  - [x] Mobile support
  - [ ] [ES6 to replace jQuery (no dependencies)](https://github.com/alyssaxuu/flowy/issues/5)
- - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/108)
+ - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/10)
  
 You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
  
