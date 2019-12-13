@@ -41,7 +41,7 @@ Currently, Flowy supports the following:
  - [x] Conditional snapping
  - [x] Import saved files
  - [x] Mobile support
- - [x] ES6 to replace jQuery (no dependencies)
+ - [x] Vanilla javascript (no dependencies)
  - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/10)
  
 You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
