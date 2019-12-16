@@ -100,9 +100,6 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                     document.body.appendChild(newNode);
                     drag = document.querySelector(".blockid[value='" + (parseInt(Math.max.apply(Math, blocks.map(a => a.id))) + 1) + "']").parentNode;
                 }
-                drag.addEventListener("mousedown",flowy.touchBlock);
-                drag.addEventListener("touchstart",flowy.touchBlock);
-                drag.addEventListener("mouseup", flowy.touchDone);
                 blockGrabbed(event.target.closest(".create-flowy"));
                 drag.classList.add("dragging");
                 active = true;
@@ -112,6 +109,10 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                 drag.style.top = mouse_y - dragy + "px";
             }
         }
+        document.addEventListener("mousedown",touchblock, false);
+        document.addEventListener("touchstart",touchblock, false);
+        document.addEventListener("mouseup", touchblock, false);
+
         flowy.touchDone = function() {
             dragblock = false;
         }
@@ -305,8 +306,10 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                             checkOffset();
         }
         
-        flowy.touchBlock = function(event) {
+        function touchblock(event) {
             dragblock = false;
+            if (hasParentClass(event.target, "block")) {
+                var theblock = event.target.closest(".block");
                 if (event.targetTouches) {
                     mouse_x = event.targetTouches[0].clientX;
                     mouse_y = event.targetTouches[0].clientY;
@@ -318,15 +321,19 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                     if (event.which != 3) {
                         if (!active && !rearrange) {
                             dragblock = true;
-                            drag = this;
-                            dragx = mouse_x - (this.getBoundingClientRect().left + window.scrollX);
-                            dragy = mouse_y - (this.getBoundingClientRect().top + window.scrollY);
+                            drag = theblock;
+                            dragx = mouse_x - (drag.getBoundingClientRect().left + window.scrollX);
+                            dragy = mouse_y - (drag.getBoundingClientRect().top + window.scrollY);
                         }
                     }
                 }
+            }
         }
+
         function hasParentClass(element, classname) {
-            if (element.className.split(' ').indexOf(classname)>=0) return true;
+            if (element.className) {
+                if (element.className.split(' ').indexOf(classname)>=0) return true;
+            }
             return element.parentNode && hasParentClass(element.parentNode, classname);
         }
         
@@ -341,7 +348,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
             if (dragblock) {
                 rearrange = true;
                             drag.classList.add("dragging");
-                            var blockid = parseInt(this.querySelector(".blockid").value);
+                            var blockid = parseInt(drag.querySelector(".blockid").value);
                             blockstemp.push(blocks.filter(a => a.id == blockid)[0]);
                             blocks = blocks.filter(function(e) {
                                 return e.id != blockid
@@ -355,6 +362,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                             var allids = [];
                             while (!flag) {
                                 for (var i = 0; i < layer.length; i++) {
+                                    if (layer[i] != blockid) {
                                     blockstemp.push(blocks.filter(a => a.id == layer[i].id)[0]);
                                     document.querySelector(".blockid[value='" + layer[i].id + "']").parentNode.style.left = (document.querySelector(".blockid[value='" + layer[i].id + "']").parentNode.getBoundingClientRect().left + window.scrollX) - (drag.getBoundingClientRect().left + window.scrollX);
                                     document.querySelector(".blockid[value='" + layer[i].id + "']").parentNode.style.top = (document.querySelector(".blockid[value='" + layer[i].id + "']").parentNode.getBoundingClientRect().top + window.scrollY) - (drag.getBoundingClientRect().top + window.scrollY);
@@ -364,6 +372,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                                     drag.appendChild(document.querySelector(".arrowid[value='" + layer[i].id + "']").parentNode);
                                     foundids.push(layer[i].id);
                                     allids.push(layer[i].id);
+                                    }
                                 }
                                 if (foundids.length == 0) {
                                     flag = true;
