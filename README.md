@@ -41,7 +41,7 @@ Currently, Flowy supports the following:
  - [x] Conditional snapping
  - [x] Import saved files
  - [x] Mobile support
- - [ ] [ES6 to replace jQuery (no dependencies)](https://github.com/alyssaxuu/flowy/issues/5)
+ - [x] Vanilla javascript (no dependencies)
  - [ ] [npm install](https://github.com/alyssaxuu/flowy/issues/10)
  
 You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
@@ -49,8 +49,9 @@ You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
 
 ## Installation
 Adding Flowy to your WebApp is incredibly simple:
-1. Include jQuery to your project
-2. Link `flowy.min.js` and `flowy.min.css` to your project
+1. Link `flowy.min.js` and `flowy.min.css` to your project
+2. Create a canvas element that will contain the flowchart (for example, `<div id="canvas"></div>`)
+3. Create the draggable blocks with the `.create-flowy` class (for example, `<div class="create-flowy">Grab me</div>`)
 
 ## Running Flowy
 
@@ -61,7 +62,7 @@ flowy(canvas, ongrab, onrelease, onsnap, spacing_x, spacing_y);
 
 Parameter | Type | Description
 --- | --- | ---
-   `canvas` | *jQuery object* | The element that will contain the blocks 
+   `canvas` | *javascript DOM element* | The element that will contain the blocks 
    `ongrab` | *function* (optional) |  Function that gets triggered when a block is dragged
    `onrelease` | *function* (optional) |  Function that gets triggered when a block is released
    `onsnap` | *function* (optional) |  Function that gets triggered when a block snaps with another one
@@ -81,7 +82,7 @@ To define the blocks that can be dragged, you need to add the class `.create-flo
 var spacing_x = 40;
 var spacing_y = 100;
 // Initialize Flowy
-flowy($("#canvas"), onGrab, onRelease, onSnap, spacing_x, spacing_y);
+flowy(document.getElementById("canvas"), onGrab, onRelease, onSnap, spacing_x, spacing_y);
 function onGrab(block){
 	// When the user grabs a block
 }
@@ -104,7 +105,7 @@ Gets triggered when a user grabs a block with the class `create-flowy`
 
 Parameter | Type | Description
 --- | --- | ---
-   `block` | *jQuery object* | The block that has been grabbed
+   `block` | *javascript DOM element* | The block that has been grabbed
    
 ### On release
 ```javascript
@@ -124,9 +125,9 @@ Gets triggered when a block can attach to another parent block. You can either p
 
 Parameter | Type | Description
 --- | --- | ---
-   `block` | *jQuery object* | The block that has been grabbed
+   `block` | *javascript DOM element* | The block that has been grabbed
    `first` | *boolean* | If true, the block that has been dragged is the first one in the canvas
-   `parent` | *jQuery object* | The parent the block can attach to
+   `parent` | *javascript DOM element* | The parent the block can attach to
    
 ## Methods
 ### Get the flowchart data
@@ -182,7 +183,7 @@ Allows you to import entire flowcharts initially exported using the previous met
 
 Parameter | Type | Description
 --- | --- | ---
-   `output` | *JSON object* | The data from `flowy.output()`
+   `output` | *javascript DOM element* | The data from `flowy.output()`
 
 ### Delete all blocks
 To remove all blocks at once use:
