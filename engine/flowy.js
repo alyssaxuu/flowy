@@ -166,6 +166,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                         height: parseInt(window.getComputedStyle(drag).height)
                     });
                 } else if (active && blocks.length == 0) {
+                    canvas_div.appendChild(document.querySelector(".indicator"));
                     drag.parentNode.removeChild(drag);
                 } else if (active || rearrange) {
                     var xpos = (drag.getBoundingClientRect().left + window.scrollX) + (parseInt(window.getComputedStyle(drag).width) / 2) + canvas_div.scrollLeft;
@@ -186,6 +187,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                                 blockstemp = [];
                             }
                             active = false;
+                            canvas_div.appendChild(document.querySelector(".indicator"));
                             drag.parentNode.removeChild(drag);
                         }
                     }
