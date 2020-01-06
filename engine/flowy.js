@@ -463,7 +463,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                     }
                 }
                 for (var w = 0; w < blocks.length; w++) {
-                    blocks[w].x = (document.querySelector(".blockid[value='" + blocks[w].id + "']").parentNode.getBoundingClientRect().left + window.scrollX) + (canvas_div.getBoundingClientRect().left + window.scrollX) - (parseInt(window.getComputedStyle(document.querySelector(".blockid[value='" + blocks[w].id + "']").parentNode).width) / 2) - 40;
+                    blocks[w].x = (document.querySelector(".blockid[value='" + blocks[w].id + "']").parentNode.getBoundingClientRect().left + window.scrollX) + (canvas_div.getBoundingClientRect().left + canvas_div.scrollLeft) - (parseInt(window.getComputedStyle(document.querySelector(".blockid[value='" + blocks[w].id + "']").parentNode).width) / 2) - 40;
                 }
                 offsetleftold = offsetleft;
             }
@@ -524,15 +524,17 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                 }
                 for (var w = 0; w < blocks.filter(id => id.parent == result[z]).length; w++) {
                     var children = blocks.filter(id => id.parent == result[z])[w];
-                    document.querySelector(".blockid[value='" + children.id + "']").parentNode.style.top = blocks.filter(id => id.id == result[z]).y + paddingy + "px";
-                    blocks.filter(id => id.id == result[z]).y = blocks.filter(id => id.id == result[z]).y + paddingy;
+                    const r_block = document.querySelector(".blockid[value='" + children.id + "']").parentNode;
+                    const r_array = blocks.filter(id => id.id == result[z]);
+                    r_block.style.top = r_array.y + paddingy + "px";
+                    r_array.y = r_array.y + paddingy;
                     if (children.childwidth > children.width) {
-                        document.querySelector(".blockid[value='" + children.id + "']").parentNode.style.left = blocks.filter(id => id.id == result[z])[0].x - (totalwidth / 2) + totalremove + (children.childwidth / 2) - (children.width / 2) - (canvas_div.getBoundingClientRect().left + window.scrollX) + "px";
-                        children.x = blocks.filter(id => id.id == result[z])[0].x - (totalwidth / 2) + totalremove + (children.childwidth / 2);
+                        r_block.style.left = r_array[0].x - (totalwidth / 2) + totalremove + (children.childwidth / 2) - (children.width / 2) - (canvas_div.getBoundingClientRect().left + window.scrollX) + "px";
+                        children.x = r_array[0].x - (totalwidth / 2) + totalremove + (children.childwidth / 2);
                         totalremove += children.childwidth + paddingx;
                     } else {
-                        document.querySelector(".blockid[value='" + children.id + "']").parentNode.style.left = blocks.filter(id => id.id == result[z])[0].x - (totalwidth / 2) + totalremove - (canvas_div.getBoundingClientRect().left + window.scrollX) + "px";
-                        children.x = blocks.filter(id => id.id == result[z])[0].x - (totalwidth / 2) + totalremove + (children.width / 2);
+                        r_block.style.left = r_array[0].x - (totalwidth / 2) + totalremove - (canvas_div.getBoundingClientRect().left + window.scrollX) + "px";
+                        children.x = r_array[0].x - (totalwidth / 2) + totalremove + (children.width / 2);
                         totalremove += children.width + paddingx;
                     }
                     var arrowhelp = blocks.filter(a => a.id == children.id)[0];
