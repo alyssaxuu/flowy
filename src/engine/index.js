@@ -159,6 +159,7 @@ function flowy({
             if (blockstemp[w].id != parseInt(drag.querySelector('.blockid').value)) {
               const blockParent = document.querySelector(`.blockid[value='${blockstemp[w].id}']`).parentNode
               const arrowParent = document.querySelector(`.arrowid[value='${blockstemp[w].id}']`).parentNode
+
               blockParent.style.left =
                 blockParent.getBoundingClientRect().left +
                 window.scrollX -
@@ -194,9 +195,9 @@ function flowy({
             }
           }
 
-          blockstemp.filter(a => a.id == 0)[0].x =
+          blockstemp.find(a => a.id == 0).x =
             drag.getBoundingClientRect().left + window.scrollX + parseInt(window.getComputedStyle(drag).width) / 2
-          blockstemp.filter(a => a.id == 0)[0].y =
+          blockstemp.find(a => a.id == 0).y =
             drag.getBoundingClientRect().top + window.scrollY + parseInt(window.getComputedStyle(drag).height) / 2
           blocks = blocks.concat(blockstemp)
           blockstemp = []
@@ -254,19 +255,21 @@ function flowy({
           for (var i = 0; i < blocks.length; i++) {
             if (
               xpos >=
-                blocks.filter(a => a.id == blocko[i])[0].x -
-                  blocks.filter(a => a.id == blocko[i])[0].width / 2 -
-                  paddingx &&
+                blocks.find(a => a.id == blocko[i]).x - blocks.find(a => a.id == blocko[i]).width / 2 - paddingx &&
               xpos <=
-                blocks.filter(a => a.id == blocko[i])[0].x +
-                  blocks.filter(a => a.id == blocko[i])[0].width / 2 +
-                  paddingx &&
-              ypos >=
-                blocks.filter(a => a.id == blocko[i])[0].y - blocks.filter(a => a.id == blocko[i])[0].height / 2 &&
-              ypos <= blocks.filter(a => a.id == blocko[i])[0].y + blocks.filter(a => a.id == blocko[i])[0].height
+                blocks.find(a => a.id == blocko[i]).x + blocks.find(a => a.id == blocko[i]).width / 2 + paddingx &&
+              ypos >= blocks.find(a => a.id == blocko[i]).y - blocks.find(a => a.id == blocko[i]).height / 2 &&
+              ypos <= blocks.find(a => a.id == blocko[i]).y + blocks.find(a => a.id == blocko[i]).height
             ) {
               active = false
-              if (!rearrange && blockSnap(drag, false, blocks.filter(id => id.id == blocko[i])[0])) {
+              if (
+                !rearrange &&
+                blockSnap(
+                  drag,
+                  false,
+                  blocks.find(id => id.id == blocko[i])
+                )
+              ) {
                 snap(drag, i, blocko)
               } else if (rearrange) {
                 snap(drag, i, blocko)
@@ -314,51 +317,50 @@ function flowy({
 
         if (children.childwidth > children.width) {
           document.querySelector(`.blockid[value='${children.id}']`).parentNode.style.left =
-            blocks.filter(a => a.id == blocko[i])[0].x -
+            blocks.find(a => a.id == blocko[i]).x -
             totalwidth / 2 +
             totalremove +
             children.childwidth / 2 -
             children.width / 2 +
             'px'
           children.x =
-            blocks.filter(id => id.parent == blocko[i])[0].x - totalwidth / 2 + totalremove + children.childwidth / 2
+            blocks.find(id => id.parent == blocko[i]).x - totalwidth / 2 + totalremove + children.childwidth / 2
           totalremove += children.childwidth + paddingx
         } else {
           document.querySelector(`.blockid[value='${children.id}']`).parentNode.style.left =
-            blocks.filter(a => a.id == blocko[i])[0].x - totalwidth / 2 + totalremove + 'px'
-          children.x =
-            blocks.filter(id => id.parent == blocko[i])[0].x - totalwidth / 2 + totalremove + children.width / 2
+            blocks.find(a => a.id == blocko[i]).x - totalwidth / 2 + totalremove + 'px'
+          children.x = blocks.find(id => id.parent == blocko[i]).x - totalwidth / 2 + totalremove + children.width / 2
           totalremove += children.width + paddingx
         }
       }
 
       drag.style.left =
-        blocks.filter(id => id.id == blocko[i])[0].x -
+        blocks.find(id => id.id == blocko[i]).x -
         totalwidth / 2 +
         totalremove -
         (canvas_div.getBoundingClientRect().left + window.scrollX) +
         canvas_div.scrollLeft +
         'px'
       drag.style.top =
-        blocks.filter(id => id.id == blocko[i])[0].y +
-        blocks.filter(id => id.id == blocko[i])[0].height / 2 +
+        blocks.find(id => id.id == blocko[i]).y +
+        blocks.find(id => id.id == blocko[i]).height / 2 +
         paddingy -
         (canvas_div.getBoundingClientRect().top + window.scrollY) +
         'px'
 
       if (rearrange) {
-        blockstemp.filter(a => a.id == parseInt(drag.querySelector('.blockid').value))[0].x =
+        blockstemp.find(a => a.id == parseInt(drag.querySelector('.blockid').value)).x =
           drag.getBoundingClientRect().left +
           window.scrollX +
           parseInt(window.getComputedStyle(drag).width) / 2 +
           canvas_div.scrollLeft +
           canvas_div.scrollLeft
-        blockstemp.filter(a => a.id == parseInt(drag.querySelector('.blockid').value))[0].y =
+        blockstemp.find(a => a.id == parseInt(drag.querySelector('.blockid').value)).y =
           drag.getBoundingClientRect().top +
           window.scrollY +
           parseInt(window.getComputedStyle(drag).height) / 2 +
           canvas_div.scrollTop
-        blockstemp.filter(a => a.id == drag.querySelector('.blockid').value)[0].parent = blocko[i]
+        blockstemp.find(a => a.id == drag.querySelector('.blockid').value).parent = blocko[i]
 
         for (var w = 0; w < blockstemp.length; w++) {
           if (blockstemp[w].id != parseInt(drag.querySelector('.blockid').value)) {
@@ -422,13 +424,12 @@ function flowy({
         })
       }
 
-      var arrowhelp = blocks.filter(a => a.id == parseInt(drag.querySelector('.blockid').value))[0]
-      var arrowx = arrowhelp.x - blocks.filter(a => a.id == blocko[i])[0].x + 20
+      var arrowhelp = blocks.find(a => a.id == parseInt(drag.querySelector('.blockid').value))
+      var arrowx = arrowhelp.x - blocks.find(a => a.id == blocko[i]).x + 20
       var arrowy = parseFloat(
         arrowhelp.y -
           arrowhelp.height / 2 -
-          (blocks.filter(id => id.parent == blocko[i])[0].y +
-            blocks.filter(id => id.parent == blocko[i])[0].height / 2) +
+          (blocks.find(id => id.parent == blocko[i]).y + blocks.find(id => id.parent == blocko[i]).height / 2) +
           canvas_div.scrollTop
       )
 
@@ -438,8 +439,8 @@ function flowy({
             <input type="hidden" class="arrowid" value="${drag.querySelector('.blockid').value}">
             <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="
-                M${blocks.filter(a => a.id == blocko[i])[0].x - arrowhelp.x + 5}
-                0L${blocks.filter(a => a.id == blocko[i])[0].x - arrowhelp.x + 5}
+                M${blocks.find(a => a.id == blocko[i]).x - arrowhelp.x + 5}
+                0L${blocks.find(a => a.id == blocko[i]).x - arrowhelp.x + 5}
                 ${paddingy / 2}L5
                 ${paddingy / 2}L5
                 ${arrowy}" stroke="#C5CCD0" stroke-width="2px"/>
@@ -473,22 +474,22 @@ function flowy({
         `
         document.querySelector(
           `.arrowid[value="${parseInt(drag.querySelector('.blockid').value)}"]`
-        ).parentNode.style.left = `${blocks.filter(a => a.id == blocko[i])[0].x -
+        ).parentNode.style.left = `${blocks.find(a => a.id == blocko[i]).x -
           20 -
           (canvas_div.getBoundingClientRect().left + window.scrollX) +
           canvas_div.scrollLeft}px`
       }
       document.querySelector(
         `.arrowid[value="${parseInt(drag.querySelector('.blockid').value)}"]`
-      ).parentNode.style.top = `${blocks.filter(a => a.id == blocko[i])[0].y +
-        blocks.filter(a => a.id == blocko[i])[0].height / 2}px`
+      ).parentNode.style.top = `${blocks.find(a => a.id == blocko[i]).y +
+        blocks.find(a => a.id == blocko[i]).height / 2}px`
 
-      if (blocks.filter(a => a.id == blocko[i])[0].parent != -1) {
+      if (blocks.find(a => a.id == blocko[i]).parent != -1) {
         var flag = false
         var idval = blocko[i]
 
         while (!flag) {
-          if (blocks.filter(a => a.id == idval)[0].parent == -1) {
+          if (blocks.find(a => a.id == idval).parent == -1) {
             flag = true
           } else {
             var zwidth = 0
@@ -511,12 +512,12 @@ function flowy({
               }
             }
 
-            blocks.filter(a => a.id == idval)[0].childwidth = zwidth
-            idval = blocks.filter(a => a.id == idval)[0].parent
+            blocks.find(a => a.id == idval).childwidth = zwidth
+            idval = blocks.find(a => a.id == idval).parent
           }
         }
 
-        blocks.filter(id => id.id == idval)[0].childwidth = totalwidth
+        blocks.find(id => id.id == idval).childwidth = totalwidth
       }
 
       if (rearrange) {
@@ -576,7 +577,7 @@ function flowy({
         rearrange = true
         drag.classList.add('dragging')
         var blockid = parseInt(drag.querySelector('.blockid').value)
-        blockstemp.push(blocks.filter(a => a.id == blockid)[0])
+        blockstemp.push(blocks.find(a => a.id == blockid))
         blocks = blocks.filter(function(e) {
           return e.id != blockid
         })
@@ -593,7 +594,7 @@ function flowy({
         while (!flag) {
           for (var i = 0; i < layer.length; i++) {
             if (layer[i] != blockid) {
-              blockstemp.push(blocks.filter(a => a.id == layer[i].id)[0])
+              blockstemp.push(blocks.find(a => a.id == layer[i].id))
               const blockParent = document.querySelector(`.blockid[value='${layer[i].id}']`).parentNode
               const arrowParent = document.querySelector(`.arrowid[value='${layer[i].id}']`).parentNode
               blockParent.style.left =
@@ -687,16 +688,10 @@ function flowy({
 
         for (var i = 0; i < blocks.length; i++) {
           if (
-            xpos >=
-              blocks.filter(a => a.id == blocko[i])[0].x -
-                blocks.filter(a => a.id == blocko[i])[0].width / 2 -
-                paddingx &&
-            xpos <=
-              blocks.filter(a => a.id == blocko[i])[0].x +
-                blocks.filter(a => a.id == blocko[i])[0].width / 2 +
-                paddingx &&
-            ypos >= blocks.filter(a => a.id == blocko[i])[0].y - blocks.filter(a => a.id == blocko[i])[0].height / 2 &&
-            ypos <= blocks.filter(a => a.id == blocko[i])[0].y + blocks.filter(a => a.id == blocko[i])[0].height
+            xpos >= blocks.find(a => a.id == blocko[i]).x - blocks.find(a => a.id == blocko[i]).width / 2 - paddingx &&
+            xpos <= blocks.find(a => a.id == blocko[i]).x + blocks.find(a => a.id == blocko[i]).width / 2 + paddingx &&
+            ypos >= blocks.find(a => a.id == blocko[i]).y - blocks.find(a => a.id == blocko[i]).height / 2 &&
+            ypos <= blocks.find(a => a.id == blocko[i]).y + blocks.find(a => a.id == blocko[i]).height
           ) {
             document
               .querySelector(`.blockid[value='${blocko[i]}']`)
@@ -738,16 +733,11 @@ function flowy({
         var blocko = blocks.map(a => a.id)
 
         for (var w = 0; w < blocks.length; w++) {
-          document.querySelector(
-            `.blockid[value='${blocks.filter(a => a.id == blocko[w])[0].id}']`
-          ).parentNode.style.left =
-            blocks.filter(a => a.id == blocko[w])[0].x -
-            blocks.filter(a => a.id == blocko[w])[0].width / 2 -
-            offsetleft +
-            20
-          if (blocks.filter(a => a.id == blocko[w])[0].parent != -1) {
-            var arrowhelp = blocks.filter(a => a.id == blocko[w])[0]
-            var arrowx = arrowhelp.x - blocks.filter(a => a.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x
+          document.querySelector(`.blockid[value='${blocks.find(a => a.id == blocko[w]).id}']`).parentNode.style.left =
+            blocks.find(a => a.id == blocko[w]).x - blocks.find(a => a.id == blocko[w]).width / 2 - offsetleft + 20
+          if (blocks.find(a => a.id == blocko[w]).parent != -1) {
+            var arrowhelp = blocks.find(a => a.id == blocko[w])
+            var arrowx = arrowhelp.x - blocks.find(a => a.id == blocks.find(a => a.id == blocko[w]).parent).x
             if (arrowx < 0) {
               document.querySelector(`.arrowid[value="${blocko[w]}"]`).parentNode.style.left = `${arrowhelp.x -
                 offsetleft +
@@ -755,11 +745,7 @@ function flowy({
                 5}px`
             } else {
               document.querySelector(`.arrowid[value="${blocko[w]}"]`).parentNode.style.left =
-                blocks.filter(id => id.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x -
-                20 -
-                offsetleft +
-                20 +
-                'px'
+                blocks.find(id => id.id == blocks.find(a => a.id == blocko[w]).parent).x - 20 - offsetleft + 20 + 'px'
             }
           }
         }
@@ -782,30 +768,27 @@ function flowy({
       if (offsetleftold < canvas_div.getBoundingClientRect().left + window.scrollX) {
         lastevent = false
         var blocko = blocks.map(a => a.id)
+
         for (var w = 0; w < blocks.length; w++) {
-          document.querySelector(
-            `.blockid[value='${blocks.filter(a => a.id == blocko[w])[0].id}']`
-          ).parentNode.style.left =
-            blocks.filter(a => a.id == blocko[w])[0].x -
-            blocks.filter(a => a.id == blocko[w])[0].width / 2 -
-            offsetleftold -
-            20
-          blocks.filter(a => a.id == blocko[w])[0].x =
+          document.querySelector(`.blockid[value='${blocks.find(a => a.id == blocko[w]).id}']`).parentNode.style.left =
+            blocks.find(a => a.id == blocko[w]).x - blocks.find(a => a.id == blocko[w]).width / 2 - offsetleftold - 20
+          blocks.find(a => a.id == blocko[w]).x =
             document
-              .querySelector(`.blockid[value='${blocks.filter(a => a.id == blocko[w])[0].id}']`)
+              .querySelector(`.blockid[value='${blocks.find(a => a.id == blocko[w]).id}']`)
               .parentNode.getBoundingClientRect().left +
             window.scrollX +
-            blocks.filter(a => a.id == blocko[w])[0].width / 2
+            blocks.find(a => a.id == blocko[w]).width / 2
 
-          if (blocks.filter(a => a.id == blocko[w])[0].parent != -1) {
-            var arrowhelp = blocks.filter(a => a.id == blocko[w])[0]
-            var arrowx = arrowhelp.x - blocks.filter(a => a.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x
+          if (blocks.find(a => a.id == blocko[w]).parent != -1) {
+            var arrowhelp = blocks.find(a => a.id == blocko[w])
+            var arrowx = arrowhelp.x - blocks.find(a => a.id == blocks.find(a => a.id == blocko[w]).parent).x
+
             if (arrowx < 0) {
               document.querySelector(`.arrowid[value="${blocko[w]}"]`).parentNode.style.left =
                 arrowhelp.x - 5 - (canvas_div.getBoundingClientRect().left + window.scrollX) + 'px'
             } else {
               document.querySelector(`.arrowid[value="${blocko[w]}"]`).parentNode.style.left =
-                blocks.filter(id => id.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x -
+                blocks.find(id => id.id == blocks.find(a => a.id == blocko[w]).parent).x -
                 20 -
                 (canvas_div.getBoundingClientRect().left + window.scrollX) +
                 'px'
@@ -851,7 +834,7 @@ function flowy({
         }
 
         if (result[z] != -1) {
-          blocks.filter(a => a.id == result[z])[0].childwidth = totalwidth
+          blocks.find(a => a.id == result[z]).childwidth = totalwidth
         }
 
         for (var w = 0; w < blocks.filter(id => id.parent == result[z]).length; w++) {
@@ -882,16 +865,15 @@ function flowy({
             children.x = r_array[0].x - totalwidth / 2 + totalremove + children.width / 2
             totalremove += children.width + paddingx
           }
-          var arrowhelp = blocks.filter(a => a.id == children.id)[0]
-          var arrowx = arrowhelp.x - blocks.filter(a => a.id == children.parent)[0].x + 20
+          var arrowhelp = blocks.find(a => a.id == children.id)
+          var arrowx = arrowhelp.x - blocks.find(a => a.id == children.parent).x + 20
           var arrowy =
             arrowhelp.y -
             arrowhelp.height / 2 -
-            (blocks.filter(a => a.id == children.parent)[0].y +
-              blocks.filter(a => a.id == children.parent)[0].height / 2)
+            (blocks.find(a => a.id == children.parent).y + blocks.find(a => a.id == children.parent).height / 2)
           document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.style.top =
-            blocks.filter(id => id.id == children.parent)[0].y +
-            blocks.filter(id => id.id == children.parent)[0].height / 2 -
+            blocks.find(id => id.id == children.parent).y +
+            blocks.find(id => id.id == children.parent).height / 2 -
             (canvas_div.getBoundingClientRect().top + window.scrollY) +
             'px'
 
@@ -901,8 +883,8 @@ function flowy({
             document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.innerHTML = `
               <input type="hidden" class="arrowid" value="${children.id}">
               <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M${blocks.filter(id => id.id == children.parent)[0].x - arrowhelp.x + 5}
-                  0L${blocks.filter(id => id.id == children.parent)[0].x - arrowhelp.x + 5} ${paddingy / 2}L5
+                <path d="M${blocks.find(id => id.id == children.parent).x - arrowhelp.x + 5}
+                  0L${blocks.find(id => id.id == children.parent).x - arrowhelp.x + 5} ${paddingy / 2}L5
                   ${paddingy / 2}L5
                   ${arrowy}" stroke="#C5CCD0" stroke-width="2px"/>
                 <path d="M0
@@ -913,7 +895,7 @@ function flowy({
             `
           } else {
             document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.style.left =
-              blocks.filter(id => id.id == children.parent)[0].x -
+              blocks.find(id => id.id == children.parent).x -
               20 -
               (canvas_div.getBoundingClientRect().left + window.scrollX) +
               'px'
