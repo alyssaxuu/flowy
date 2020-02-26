@@ -1,0 +1,50 @@
+{
+  "name": "flowy",
+  "version": "0.1.0",
+  "description": "The minimal javascript library to create flowcharts ✨",
+  "author": "Alyssa X",
+  "license": "MIT",
+  "private": false,
+  "main": "index.js",
+  "source": "src/index.js",
+  "scripts": {
+    "dist": "npm version patch && npm run build && cp package.json dist/",
+    "build": "babel src -d dist --verbose",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags",
+    "lint": "standard --fix src/*.js",
+    "pretest": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alyssax/flowy.git"
+  },
+  "keywords": [
+    "flowchart",
+    "diagrams",
+    "javascript",
+    "javascript-library",
+    "minimal",
+    "engine",
+    "drag-and-drop",
+    "zapier",
+    "marketing",
+    "marketing-automation"
+  ],
+  "contributors": [
+    "Alyssa X <hi@alyssax.com> (http://alyssax.com/)",
+    "Joel Van Horn <joel@joelvanhorn.com> (http://joelvanhorn.com)"
+  ],
+  "bugs": {
+    "url": "https://github.com/alyssax/flowy/issues"
+  },
+  "homepage": "https://github.com/alyssax/flowy#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "devolution": "^1.1.2",
+    "jest": "^24.9.0",
+    "standard": "^14.3.1"
+  }
+}

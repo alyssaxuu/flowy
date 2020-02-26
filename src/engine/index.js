@@ -580,3 +580,5 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         }
     }
 }
+
+export default flowy

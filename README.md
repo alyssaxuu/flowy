@@ -15,6 +15,8 @@ Flowy makes creating WebApps with flowchart functionality an incredibly simple t
 Made by [Alyssa X](https://alyssax.com)
 
 ## Table of contents
+
+- [Installation](#installation)
 - [Features](#features)
 - [Installation](#installation)
 - [Running Flowy](#running-flowy)
@@ -28,6 +30,14 @@ Made by [Alyssa X](https://alyssax.com)
     - [Get the flowchart data](#get-the-flowchart-data)
     - [Import the flowchart data](#import-the-flowchart-data)
     - [Delete all blocks](#delete-all-blocks)
+
+## Installation
+
+```bash
+npm install flowy
+```
+
+### Publish
 
 
 ## Features
