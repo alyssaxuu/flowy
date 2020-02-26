@@ -11,7 +11,6 @@ Made by [Alyssa X](https://alyssax.com)
 
 ## Table of contents
 
-- [Installation](#installation)
 - [Features](#features)
 - [Installation](#installation)
 - [Running Flowy](#running-flowy)
@@ -22,20 +21,6 @@ Made by [Alyssa X](https://alyssax.com)
   - [Get the flowchart data](#get-the-flowchart-data)
   - [Import the flowchart data](#import-the-flowchart-data)
   - [Delete all blocks](#delete-all-blocks)
-
-## Installation
-
-```bash
-npm install flowy
-```
-
-### Publish
-
-This package is published by first converting to ES5 modules in a `dist` folder. The `package.json` is copied to the `dist` folder and published from there to allow importing modules from `flowy/file` instead of `flowy/dist/file`.
-
-```bash
-npm run dist && npm publish dist
-```
 
 ## Features
 
@@ -56,11 +41,26 @@ You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
 
 ## Installation
 
+You can install the Flowy package and use it as a module.
+
+1. Install the package: `npm install flowy`
+2. Import the module in your project: `import flowy from "flowy"` or `const flowy = require("flowy")`
+3. Import styles into your project: `import styles from "flowy/engine/index.css"`
+
 Adding Flowy to your WebApp is incredibly simple:
 
-1. Link `flowy.min.js` and `flowy.min.css` to your project
-2. Create a canvas element that will contain the flowchart (for example, `<div id="canvas"></div>`)
-3. Create the draggable blocks with the `.create-flowy` class (for example, `<div class="create-flowy">Grab me</div>`)
+1. Run `npm run build:web`
+1. Link `dist/flowy.js` and `dist/flowy.css` to your project
+1. Create a canvas element that will contain the flowchart (for example, `<div id="canvas"></div>`)
+1. Create the draggable blocks with the `.create-flowy` class (for example, `<div class="create-flowy">Grab me</div>`)
+
+### Publish NPM Module
+
+This package is published by first converting to ES5 modules in a `dist` folder. The `package.json` is copied to the `dist` folder and published from there to allow importing modules from `flowy/engine` instead of `flowy/dist/engine`.
+
+```bash
+npm run dist && npm publish dist
+```
 
 ## Running Flowy
 

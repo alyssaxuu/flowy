@@ -8,12 +8,12 @@
   "main": "index.js",
   "source": "src/index.js",
   "scripts": {
-    "dist": "npm version patch && npm run build && cp package.json dist/",
-    "build": "babel src -d dist --verbose",
+    "dist": "npm version patch && npm run build",
+    "build": "rimraf dist && babel src -d dist && cp package.json dist/ && npm run build:web",
+    "build:web": "parcel build src/engine/index.css -o flowy -d dist && microbundle build -o dist -i src/engine -f umd",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
-    "lint": "standard --fix src/*.js",
-    "pretest": "npm run build"
+    "lint": "standard --fix src/*.js"
   },
   "repository": {
     "type": "git",
@@ -45,6 +45,9 @@
     "@babel/preset-env": "^7.5.5",
     "devolution": "^1.1.2",
     "jest": "^24.9.0",
+    "microbundle": "^0.11.0",
+    "parcel-bundler": "^1.12.4",
+    "rimraf": "^3.0.2",
     "standard": "^14.3.1"
   }
 }
