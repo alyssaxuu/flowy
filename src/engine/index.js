@@ -40,7 +40,7 @@ function flowy({
 
     flowy.import = blocksManager.import
     flowy.output = blocksManager.output
-    flowy.deleteBlocks = blocksManager.deleteAll
+    flowy.deleteBlocks = blocksManager.reset
 
     flowy.beginDrag = function(event) {
       const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event

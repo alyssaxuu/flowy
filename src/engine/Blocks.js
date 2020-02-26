@@ -94,7 +94,7 @@ class Blocks {
     return json
   }
 
-  deleteAll = () => {
+  reset = () => {
     this.html("<div class='indicator invisible'></div>")
     this.blocks.splice(0)
   }
