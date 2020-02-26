@@ -1,10 +1,30 @@
 {
   "presets": [
-    ["@babel/preset-env", {
-      "targets": {
-        "esmodules": true
-      },
-      "useBuiltIns": "entry"
-    }]
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "esmodules": true
+        },
+        "useBuiltIns": "entry"
+      }
+    ]
+  ],
+  "plugins": [
+    [
+      "@babel/plugin-proposal-class-properties",
+      {
+        "loose": true
+      }
+    ],
+    // "@babel/plugin-proposal-nullish-coalescing-operator",
+    "@babel/plugin-proposal-export-default-from",
+    "@babel/plugin-proposal-export-namespace-from",
+    "@babel/plugin-proposal-logical-assignment-operators",
+    // "@babel/plugin-proposal-optional-chaining",
+    "@babel/plugin-proposal-partial-application",
+    "@babel/plugin-proposal-throw-expressions",
+    // "@babel/plugin-transform-block-scoping",
+    "babel-plugin-transform-imports"
   ]
 }
