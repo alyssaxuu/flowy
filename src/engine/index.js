@@ -1,15 +1,15 @@
 import Blocks from './Blocks'
+import Dragger from './Dragger'
 
-function shim(canvas, grab, release, snapping, spacing_x, spacing_y) {
+function shim(canvas, drag, release, snapping, spacing_x, spacing_y) {
   return flowy({
     window: window,
     document: document,
-    blocksManager: new Blocks({ canvas, document }),
-    grab,
-    release,
-    snapping,
-    spacing_x,
-    spacing_y
+    blocksManager: new Blocks({ canvas, spacingX: spacing_x, spacingY: spacing_y, document }),
+    dragManager: new Dragger(),
+    onBlockGrabbed: drag,
+    onBlockReleased: release,
+    onBlockSnapped: snapping
   })
 }
 
@@ -17,81 +17,58 @@ function flowy({
   window,
   document,
   blocksManager,
-  grab = void 0,
-  release = void 0,
-  snapping = void 0,
-  spacing_x = 20,
-  spacing_y = 80
+  dragManager,
+  onBlockGrabbed = void 0,
+  onBlockReleased = void 0,
+  onBlockSnapped = void 0
 }) {
-  var loaded = false
-
   flowy.load = function() {
-    if (loaded) {
+    if (blocksManager.isInitialized) {
       return
     }
 
-    loaded = true
-
     var blocks = blocksManager.blocks
     var blockstemp = []
-    var canvas_div = blocksManager.canvas
-    var active = false
-    var paddingx = spacing_x
-    var paddingy = spacing_y
-    var offsetleft = 0
-    var offsetleftold = 0
-    var rearrange = false
-    var lastevent = false
-    var drag, dragx, dragy, original
-    var mouse_x, mouse_y
-    var dragblock = false
+    const paddingX = blocksManager.spacingX
+    const paddingY = blocksManager.spacingY
 
     blocksManager.initialize()
+    dragManager.setState({
+      currentOffsetLeft: 0,
+      previousOffsetLeft: 0
+    })
 
     flowy.import = blocksManager.import
     flowy.output = blocksManager.output
     flowy.deleteBlocks = blocksManager.deleteAll
 
     flowy.beginDrag = function(event) {
-      if (event.targetTouches) {
-        mouse_x = event.changedTouches[0].clientX
-        mouse_y = event.changedTouches[0].clientY
-      } else {
-        mouse_x = event.clientX
-        mouse_y = event.clientY
-      }
+      const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event
 
-      if (event.which === 3 || !event.target.closest('.create-flowy')) {
+      dragManager.setState({
+        mouseX: clientX,
+        mouseY: clientY
+      })
+
+      const { target, which } = event
+      const grabbedElement = target.closest('.create-flowy')
+
+      if (which === 3 || !grabbedElement) {
         return
       }
 
-      original = event.target.closest('.create-flowy')
-      var newNode = event.target.closest('.create-flowy').cloneNode(true)
-      event.target.closest('.create-flowy').classList.add('dragnow')
-      newNode.classList.add('block')
-      newNode.classList.remove('create-flowy')
+      const draggedElement = dragManager.createDragger(grabbedElement, blocksManager)
+      dragManager.toggleDragging(true)
 
-      if (blocks.length === 0) {
-        newNode.innerHTML += `<input type='hidden' name='blockid' class='blockid' value='${blocks.length}'>`
-        document.body.appendChild(newNode)
-        drag = document.querySelector(`.blockid[value='${blocks.length}']`).parentNode
-      } else {
-        newNode.innerHTML += `<input type='hidden' name='blockid' class='blockid' value='${Math.max(
-          ...blocks.map(({ id }) => id)
-        ) + 1}'>`
-        document.body.appendChild(newNode)
-        drag = document.querySelector(`.blockid[value='${parseInt(Math.max(...blocks.map(({ id }) => id))) + 1}']`)
-          .parentNode
-      }
+      onBlockGrabbed(grabbedElement)
 
-      blockGrabbed(event.target.closest('.create-flowy'))
+      const { dragX, dragY } = dragManager.setState({
+        dragX: clientX - grabbedElement.offsetLeft,
+        dragY: clientY - grabbedElement.offsetTop
+      })
 
-      drag.classList.add('dragging')
-      active = true
-      dragx = mouse_x - event.target.closest('.create-flowy').offsetLeft
-      dragy = mouse_y - event.target.closest('.create-flowy').offsetTop
-      drag.style.left = `${mouse_x - dragx}px`
-      drag.style.top = `${mouse_y - dragy}px`
+      draggedElement.style.left = `${clientX - dragX}px`
+      draggedElement.style.top = `${clientY - dragY}px`
     }
 
     document.addEventListener('mousedown', touchblock, false)
@@ -99,33 +76,35 @@ function flowy({
     document.addEventListener('mouseup', touchblock, false)
 
     flowy.touchDone = () => {
-      dragblock = false
+      dragManager.toggleDraggingBlock(false)
     }
 
     document.addEventListener('mousedown', flowy.beginDrag)
     document.addEventListener('touchstart', flowy.beginDrag)
 
     flowy.endDrag = function(event) {
-      if (event.which === 3 || !(active || rearrange)) {
+      if (event.which === 3 || !(dragManager.isDragging || dragManager.isRearranging)) {
         return
       }
+      console.log('endDrag')
+      dragManager.toggleDraggingBlock(false)
 
-      dragblock = false
-
-      blockReleased()
+      onBlockReleased()
 
       if (!document.querySelector('.indicator').classList.contains('invisible')) {
         document.querySelector('.indicator').classList.add('invisible')
       }
 
-      if (active) {
-        original.classList.remove('dragnow')
+      const drag = dragManager.draggedElement
+
+      if (dragManager.isDragging) {
+        dragManager.grabbedElement.classList.remove('dragnow')
         drag.classList.remove('dragging')
       }
 
-      if (parseInt(drag.querySelector('.blockid').value) === 0 && rearrange) {
+      if (parseInt(drag.querySelector('.blockid').value) === 0 && dragManager.isRearranging) {
         drag.classList.remove('dragging')
-        rearrange = false
+        dragManager.toggleRearrange(false)
 
         for (var w = 0; w < blockstemp.length; w++) {
           if (blockstemp[w].id != parseInt(drag.querySelector('.blockid').value)) {
@@ -135,35 +114,35 @@ function flowy({
             blockParent.style.left =
               blockParent.getBoundingClientRect().left +
               window.scrollX -
-              (canvas_div.getBoundingClientRect().left + window.scrollX) +
-              canvas_div.scrollLeft
+              (blocksManager.position().left + window.scrollX) +
+              blocksManager.position().scrollLeft
             blockParent.style.top =
               blockParent.getBoundingClientRect().top +
               window.scrollY -
-              (canvas_div.getBoundingClientRect().top + window.scrollY) +
-              canvas_div.scrollTop
+              (blocksManager.position().top + window.scrollY) +
+              blocksManager.position().scrollTop
             arrowParent.style.left =
               arrowParent.getBoundingClientRect().left +
               window.scrollX -
-              (canvas_div.getBoundingClientRect().left + window.scrollX) +
-              canvas_div.scrollLeft
+              (blocksManager.position().left + window.scrollX) +
+              blocksManager.position().scrollLeft
             arrowParent.style.top =
               arrowParent.getBoundingClientRect().top +
               window.scrollY -
-              (canvas_div.getBoundingClientRect().top + canvas_div.scrollTop) +
+              (blocksManager.position().top + blocksManager.position().scrollTop) +
               'px'
-            canvas_div.appendChild(blockParent)
-            canvas_div.appendChild(arrowParent)
+            blocksManager.appendChild(blockParent)
+            blocksManager.appendChild(arrowParent)
             blockstemp[w].x =
               blockParent.getBoundingClientRect().left +
               window.scrollX +
               parseInt(blockParent.offsetWidth) / 2 +
-              canvas_div.scrollLeft
+              blocksManager.position().scrollLeft
             blockstemp[w].y =
               blockParent.getBoundingClientRect().top +
               window.scrollY +
               parseInt(blockParent.offsetHeight) / 2 +
-              canvas_div.scrollTop
+              blocksManager.position().scrollTop
           }
         }
 
@@ -171,30 +150,30 @@ function flowy({
           drag.getBoundingClientRect().left + window.scrollX + parseInt(window.getComputedStyle(drag).width) / 2
         blockstemp.find(a => a.id == 0).y =
           drag.getBoundingClientRect().top + window.scrollY + parseInt(window.getComputedStyle(drag).height) / 2
-        blocks = blocks.concat(blockstemp)
+        blocksManager.appendBlocks(blockstemp)
         blockstemp = []
       } else if (
-        active &&
+        dragManager.isDragging &&
         blocks.length == 0 &&
-        drag.getBoundingClientRect().top + window.scrollY > canvas_div.getBoundingClientRect().top + window.scrollY &&
-        drag.getBoundingClientRect().left + window.scrollX > canvas_div.getBoundingClientRect().left + window.scrollX
+        drag.getBoundingClientRect().top + window.scrollY > blocksManager.position().top + window.scrollY &&
+        drag.getBoundingClientRect().left + window.scrollX > blocksManager.position().left + window.scrollX
       ) {
-        blockSnap(drag, true, undefined)
+        onBlockSnapped(drag, true, undefined)
 
-        active = false
+        dragManager.toggleDragging(false)
         drag.style.top =
           drag.getBoundingClientRect().top +
           window.scrollY -
-          (canvas_div.getBoundingClientRect().top + window.scrollY) +
-          canvas_div.scrollTop +
+          (blocksManager.position().top + window.scrollY) +
+          blocksManager.position().scrollTop +
           'px'
         drag.style.left =
           drag.getBoundingClientRect().left +
           window.scrollX -
-          (canvas_div.getBoundingClientRect().left + window.scrollX) +
-          canvas_div.scrollLeft +
+          (blocksManager.position().left + window.scrollX) +
+          blocksManager.position().scrollLeft +
           'px'
-        canvas_div.appendChild(drag)
+        blocksManager.appendChild(drag)
         blocks.push({
           parent: -1,
           childwidth: 0,
@@ -203,38 +182,38 @@ function flowy({
             drag.getBoundingClientRect().left +
             window.scrollX +
             parseInt(window.getComputedStyle(drag).width) / 2 +
-            canvas_div.scrollLeft,
+            blocksManager.position().scrollLeft,
           y:
             drag.getBoundingClientRect().top +
             window.scrollY +
             parseInt(window.getComputedStyle(drag).height) / 2 +
-            canvas_div.scrollTop,
+            blocksManager.position().scrollTop,
           width: parseInt(window.getComputedStyle(drag).width),
           height: parseInt(window.getComputedStyle(drag).height)
         })
-      } else if (active && blocks.length == 0) {
-        canvas_div.appendChild(document.querySelector('.indicator'))
+      } else if (dragManager.isDragging && blocks.length == 0) {
+        blocksManager.appendChild(document.querySelector('.indicator'))
         drag.parentNode.removeChild(drag)
-      } else if (active || rearrange) {
+      } else if (dragManager.isDragging || dragManager.isRearranging) {
         var xpos =
           drag.getBoundingClientRect().left +
           window.scrollX +
           parseInt(window.getComputedStyle(drag).width) / 2 +
-          canvas_div.scrollLeft
-        var ypos = drag.getBoundingClientRect().top + window.scrollY + canvas_div.scrollTop
+          blocksManager.position().scrollLeft
+        var ypos = drag.getBoundingClientRect().top + window.scrollY + blocksManager.position().scrollTop
         var blocko = blocks.map(a => a.id)
 
         for (var i = 0; i < blocks.length; i++) {
           if (
-            xpos >= blocks.find(a => a.id == blocko[i]).x - blocks.find(a => a.id == blocko[i]).width / 2 - paddingx &&
-            xpos <= blocks.find(a => a.id == blocko[i]).x + blocks.find(a => a.id == blocko[i]).width / 2 + paddingx &&
+            xpos >= blocks.find(a => a.id == blocko[i]).x - blocks.find(a => a.id == blocko[i]).width / 2 - paddingX &&
+            xpos <= blocks.find(a => a.id == blocko[i]).x + blocks.find(a => a.id == blocko[i]).width / 2 + paddingX &&
             ypos >= blocks.find(a => a.id == blocko[i]).y - blocks.find(a => a.id == blocko[i]).height / 2 &&
             ypos <= blocks.find(a => a.id == blocko[i]).y + blocks.find(a => a.id == blocko[i]).height
           ) {
-            active = false
+            dragManager.toggleDragging(false)
             if (
-              rearrange ||
-              blockSnap(
+              dragManager.isRearranging ||
+              onBlockSnapped(
                 drag,
                 false,
                 blocks.find(id => id.id == blocko[i])
@@ -244,12 +223,12 @@ function flowy({
             }
             break
           } else if (i == blocks.length - 1) {
-            if (rearrange) {
-              rearrange = false
+            if (dragManager.isRearranging) {
+              dragManager.toggleRearrange(false)
               blockstemp = []
             }
-            active = false
-            canvas_div.appendChild(document.querySelector('.indicator'))
+            dragManager.toggleDragging(false)
+            blocksManager.appendChild(document.querySelector('.indicator'))
             drag.parentNode.removeChild(drag)
           }
         }
@@ -260,8 +239,8 @@ function flowy({
     document.addEventListener('touchend', flowy.endDrag, false)
 
     function snap(drag, i, blocko) {
-      if (!rearrange) {
-        canvas_div.appendChild(drag)
+      if (!dragManager.isRearranging) {
+        blocksManager.appendChild(drag)
       }
 
       var totalwidth = 0
@@ -270,7 +249,7 @@ function flowy({
 
       for (var w = 0; w < blocks.filter(id => id.parent == blocko[i]).length; w++) {
         var children = blocks.filter(id => id.parent == blocko[i])[w]
-        totalwidth += Math.max(children.childwidth, children.width) + paddingx
+        totalwidth += Math.max(children.childwidth, children.width) + paddingX
       }
 
       totalwidth += parseInt(window.getComputedStyle(drag).width)
@@ -288,12 +267,12 @@ function flowy({
             'px'
           children.x =
             blocks.find(id => id.parent == blocko[i]).x - totalwidth / 2 + totalremove + children.childwidth / 2
-          totalremove += children.childwidth + paddingx
+          totalremove += children.childwidth + paddingX
         } else {
           document.querySelector(`.blockid[value='${children.id}']`).parentNode.style.left =
             blocks.find(a => a.id == blocko[i]).x - totalwidth / 2 + totalremove + 'px'
           children.x = blocks.find(id => id.parent == blocko[i]).x - totalwidth / 2 + totalremove + children.width / 2
-          totalremove += children.width + paddingx
+          totalremove += children.width + paddingX
         }
       }
 
@@ -301,28 +280,28 @@ function flowy({
         blocks.find(id => id.id == blocko[i]).x -
         totalwidth / 2 +
         totalremove -
-        (canvas_div.getBoundingClientRect().left + window.scrollX) +
-        canvas_div.scrollLeft +
+        (blocksManager.position().left + window.scrollX) +
+        blocksManager.position().scrollLeft +
         'px'
       drag.style.top =
         blocks.find(id => id.id == blocko[i]).y +
         blocks.find(id => id.id == blocko[i]).height / 2 +
-        paddingy -
-        (canvas_div.getBoundingClientRect().top + window.scrollY) +
+        paddingY -
+        (blocksManager.position().top + window.scrollY) +
         'px'
 
-      if (rearrange) {
+      if (dragManager.isRearranging) {
         blockstemp.find(a => a.id == parseInt(drag.querySelector('.blockid').value)).x =
           drag.getBoundingClientRect().left +
           window.scrollX +
           parseInt(window.getComputedStyle(drag).width) / 2 +
-          canvas_div.scrollLeft +
-          canvas_div.scrollLeft
+          blocksManager.position().scrollLeft +
+          blocksManager.position().scrollLeft
         blockstemp.find(a => a.id == parseInt(drag.querySelector('.blockid').value)).y =
           drag.getBoundingClientRect().top +
           window.scrollY +
           parseInt(window.getComputedStyle(drag).height) / 2 +
-          canvas_div.scrollTop
+          blocksManager.position().scrollTop
         blockstemp.find(a => a.id == drag.querySelector('.blockid').value).parent = blocko[i]
 
         for (var w = 0; w < blockstemp.length; w++) {
@@ -336,40 +315,40 @@ function flowy({
           blockParent.style.left =
             blockParent.getBoundingClientRect().left +
             window.scrollX -
-            (canvas_div.getBoundingClientRect().left + window.scrollX) +
-            canvas_div.scrollLeft
+            (blocksManager.position().left + window.scrollX) +
+            blocksManager.position().scrollLeft
           blockParent.style.top =
             blockParent.getBoundingClientRect().top +
             window.scrollY -
-            (canvas_div.getBoundingClientRect().top + window.scrollY) +
-            canvas_div.scrollTop
+            (blocksManager.position().top + window.scrollY) +
+            blocksManager.position().scrollTop
           arrowParent.style.left =
             arrowParent.getBoundingClientRect().left +
             window.scrollX -
-            (canvas_div.getBoundingClientRect().left + window.scrollX) +
-            canvas_div.scrollLeft +
+            (blocksManager.position().left + window.scrollX) +
+            blocksManager.position().scrollLeft +
             20
           arrowParent.style.top =
             arrowParent.getBoundingClientRect().top +
             window.scrollY -
-            (canvas_div.getBoundingClientRect().top + window.scrollY) +
-            canvas_div.scrollTop
-          canvas_div.appendChild(blockParent)
-          canvas_div.appendChild(arrowParent)
+            (blocksManager.position().top + window.scrollY) +
+            blocksManager.position().scrollTop
+          blocksManager.appendChild(blockParent)
+          blocksManager.appendChild(arrowParent)
 
           blockstemp[w].x =
             blockParent.getBoundingClientRect().left +
             window.scrollX +
             parseInt(window.getComputedStyle(blockParent).width) / 2 +
-            canvas_div.scrollLeft
+            blocksManager.position().scrollLeft
           blockstemp[w].y =
             blockParent.getBoundingClientRect().top +
             window.scrollY +
             parseInt(window.getComputedStyle(blockParent).height) / 2 +
-            canvas_div.scrollTop
+            blocksManager.position().scrollTop
         }
 
-        blocks = blocks.concat(blockstemp)
+        blocksManager.appendBlocks(blockstemp)
         blockstemp = []
       } else {
         blocks.push({
@@ -380,12 +359,12 @@ function flowy({
             drag.getBoundingClientRect().left +
             window.scrollX +
             parseInt(window.getComputedStyle(drag).width) / 2 +
-            canvas_div.scrollLeft,
+            blocksManager.position().scrollLeft,
           y:
             drag.getBoundingClientRect().top +
             window.scrollY +
             parseInt(window.getComputedStyle(drag).height) / 2 +
-            canvas_div.scrollTop,
+            blocksManager.position().scrollTop,
           width: parseInt(window.getComputedStyle(drag).width),
           height: parseInt(window.getComputedStyle(drag).height)
         })
@@ -397,40 +376,40 @@ function flowy({
         arrowhelp.y -
           arrowhelp.height / 2 -
           (blocks.find(id => id.parent == blocko[i]).y + blocks.find(id => id.parent == blocko[i]).height / 2) +
-          canvas_div.scrollTop
+          blocksManager.position().scrollTop
       )
 
       if (arrowx < 0) {
-        canvas_div.innerHTML += `
+        blocksManager.appendHtml(`
           <div class="arrowblock">
             <input type="hidden" class="arrowid" value="${drag.querySelector('.blockid').value}">
             <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="
                 M${blocks.find(a => a.id == blocko[i]).x - arrowhelp.x + 5}
                 0L${blocks.find(a => a.id == blocko[i]).x - arrowhelp.x + 5}
-                ${paddingy / 2}L5
-                ${paddingy / 2}L5
+                ${paddingY / 2}L5
+                ${paddingY / 2}L5
                 ${arrowy}" stroke="#C5CCD0" stroke-width="2px"/>
               <path d="M0 ${arrowy - 5}H10L5
                 ${arrowy}L0
                 ${arrowy - 5}Z" fill="#C5CCD0"/>
             </svg>
           </div>
-        `
+        `)
         document.querySelector(
           `.arrowid[value="${drag.querySelector('.blockid').value}"]`
         ).parentNode.style.left = `${arrowhelp.x -
           5 -
-          (canvas_div.getBoundingClientRect().left + window.scrollX) +
-          canvas_div.scrollLeft}px`
+          (blocksManager.position().left + window.scrollX) +
+          blocksManager.position().scrollLeft}px`
       } else {
-        canvas_div.innerHTML += `
+        blocksManager.appendHtml(`
           <div class="arrowblock">
             <input type="hidden" class="arrowid" value="${drag.querySelector('.blockid').value}">
             <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M20 0L20
-                ${paddingy / 2}L${arrowx}
-                ${paddingy / 2}L${arrowx}
+                ${paddingY / 2}L${arrowx}
+                ${paddingY / 2}L${arrowx}
                 ${arrowy}" stroke="#C5CCD0" stroke-width="2px"/>
               <path d="M${arrowx - 5}
                 ${arrowy - 5}H${arrowx + 5}L${arrowx}
@@ -438,13 +417,13 @@ function flowy({
                 ${arrowy - 5}Z" fill="#C5CCD0"/>
             </svg>
           </div>
-        `
+        `)
         document.querySelector(
           `.arrowid[value="${parseInt(drag.querySelector('.blockid').value)}"]`
         ).parentNode.style.left = `${blocks.find(a => a.id == blocko[i]).x -
           20 -
-          (canvas_div.getBoundingClientRect().left + window.scrollX) +
-          canvas_div.scrollLeft}px`
+          (blocksManager.position().left + window.scrollX) +
+          blocksManager.position().scrollLeft}px`
       }
       document.querySelector(
         `.arrowid[value="${parseInt(drag.querySelector('.blockid').value)}"]`
@@ -467,7 +446,7 @@ function flowy({
               zwidth += Math.max(children.childwidth, children.width)
 
               if (w !== blocks.filter(id => id.parent == idval).length - 1) {
-                zwidth += paddingx
+                zwidth += paddingX
               }
             }
 
@@ -479,8 +458,8 @@ function flowy({
         blocks.find(id => id.id == idval).childwidth = totalwidth
       }
 
-      if (rearrange) {
-        rearrange = false
+      if (dragManager.isRearranging) {
+        dragManager.toggleRearrange(false)
         drag.classList.remove('dragging')
       }
 
@@ -489,7 +468,7 @@ function flowy({
     }
 
     function touchblock(event) {
-      dragblock = false
+      dragManager.toggleDraggingBlock(false)
 
       if (!hasParentClass(event.target, 'block')) {
         return
@@ -497,25 +476,28 @@ function flowy({
 
       var theblock = event.target.closest('.block')
 
-      if (event.targetTouches) {
-        mouse_x = event.targetTouches[0].clientX
-        mouse_y = event.targetTouches[0].clientY
-      } else {
-        mouse_x = event.clientX
-        mouse_y = event.clientY
-      }
+      const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event
+
+      dragManager.setState({
+        mouseX: clientX,
+        mouseY: clientY
+      })
 
       if (
         event.type !== 'mouseup' &&
         hasParentClass(event.target, 'block') &&
         event.which != 3 &&
-        !active &&
-        !rearrange
+        !dragManager.isDragging &&
+        !dragManager.isRearranging
       ) {
-        dragblock = true
-        drag = theblock
-        dragx = mouse_x - (drag.getBoundingClientRect().left + window.scrollX)
-        dragy = mouse_y - (drag.getBoundingClientRect().top + window.scrollY)
+        dragManager.toggleDraggingBlock(true)
+        // TODO: Set this through a lifecycle method
+        dragManager.draggedElement = theblock
+
+        dragManager.setState({
+          dragX: clientX - (theblock.getBoundingClientRect().left + window.scrollX),
+          dragY: clientY - (theblock.getBoundingClientRect().top + window.scrollY)
+        })
       }
     }
 
@@ -528,22 +510,21 @@ function flowy({
     }
 
     flowy.moveBlock = function(event) {
-      if (event.targetTouches) {
-        mouse_x = event.targetTouches[0].clientX
-        mouse_y = event.targetTouches[0].clientY
-      } else {
-        mouse_x = event.clientX
-        mouse_y = event.clientY
-      }
+      const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event
 
-      if (dragblock) {
-        rearrange = true
+      dragManager.setState({
+        mouseX: clientX,
+        mouseY: clientY
+      })
+
+      const drag = dragManager.draggedElement
+
+      if (dragManager.isDraggingBlock) {
+        dragManager.toggleRearrange(true)
         drag.classList.add('dragging')
         var blockid = parseInt(drag.querySelector('.blockid').value)
         blockstemp.push(blocks.find(a => a.id == blockid))
-        blocks = blocks.filter(function(e) {
-          return e.id != blockid
-        })
+        blocksManager.replaceBlocks(blocks.filter(({ id }) => id != blockid))
 
         if (blockid != 0) {
           document.querySelector(`.arrowid[value='${blockid}']`).parentNode.remove()
@@ -593,54 +574,52 @@ function flowy({
 
         for (var i = 0; i < blocks.filter(a => a.parent == blockid).length; i++) {
           var blocknumber = blocks.filter(a => a.parent == blockid)[i]
-          blocks = blocks.filter(function(e) {
-            return e.id != blocknumber
-          })
+          blocksManager.replaceBlocks(blocks.filter(({ id }) => id != blocknumber))
         }
 
         for (var i = 0; i < allids.length; i++) {
           var blocknumber = allids[i]
-          blocks = blocks.filter(function(e) {
-            return e.id != blocknumber
-          })
+          blocksManager.replaceBlocks(blocks.filter(({ id }) => id != blocknumber))
         }
 
         if (blocks.length > 1) {
           rearrangeMe()
         }
 
-        if (lastevent) {
+        if (dragManager.isLastEvent) {
           fixOffset()
         }
 
-        dragblock = false
+        dragManager.toggleDraggingBlock(false)
       }
 
-      if (active) {
-        drag.style.left = mouse_x - dragx + 'px'
-        drag.style.top = mouse_y - dragy + 'px'
-      } else if (rearrange) {
-        drag.style.left = `${mouse_x -
-          dragx -
-          (canvas_div.getBoundingClientRect().left + window.scrollX) +
-          canvas_div.scrollLeft}px`
-        drag.style.top = `${mouse_y -
-          dragy -
-          (canvas_div.getBoundingClientRect().top + window.scrollY) +
-          canvas_div.scrollTop}px`
+      const { dragX, dragY } = dragManager.state
+
+      if (dragManager.isDragging) {
+        drag.style.left = clientX - dragX + 'px'
+        drag.style.top = clientY - dragY + 'px'
+      } else if (dragManager.isRearranging) {
+        drag.style.left = `${clientX -
+          dragX -
+          (blocksManager.position().left + window.scrollX) +
+          blocksManager.position().scrollLeft}px`
+        drag.style.top = `${clientY -
+          dragY -
+          (blocksManager.position().top + window.scrollY) +
+          blocksManager.position().scrollTop}px`
         blockstemp.filter(a => a.id == parseInt(drag.querySelector('.blockid').value)).x =
           drag.getBoundingClientRect().left +
           window.scrollX +
           parseInt(window.getComputedStyle(drag).width) / 2 +
-          canvas_div.scrollLeft
+          blocksManager.position().scrollLeft
         blockstemp.filter(a => a.id == parseInt(drag.querySelector('.blockid').value)).y =
           drag.getBoundingClientRect().left +
           window.scrollX +
           parseInt(window.getComputedStyle(drag).height) / 2 +
-          canvas_div.scrollTop
+          blocksManager.position().scrollTop
       }
 
-      if (!active && !rearrange) {
+      if (!dragManager.isDragging && !dragManager.isRearranging) {
         return
       }
 
@@ -648,14 +627,14 @@ function flowy({
         drag.getBoundingClientRect().left +
         window.scrollX +
         parseInt(window.getComputedStyle(drag).width) / 2 +
-        canvas_div.scrollLeft
-      var ypos = drag.getBoundingClientRect().top + window.scrollY + canvas_div.scrollTop
+        blocksManager.position().scrollLeft
+      var ypos = drag.getBoundingClientRect().top + window.scrollY + blocksManager.position().scrollTop
       var blocko = blocks.map(a => a.id)
 
       for (var i = 0; i < blocks.length; i++) {
         if (
-          xpos >= blocks.find(a => a.id == blocko[i]).x - blocks.find(a => a.id == blocko[i]).width / 2 - paddingx &&
-          xpos <= blocks.find(a => a.id == blocko[i]).x + blocks.find(a => a.id == blocko[i]).width / 2 + paddingx &&
+          xpos >= blocks.find(a => a.id == blocko[i]).x - blocks.find(a => a.id == blocko[i]).width / 2 - paddingX &&
+          xpos <= blocks.find(a => a.id == blocko[i]).x + blocks.find(a => a.id == blocko[i]).width / 2 + paddingX &&
           ypos >= blocks.find(a => a.id == blocko[i]).y - blocks.find(a => a.id == blocko[i]).height / 2 &&
           ypos <= blocks.find(a => a.id == blocko[i]).y + blocks.find(a => a.id == blocko[i]).height
         ) {
@@ -684,20 +663,21 @@ function flowy({
     document.addEventListener('touchmove', flowy.moveBlock, false)
 
     function checkOffset() {
-      offsetleft = blocks.map(a => a.x)
       var widths = blocks.map(a => a.width)
-      var mathmin = offsetleft.map(function(item, index) {
-        return item - widths[index] / 2
-      })
-      offsetleft = Math.min.apply(Math, mathmin)
+      const currentOffsetLeft = Math.min(...blocks.map(({ x }, index) => x - widths[index] / 2))
 
-      if (offsetleft < canvas_div.getBoundingClientRect().left + window.scrollX) {
-        lastevent = true
+      dragManager.setState({ currentOffsetLeft })
+
+      if (currentOffsetLeft < blocksManager.position().left + window.scrollX) {
+        dragManager.toggleLastEvent(true)
         var blocko = blocks.map(a => a.id)
 
         for (var w = 0; w < blocks.length; w++) {
           document.querySelector(`.blockid[value='${blocks.find(a => a.id == blocko[w]).id}']`).parentNode.style.left =
-            blocks.find(a => a.id == blocko[w]).x - blocks.find(a => a.id == blocko[w]).width / 2 - offsetleft + 20
+            blocks.find(a => a.id == blocko[w]).x -
+            blocks.find(a => a.id == blocko[w]).width / 2 -
+            currentOffsetLeft +
+            20
 
           if (blocks.find(a => a.id == blocko[w]).parent != -1) {
             var arrowhelp = blocks.find(a => a.id == blocko[w])
@@ -705,8 +685,11 @@ function flowy({
 
             document.querySelector(`.arrowid[value="${blocko[w]}"]`).parentNode.style.left =
               arrowx < 0
-                ? `${arrowhelp.x - offsetleft + 20 - 5}px`
-                : `${blocks.find(id => id.id == blocks.find(a => a.id == blocko[w]).parent).x - 20 - offsetleft + 20}px`
+                ? `${arrowhelp.x - currentOffsetLeft + 20 - 5}px`
+                : `${blocks.find(id => id.id == blocks.find(a => a.id == blocko[w]).parent).x -
+                    20 -
+                    currentOffsetLeft +
+                    20}px`
           }
         }
 
@@ -714,28 +697,34 @@ function flowy({
           blocks[w].x =
             document.querySelector(`.blockid[value='${blocks[w].id}']`).parentNode.getBoundingClientRect().left +
             window.scrollX +
-            (canvas_div.getBoundingClientRect().left + canvas_div.scrollLeft) -
+            (blocksManager.position().left + blocksManager.position().scrollLeft) -
             parseInt(
               window.getComputedStyle(document.querySelector(`.blockid[value='${blocks[w].id}']`).parentNode).width
             ) /
               2 -
             40
         }
-        offsetleftold = offsetleft
+
+        dragManager.setState({ previousOffsetLeft: currentOffsetLeft })
       }
     }
 
     function fixOffset() {
-      if (offsetleftold >= canvas_div.getBoundingClientRect().left + window.scrollX) {
+      const { previousOffsetLeft } = dragManager.state
+
+      if (previousOffsetLeft >= blocksManager.position().left + window.scrollX) {
         return
       }
 
-      lastevent = false
+      dragManager.toggleLastEvent(false)
       var blocko = blocks.map(a => a.id)
 
       for (var w = 0; w < blocks.length; w++) {
         document.querySelector(`.blockid[value='${blocks.find(a => a.id == blocko[w]).id}']`).parentNode.style.left =
-          blocks.find(a => a.id == blocko[w]).x - blocks.find(a => a.id == blocko[w]).width / 2 - offsetleftold - 20
+          blocks.find(a => a.id == blocko[w]).x -
+          blocks.find(a => a.id == blocko[w]).width / 2 -
+          previousOffsetLeft -
+          20
         blocks.find(a => a.id == blocko[w]).x =
           document
             .querySelector(`.blockid[value='${blocks.find(a => a.id == blocko[w]).id}']`)
@@ -749,15 +738,15 @@ function flowy({
 
           document.querySelector(`.arrowid[value="${blocko[w]}"]`).parentNode.style.left =
             arrowx < 0
-              ? `${arrowhelp.x - 5 - (canvas_div.getBoundingClientRect().left + window.scrollX)}px`
+              ? `${arrowhelp.x - 5 - (blocksManager.position().left + window.scrollX)}px`
               : blocks.find(id => id.id == blocks.find(a => a.id == blocko[w]).parent).x -
                 20 -
-                (canvas_div.getBoundingClientRect().left + window.scrollX) +
+                (blocksManager.position().left + window.scrollX) +
                 'px'
         }
       }
 
-      offsetleftold = 0
+      dragManager.setState({ previousOffsetLeft: 0 })
     }
 
     function rearrangeMe() {
@@ -782,7 +771,7 @@ function flowy({
           totalwidth += Math.max(children.childwidth, children.width)
 
           if (w !== blocks.filter(id => id.parent == result[z]).length - 1) {
-            totalwidth += paddingx
+            totalwidth += paddingX
           }
         }
 
@@ -794,8 +783,8 @@ function flowy({
           var children = blocks.filter(id => id.parent == result[z])[w]
           const r_block = document.querySelector(`.blockid[value='${children.id}']`).parentNode
           const r_array = blocks.filter(id => id.id == result[z])
-          r_block.style.top = `${r_array.y + paddingy}px`
-          r_array.y = r_array.y + paddingy
+          r_block.style.top = `${r_array.y + paddingY}px`
+          r_array.y = r_array.y + paddingY
 
           if (children.childwidth > children.width) {
             r_block.style.left =
@@ -804,19 +793,15 @@ function flowy({
               totalremove +
               children.childwidth / 2 -
               children.width / 2 -
-              (canvas_div.getBoundingClientRect().left + window.scrollX) +
+              (blocksManager.position().left + window.scrollX) +
               'px'
             children.x = r_array[0].x - totalwidth / 2 + totalremove + children.childwidth / 2
-            totalremove += children.childwidth + paddingx
+            totalremove += children.childwidth + paddingX
           } else {
             r_block.style.left =
-              r_array[0].x -
-              totalwidth / 2 +
-              totalremove -
-              (canvas_div.getBoundingClientRect().left + window.scrollX) +
-              'px'
+              r_array[0].x - totalwidth / 2 + totalremove - (blocksManager.position().left + window.scrollX) + 'px'
             children.x = r_array[0].x - totalwidth / 2 + totalremove + children.width / 2
-            totalremove += children.width + paddingx
+            totalremove += children.width + paddingX
           }
 
           var arrowhelp = blocks.find(a => a.id == children.id)
@@ -828,18 +813,18 @@ function flowy({
           document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.style.top =
             blocks.find(id => id.id == children.parent).y +
             blocks.find(id => id.id == children.parent).height / 2 -
-            (canvas_div.getBoundingClientRect().top + window.scrollY) +
+            (blocksManager.position().top + window.scrollY) +
             'px'
 
           if (arrowx < 0) {
             document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.style.left =
-              arrowhelp.x - 5 - (canvas_div.getBoundingClientRect().left + window.scrollX) + 'px'
+              arrowhelp.x - 5 - (blocksManager.position().left + window.scrollX) + 'px'
             document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.innerHTML = `
               <input type="hidden" class="arrowid" value="${children.id}">
               <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M${blocks.find(id => id.id == children.parent).x - arrowhelp.x + 5}
-                  0L${blocks.find(id => id.id == children.parent).x - arrowhelp.x + 5} ${paddingy / 2}L5
-                  ${paddingy / 2}L5
+                  0L${blocks.find(id => id.id == children.parent).x - arrowhelp.x + 5} ${paddingY / 2}L5
+                  ${paddingY / 2}L5
                   ${arrowy}" stroke="#C5CCD0" stroke-width="2px"/>
                 <path d="M0
                   ${arrowy - 5}H10L5
@@ -851,14 +836,14 @@ function flowy({
             document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.style.left =
               blocks.find(id => id.id == children.parent).x -
               20 -
-              (canvas_div.getBoundingClientRect().left + window.scrollX) +
+              (blocksManager.position().left + window.scrollX) +
               'px'
             document.querySelector(`.arrowid[value="${children.id}"]`).parentNode.innerHTML = `
               <input type="hidden" class="arrowid" value="${children.id}">
               <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 0L20
-                  ${paddingy / 2}L${arrowx}
-                  ${paddingy / 2}L${arrowx}
+                  ${paddingY / 2}L${arrowx}
+                  ${paddingY / 2}L${arrowx}
                   ${arrowy}" stroke="#C5CCD0" stroke-width="2px"/>
                 <path d="M${arrowx - 5}
                   ${arrowy - 5}H${arrowx + 5}L${arrowx}
@@ -873,18 +858,6 @@ function flowy({
   }
 
   flowy.load()
-
-  function blockGrabbed(block) {
-    grab(block)
-  }
-
-  function blockReleased() {
-    release()
-  }
-
-  function blockSnap(drag, first, parent) {
-    return snapping(drag, first, parent)
-  }
 
   function addEventListenerMulti(type, listener, capture, selector) {
     var nodes = document.querySelectorAll(selector)

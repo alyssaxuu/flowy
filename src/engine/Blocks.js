@@ -1,13 +1,20 @@
 class Blocks {
-  constructor({ document, canvas }) {
+  constructor({ document, canvas, spacingX = 20, spacingY = 80 }) {
     this.document = document
     this.canvas = canvas
+    this.spacingX = spacingX
+    this.spacingY = spacingY
+
     this.blocks = []
-    this.initialized = false
+    this.isInitialized = false
+    this.isDragging = false
+    this.isDraggingBlock = false
+    this.isRearranging = false
+    this.isLastEvent = false
   }
 
   initialize = () => {
-    if (this.initialized) {
+    if (this.isInitialized) {
       return
     }
 
@@ -19,6 +26,13 @@ class Blocks {
     this.canvas.appendChild(el)
   }
 
+  position = () => {
+    return Object.assign(this.canvas.getBoundingClientRect(), {
+      scrollTop: this.canvas.scrollTop,
+      scrollLeft: this.canvas.scrollLeft
+    })
+  }
+
   html = html => {
     if (html !== undefined) {
       this.canvas.innerHtml = html
@@ -26,12 +40,20 @@ class Blocks {
     return this.canvas.innerHtml
   }
 
+  appendHtml = html => (this.canvas.innerHTML += html)
+
+  appendChild = child => this.canvas.appendChild(child)
+
   import = output => {
     const { html, blockarr } = output
 
     this.html(JSON.parse(html))
-    this.blocks.splice(0, this.blocks.length, ...blockarr)
+    this.replaceBlocks(blockarr)
   }
+
+  replaceBlocks = blocks => this.blocks.splice(0, this.blocks.length, ...blocks)
+
+  appendBlocks = blocks => this.blocks.push(...blocks)
 
   output = () => {
     const { blocks } = this
@@ -72,9 +94,25 @@ class Blocks {
     return json
   }
 
-  deleteAll = function() {
+  deleteAll = () => {
     this.html("<div class='indicator invisible'></div>")
     this.blocks.splice(0)
+  }
+
+  toggleDragging = dragging => {
+    this.isDragging = dragging
+  }
+
+  toggleDraggingBlock = dragging => {
+    this.isDraggingBlock = dragging
+  }
+
+  toggleRearranging = rearranging => {
+    this.isRearranging = rearranging
+  }
+
+  toggleLastEvent = last => {
+    this.isLastEvent = last
   }
 }
 
