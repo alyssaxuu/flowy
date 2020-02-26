@@ -64,6 +64,12 @@ npm run dist && npm publish dist
 
 ## Running Flowy
 
+### Demo
+
+There's a demo in [`src/demo`](./src/demo/). You can run the demo in your browser with `npm run demo`. This will open a browser window for you (or visit http://localhost:1234/).
+
+If you want to build the demo without running it in your browser, run `npm run build:demo` and the source will be output to the [`demo`](./demo/) folder.
+
 ### Initialization
 
 ```javascript

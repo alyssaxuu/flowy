@@ -10,7 +10,9 @@
   "scripts": {
     "dist": "npm version patch && npm run build",
     "build": "rimraf dist && babel src -d dist && cp package.json dist/ && npm run build:web",
-    "build:web": "parcel build src/engine/index.css -o flowy -d dist && microbundle build -o dist -i src/engine -f umd",
+    "build:web": "rimraf dist && parcel build src/engine/index.css -o flowy -d dist && microbundle build -o dist -i src/engine -f umd",
+    "build:demo": "rimraf demo && parcel build src/demo/index.html -d demo",
+    "demo": "rimraf demo && parcel serve src/demo/index.html -d demo --open",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "lint": "standard --fix src/*.js"
