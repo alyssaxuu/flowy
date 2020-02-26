@@ -1,21 +1,26 @@
-var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
-  if (!grab) {
-    grab = function() {}
-  }
-  if (!release) {
-    release = function() {}
-  }
-  if (!snapping) {
-    snapping = function() {
-      return true
-    }
-  }
-  if (!spacing_x) {
-    spacing_x = 20
-  }
-  if (!spacing_y) {
-    spacing_y = 80
-  }
+function shim(canvas, grab, release, snapping, spacing_x, spacing_y) {
+  return flowy({
+    window: window,
+    document: document,
+    canvas,
+    grab,
+    release,
+    snapping,
+    spacing_x,
+    spacing_y
+  })
+}
+
+function flowy({
+  window,
+  document,
+  canvas,
+  grab = void 0,
+  release = void 0,
+  snapping = void 0,
+  spacing_x = 20,
+  spacing_y = 80
+}) {
   var loaded = false
   flowy.load = function() {
     if (!loaded) loaded = true
@@ -1142,4 +1147,4 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
   }
 }
 
-export default flowy
+export default shim
