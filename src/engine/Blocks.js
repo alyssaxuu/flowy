@@ -71,6 +71,11 @@ class Blocks {
 
     return json
   }
+
+  deleteAll = function() {
+    this.html("<div class='indicator invisible'></div>")
+    this.blocks.splice(0)
+  }
 }
 
 export default Blocks

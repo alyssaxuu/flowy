@@ -50,11 +50,7 @@ function flowy({
 
     flowy.import = blocksManager.import
     flowy.output = blocksManager.output
-
-    flowy.deleteBlocks = function() {
-      blocks = []
-      canvas_div.innerHTML = "<div class='indicator invisible'></div>"
-    }
+    flowy.deleteBlocks = blocksManager.deleteAll
 
     flowy.beginDrag = function(event) {
       if (event.targetTouches) {
