@@ -1,8 +1,10 @@
+import Blocks from './Blocks'
+
 function shim(canvas, grab, release, snapping, spacing_x, spacing_y) {
   return flowy({
     window: window,
     document: document,
-    canvas,
+    blocksManager: new Blocks({ canvas, document }),
     grab,
     release,
     snapping,
@@ -14,7 +16,7 @@ function shim(canvas, grab, release, snapping, spacing_x, spacing_y) {
 function flowy({
   window,
   document,
-  canvas,
+  blocksManager,
   grab = void 0,
   release = void 0,
   snapping = void 0,
@@ -30,9 +32,9 @@ function flowy({
 
     loaded = true
 
-    var blocks = []
+    var blocks = blocksManager.blocks
     var blockstemp = []
-    var canvas_div = canvas
+    var canvas_div = blocksManager.canvas
     var active = false
     var paddingx = spacing_x
     var paddingy = spacing_y
@@ -43,47 +45,11 @@ function flowy({
     var drag, dragx, dragy, original
     var mouse_x, mouse_y
     var dragblock = false
-    var el = document.createElement('DIV')
-    el.classList.add('indicator')
-    el.classList.add('invisible')
-    canvas_div.appendChild(el)
-    flowy.import = function(output) {
-      canvas_div.innerHTML = JSON.parse(output.html)
-      blocks = output.blockarr
-    }
-    flowy.output = function() {
-      var html_ser = JSON.stringify(canvas_div.innerHTML)
-      var json_data = { html: html_ser, blockarr: blocks, blocks: [] }
 
-      if (blocks.length === 0) {
-        return
-      }
+    blocksManager.initialize()
 
-      for (var i = 0; i < blocks.length; i++) {
-        json_data.blocks.push({
-          id: blocks[i].id,
-          parent: blocks[i].parent,
-          data: [],
-          attr: []
-        })
-        var blockParent = document.querySelector(`.blockid[value='${blocks[i].id}']`).parentNode
-        blockParent.querySelectorAll('input').forEach(function(block) {
-          var json_name = block.getAttribute('name')
-          var json_value = block.value
-          json_data.blocks[i].data.push({
-            name: json_name,
-            value: json_value
-          })
-        })
-        Array.prototype.slice.call(blockParent.attributes).forEach(function(attribute) {
-          var jsonobj = {}
-          jsonobj[attribute.name] = attribute.value
-          json_data.blocks[i].attr.push(jsonobj)
-        })
-      }
-
-      return json_data
-    }
+    flowy.import = blocksManager.import
+    flowy.output = blocksManager.output
 
     flowy.deleteBlocks = function() {
       blocks = []
