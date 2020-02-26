@@ -86,7 +86,7 @@ function flowy({
       if (event.which === 3 || !(dragManager.isDragging || dragManager.isRearranging)) {
         return
       }
-      console.log('endDrag')
+
       dragManager.toggleDraggingBlock(false)
 
       onBlockReleased()
