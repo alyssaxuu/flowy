@@ -95,39 +95,43 @@ function flowy({
         dragManager.toggleDragger(false)
         dragManager.toggleRearranging(false)
 
-        for (var w = 0; w < blockstemp.length; w++) {
-          if (blockstemp[w].id != draggedBlock.id) {
-            const currentBlock = blocksManager.findBlock(blockstemp[w].id)
-            const currentArrow = currentBlock.arrow()
-
-            currentBlock.styles({
-              left:
-                currentBlock.position().left -
-                (blocksManager.position().left + window.scrollX) +
-                blocksManager.position().scrollLeft,
-              top:
-                currentBlock.position().top -
-                (blocksManager.position().top + window.scrollY) +
-                blocksManager.position().scrollTop
-            })
-
-            currentArrow.styles({
-              left:
-                currentArrow.position().left -
-                (blocksManager.position().left + window.scrollX) +
-                blocksManager.position().scrollLeft,
-              top:
-                currentArrow.position().top - (blocksManager.position().top + blocksManager.position().scrollTop) + 'px'
-            })
-
-            blocksManager.appendChild(currentBlock.element, currentArrow.element)
-
-            blockstemp[w].x =
-              currentBlock.position().left + currentBlock.element.offsetWidth / 2 + blocksManager.position().scrollLeft
-            blockstemp[w].y =
-              currentBlock.position().top + currentBlock.element.offsetHeight / 2 + blocksManager.position().scrollTop
+        blockstemp.forEach(block => {
+          if (block.id !== draggedBlock.id) {
+            return
           }
-        }
+
+          const currentBlock = blocksManager.findBlock(block.id)
+          const currentArrow = currentBlock.arrow()
+
+          currentBlock.styles({
+            left:
+              currentBlock.position().left -
+              (blocksManager.position().left + window.scrollX) +
+              blocksManager.position().scrollLeft,
+            top:
+              currentBlock.position().top -
+              (blocksManager.position().top + window.scrollY) +
+              blocksManager.position().scrollTop
+          })
+
+          currentArrow.styles({
+            left:
+              currentArrow.position().left -
+              (blocksManager.position().left + window.scrollX) +
+              blocksManager.position().scrollLeft,
+            top:
+              currentArrow.position().top - (blocksManager.position().top + blocksManager.position().scrollTop) + 'px'
+          })
+
+          blocksManager.appendChild(currentBlock.element, currentArrow.element)
+
+          block.x =
+            currentBlock.position().left + currentBlock.element.offsetWidth / 2 + blocksManager.position().scrollLeft
+          block.y =
+            currentBlock.position().top + currentBlock.element.offsetHeight / 2 + blocksManager.position().scrollTop
+        })
+
+        for (var w = 0; w < blockstemp.length; w++) {}
 
         blockstemp.find(a => a.id == 0).x = draggedBlock.position().left + draggedBlock.position().width / 2
         blockstemp.find(a => a.id == 0).y = draggedBlock.position().top + draggedBlock.position().height / 2
@@ -175,10 +179,10 @@ function flowy({
         var xpos =
           draggedBlock.position().left + draggedBlock.position().width / 2 + blocksManager.position().scrollLeft
         var ypos = draggedBlock.position().top + blocksManager.position().scrollTop
-        var blocko = blocks.map(a => a.id)
 
         for (var i = 0; i < blocks.length; i++) {
-          const { x, y, height, width } = blocks.find(a => a.id == blocko[i])
+          const block = blocks[i]
+          const { x, y, height, width } = block
 
           if (
             xpos >= x - width / 2 - paddingX &&
@@ -188,15 +192,8 @@ function flowy({
           ) {
             dragManager.toggleDragging(false)
 
-            if (
-              dragManager.isRearranging ||
-              onBlockSnapped(
-                draggedBlock.element,
-                false,
-                blocks.find(id => id.id == blocko[i])
-              )
-            ) {
-              snap(draggedBlock, i, blocko)
+            if (dragManager.isRearranging || onBlockSnapped(draggedBlock.element, false, block)) {
+              snap(draggedBlock, block)
             }
 
             break
@@ -217,7 +214,7 @@ function flowy({
     document.addEventListener('mouseup', flowy.endDrag, false)
     document.addEventListener('touchend', flowy.endDrag, false)
 
-    function snap(draggedBlock, i, blocko) {
+    function snap(draggedBlock, block) {
       if (!dragManager.isRearranging) {
         blocksManager.appendChild(draggedBlock.element)
       }
@@ -226,7 +223,7 @@ function flowy({
       var totalremove = 0
       var maxheight = 0
 
-      const snapBlocks = blocks.filter(({ parent }) => parent == blocko[i])
+      const snapBlocks = blocks.filter(({ parent }) => parent == block.id)
 
       for (var w = 0; w < snapBlocks.length; w++) {
         var { childwidth, width } = snapBlocks[w]
@@ -239,18 +236,18 @@ function flowy({
         const children = snapBlocks[w]
         const { id, childwidth, width } = children
         const currentBlock = blocksManager.findBlock(id)
-        const { x } = blocks.find(({ id }) => id == blocko[i])
+        const { x } = block
 
         if (childwidth > width) {
           currentBlock.styles({
             left: x - totalwidth / 2 + totalremove + childwidth / 2 - width / 2 + 'px'
           })
-          children.x = blocks.find(id => id.parent == blocko[i]).x - totalwidth / 2 + totalremove + childwidth / 2
+          children.x = blocks.find(id => id.parent == block.id).x - totalwidth / 2 + totalremove + childwidth / 2
         } else {
           currentBlock.styles({
             left: x - totalwidth / 2 + totalremove + 'px'
           })
-          children.x = blocks.find(({ parent }) => parent == blocko[i]).x - totalwidth / 2 + totalremove + width / 2
+          children.x = blocks.find(({ parent }) => parent == block.id).x - totalwidth / 2 + totalremove + width / 2
         }
 
         totalremove += Math.max(childwidth, width) + paddingX
@@ -258,26 +255,27 @@ function flowy({
 
       draggedBlock.styles({
         left:
-          blocks.find(id => id.id == blocko[i]).x -
+          blocks.find(id => id.id == block.id).x -
           totalwidth / 2 +
           totalremove -
           (blocksManager.position().left + window.scrollX) +
           blocksManager.position().scrollLeft +
           'px',
         top:
-          blocks.find(id => id.id == blocko[i]).y +
-          blocks.find(id => id.id == blocko[i]).height / 2 +
+          blocks.find(id => id.id == block.id).y +
+          blocks.find(id => id.id == block.id).height / 2 +
           paddingY -
           (blocksManager.position().top + window.scrollY) +
           'px'
       })
 
       if (dragManager.isRearranging) {
-        blockstemp.find(a => a.id == draggedBlock.id).x =
+        const dragtemp = blockstemp.find(({ id }) => id == draggedBlock.id)
+        dragtemp.x =
           draggedBlock.position().left + draggedBlock.position().width / 2 + blocksManager.position().scrollLeft * 2
-        blockstemp.find(a => a.id == draggedBlock.id).y =
+        dragtemp.y =
           draggedBlock.position().top + draggedBlock.position().height / 2 + blocksManager.position().scrollTop
-        blockstemp.find(({ id }) => id == draggedBlock.id).parent = blocko[i]
+        dragtemp.parent = block.id
 
         for (var w = 0; w < blockstemp.length; w++) {
           if (parseInt(blockstemp[w].id) === draggedBlock.id) {
@@ -324,7 +322,7 @@ function flowy({
       } else {
         blocks.push({
           childwidth: 0,
-          parent: blocko[i],
+          parent: block.id,
           id: draggedBlock.id,
           x: draggedBlock.position().left + draggedBlock.position().width / 2 + blocksManager.position().scrollLeft,
           y: draggedBlock.position().top + draggedBlock.position().height / 2 + blocksManager.position().scrollTop,
@@ -334,12 +332,12 @@ function flowy({
       }
 
       var { x, y, height } = blocks.find(({ id }) => id == draggedBlock.id)
-      var arrowX = x - blocks.find(({ id }) => id == blocko[i]).x + 20
+      var arrowX = x - block.x + 20
       var arrowY = parseFloat(
         y -
           height / 2 -
-          (blocks.find(({ parent }) => parent == blocko[i]).y +
-            blocks.find(({ parent }) => parent == blocko[i]).height / 2) +
+          (blocks.find(({ parent }) => parent == block.id).y +
+            blocks.find(({ parent }) => parent == block.id).height / 2) +
           blocksManager.position().scrollTop
       )
 
@@ -349,8 +347,8 @@ function flowy({
             <input type="hidden" class="arrowid" value="${draggedBlock.id}">
             <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="
-                M${blocks.find(a => a.id == blocko[i]).x - x + 5}
-                0L${blocks.find(a => a.id == blocko[i]).x - x + 5}
+                M${blocks.find(a => a.id == block.id).x - x + 5}
+                0L${blocks.find(a => a.id == block.id).x - x + 5}
                 ${paddingY / 2}L5
                 ${paddingY / 2}L5
                 ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
@@ -380,42 +378,43 @@ function flowy({
           </div>
         `)
         draggedBlock.arrow().styles({
-          left: `${blocks.find(({ id }) => id == blocko[i]).x -
+          left: `${block.x -
             20 -
             (blocksManager.position().left + window.scrollX) +
             blocksManager.position().scrollLeft}px`
         })
       }
       draggedBlock.arrow().styles({
-        top: `${blocks.find(({ id }) => id == blocko[i]).y + blocks.find(({ id }) => id == blocko[i]).height / 2}px`
+        top: `${block.y + block.height / 2}px`
       })
 
-      if (blocks.find(({ id }) => id == blocko[i]).parent != -1) {
-        var flag = false
-        var idval = blocko[i]
+      if (block.parent != -1) {
+        let idval = block.id
+        let loopBlock
 
-        while (!flag) {
-          if (blocks.find(({ id }) => id == idval).parent == -1) {
-            flag = true
-          } else {
-            var zwidth = 0
+        while (true) {
+          loopBlock = blocks.find(({ id }) => id == idval)
 
-            for (var w = 0; w < blocks.filter(id => id.parent == idval).length; w++) {
-              var children = blocks.filter(id => id.parent == idval)[w]
-
-              zwidth += Math.max(children.childwidth, children.width)
-
-              if (w !== blocks.filter(id => id.parent == idval).length - 1) {
-                zwidth += paddingX
-              }
-            }
-
-            blocks.find(({ id }) => id == idval).childwidth = zwidth
-            idval = blocks.find(({ id }) => id == idval).parent
+          if (loopBlock.parent == -1) {
+            break
           }
+
+          let zwidth = 0
+          const parents = blocks.filter(({ parent }) => parent == idval)
+
+          parents.forEach(({ childwidth, width }, w) => {
+            zwidth += Math.max(childwidth, width)
+
+            if (w !== parents.length - 1) {
+              zwidth += paddingX
+            }
+          })
+
+          loopBlock.childwidth = zwidth
+          idval = loopBlock.parent
         }
 
-        blocks.find(id => id.id == idval).childwidth = totalwidth
+        loopBlock.childwidth = totalwidth
       }
 
       if (dragManager.isRearranging) {
@@ -492,20 +491,21 @@ function flowy({
           draggedBlock.arrow().remove()
         }
 
-        var layer = blocks.filter(a => a.parent == blockid)
-        var flag = false
-        var foundids = []
-        var allids = []
+        const filteredBlocks = blocks.filter(({ parent }) => parent == blockid)
+        let layer = filteredBlocks
+        let foundids = []
+        const allids = []
 
-        while (!flag) {
-          for (var i = 0; i < layer.length; i++) {
+        do {
+          layer.forEach(block => {
             // TODO: layer[i] should be layer[i].id
-            if (layer[i] == blockid) {
-              continue
+            if (block.id == blockid) {
+              return
             }
 
-            blockstemp.push(blocks.find(a => a.id == layer[i].id))
-            const currentBlock = blocksManager.findBlock(layer[i].id)
+            blockstemp.push(block)
+
+            const currentBlock = blocksManager.findBlock(block.id)
             const currentArrow = currentBlock.arrow()
 
             currentBlock.styles({
@@ -519,27 +519,22 @@ function flowy({
 
             draggedBlock.element.appendChild(currentBlock.element)
             draggedBlock.element.appendChild(currentArrow.element)
-            foundids.push(layer[i].id)
-            allids.push(layer[i].id)
-          }
 
-          if (foundids.length == 0) {
-            flag = true
-          } else {
-            layer = blocks.filter(a => foundids.includes(a.parent))
-            foundids = []
-          }
-        }
+            foundids.push(block.id)
+            allids.push(block.id)
+          })
 
-        for (var i = 0; i < blocks.filter(a => a.parent == blockid).length; i++) {
-          var blocknumber = blocks.filter(a => a.parent == blockid)[i]
+          layer = blocks.filter(({ parent }) => foundids.includes(parent))
+          foundids = []
+        } while (layer.length)
+
+        filteredBlocks.forEach(blocknumber => {
           blocksManager.replaceBlocks(blocks.filter(({ id }) => id != blocknumber))
-        }
+        })
 
-        for (var i = 0; i < allids.length; i++) {
-          var blocknumber = allids[i]
+        allids.forEach(blocknumber => {
           blocksManager.replaceBlocks(blocks.filter(({ id }) => id != blocknumber))
-        }
+        })
 
         if (blocks.length > 1) {
           rearrangeMe()
@@ -571,6 +566,7 @@ function flowy({
             blocksManager.position().scrollTop}px`
         })
 
+        // TODO: Doesn't look like setting `x` and `y` does anything here - remove?
         blockstemp.filter(({ id }) => id == draggedBlock.id).x =
           draggedBlock.position().left + draggedBlock.position().width / 2 + blocksManager.position().scrollLeft
         blockstemp.filter(({ id }) => id == draggedBlock.id).y =
@@ -583,11 +579,11 @@ function flowy({
 
       var xpos = draggedBlock.position().left + draggedBlock.position().width / 2 + blocksManager.position().scrollLeft
       var ypos = draggedBlock.position().top + blocksManager.position().scrollTop
-      var blocko = blocks.map(({ id }) => id)
 
       for (var i = 0; i < blocks.length; i++) {
-        const indicator = document.querySelector('.indicator')
-        const { x, y, width, height } = blocks.find(({ id }) => id == blocko[i])
+        const block = blocks[i]
+        const indicator = blocksManager.indicator()
+        const { x, y, width, height } = block
 
         if (
           xpos >= x - width / 2 - paddingX &&
@@ -595,7 +591,7 @@ function flowy({
           ypos >= y - height / 2 &&
           ypos <= y + height
         ) {
-          const currentBlock = blocksManager.findBlock(blocko[i])
+          const currentBlock = blocksManager.findBlock(block.id)
           currentBlock.element.appendChild(indicator)
 
           indicator.style.left = `${draggedBlock.position().width / 2 - 5}px`
@@ -621,36 +617,36 @@ function flowy({
 
       if (currentOffsetLeft < blocksManager.position().left + window.scrollX) {
         dragManager.toggleLastEvent(true)
-        var blocko = blocks.map(a => a.id)
 
-        for (var w = 0; w < blocks.length; w++) {
-          const { id, x, width, parent } = blocks.find(({ id }) => id == blocko[w])
+        blocks.forEach(({ id, x, width, parent }) => {
           const currentBlock = blocksManager.findBlock(id)
 
           currentBlock.styles({
             left: x - width / 2 - currentOffsetLeft + 20
           })
 
-          if (parent != -1) {
-            const currentArrow = currentBlock.arrow()
-            var parentX = blocks.find(({ id }) => id == parent).x
-            var arrowX = x - parentX
-
-            currentArrow.styles({
-              left: arrowX < 0 ? `${x - currentOffsetLeft + 20 - 5}px` : `${parentX - 20 - currentOffsetLeft + 20}px`
-            })
+          if (parent === -1) {
+            return
           }
-        }
 
-        for (var w = 0; w < blocks.length; w++) {
-          const currentBlock = blocksManager.findBlock(blocks[w].id)
+          const currentArrow = currentBlock.arrow()
+          const parentX = blocks.find(({ id }) => id == parent).x
+          const arrowX = x - parentX
 
-          blocks[w].x =
+          currentArrow.styles({
+            left: arrowX < 0 ? `${x - currentOffsetLeft + 20 - 5}px` : `${parentX - 20 - currentOffsetLeft + 20}px`
+          })
+        })
+
+        blocks.forEach(block => {
+          const currentBlock = blocksManager.findBlock(block.id)
+
+          block.x =
             currentBlock.position().left +
             (blocksManager.position().left + blocksManager.position().scrollLeft) -
             dragManager.draggedBlock.position().width / 2 -
             40
-        }
+        })
 
         dragManager.setState({ previousOffsetLeft: currentOffsetLeft })
       }
@@ -664,40 +660,40 @@ function flowy({
       }
 
       dragManager.toggleLastEvent(false)
-      var blocko = blocks.map(a => a.id)
 
-      for (var w = 0; w < blocks.length; w++) {
-        var arrowhelp = blocks.find(({ id }) => id == blocko[w])
-        const { id, x, width, parent } = arrowhelp
+      blocks.forEach(block => {
+        const { id, x, width, parent } = block
         const currentBlock = blocksManager.findBlock(id)
         const currentArrow = currentBlock.arrow()
 
         currentBlock.styles({
           left: x - width / 2 - previousOffsetLeft - 20
         })
-        arrowhelp.x = currentBlock.position().left + width / 2
+        block.x = currentBlock.position().left + width / 2
 
-        if (parent != -1) {
-          const parentX = blocks.find(({ id }) => id == parent).x
-          var arrowX = x - parentX
-
-          currentArrow.styles({
-            left:
-              arrowX < 0
-                ? `${x - 5 - (blocksManager.position().left + window.scrollX)}px`
-                : parentX - 20 - (blocksManager.position().left + window.scrollX) + 'px'
-          })
+        if (parent === -1) {
+          return
         }
-      }
+
+        const parentX = blocks.find(({ id }) => id == parent).x
+        var arrowX = x - parentX
+
+        currentArrow.styles({
+          left:
+            arrowX < 0
+              ? `${x - 5 - (blocksManager.position().left + window.scrollX)}px`
+              : parentX - 20 - (blocksManager.position().left + window.scrollX) + 'px'
+        })
+      })
 
       dragManager.setState({ previousOffsetLeft: 0 })
     }
 
     function rearrangeMe() {
-      var result = blocks.map(a => a.parent)
+      var parents = blocks.map(({ parent }) => parent)
 
-      for (var z = 0; z < result.length; z++) {
-        if (result[z] == -1) {
+      for (var z = 0; z < parents.length; z++) {
+        if (parents[z] == -1) {
           z++
         }
 
@@ -705,58 +701,59 @@ function flowy({
         var totalremove = 0
         var maxheight = 0
 
-        for (var w = 0; w < blocks.filter(id => id.parent == result[z]).length; w++) {
-          var children = blocks.filter(id => id.parent == result[z])[w]
+        const filteredBlocks = blocks.filter(({ parent }) => parent == parents[z])
 
-          if (blocks.filter(id => id.parent == children.id).length == 0) {
+        filteredBlocks.forEach((children, w) => {
+          if (blocks.filter(({ parent }) => parent == children.id).length == 0) {
             children.childwidth = 0
           }
 
           totalwidth += Math.max(children.childwidth, children.width)
 
-          if (w !== blocks.filter(id => id.parent == result[z]).length - 1) {
+          if (w !== filteredBlocks.length - 1) {
             totalwidth += paddingX
           }
+        })
+
+        if (parents[z] != -1) {
+          blocks.find(a => a.id == parents[z]).childwidth = totalwidth
         }
 
-        if (result[z] != -1) {
-          blocks.find(a => a.id == result[z]).childwidth = totalwidth
-        }
-
-        for (var w = 0; w < blocks.filter(({ parent }) => parent == result[z]).length; w++) {
-          const children = blocks.filter(({ parent }) => parent == result[z])[w]
+        filteredBlocks.forEach(children => {
           const currentBlock = blocksManager.findBlock(children.id)
           const currentArrow = currentBlock.arrow()
-          const r_block = currentBlock.element
-          const r_array = blocks.filter(({ id }) => id == result[z])
-          r_block.style.top = `${r_array.y + paddingY}px`
+          const r_array = blocks.filter(({ id }) => id == parents[z])
+
+          currentBlock.styles({
+            top: `${r_array.y + paddingY}px`
+          })
           r_array.y = r_array.y + paddingY
 
           if (children.childwidth > children.width) {
-            r_block.style.left =
-              r_array[0].x -
-              totalwidth / 2 +
-              totalremove +
-              children.childwidth / 2 -
-              children.width / 2 -
-              (blocksManager.position().left + window.scrollX) +
-              'px'
-            children.x = r_array[0].x - totalwidth / 2 + totalremove + children.childwidth / 2
-            totalremove += children.childwidth + paddingX
+            currentBlock.styles({
+              left:
+                r_array[0].x -
+                totalwidth / 2 +
+                totalremove +
+                children.childwidth / 2 -
+                children.width / 2 -
+                (blocksManager.position().left + window.scrollX) +
+                'px'
+            })
           } else {
-            r_block.style.left =
-              r_array[0].x - totalwidth / 2 + totalremove - (blocksManager.position().left + window.scrollX) + 'px'
-            children.x = r_array[0].x - totalwidth / 2 + totalremove + children.width / 2
-            totalremove += children.width + paddingX
+            currentBlock.styles({
+              left:
+                r_array[0].x - totalwidth / 2 + totalremove - (blocksManager.position().left + window.scrollX) + 'px'
+            })
           }
+
+          children.x = r_array[0].x - totalwidth / 2 + totalremove + Math.max(children.childwidth, children.width) / 2
+          totalremove += Math.max(children.childwidth, children.width) + paddingX
 
           const { x, y, height } = blocks.find(({ id }) => id == children.id)
           const { x: parentX, y: parentY, height: parentHeight } = blocks.find(({ id }) => id == children.parent)
           const arrowX = x - parentX + 20
-          const arrowY =
-            y -
-            height / 2 -
-            (blocks.find(a => a.id == children.parent).y + blocks.find(a => a.id == children.parent).height / 2)
+          const arrowY = y - height / 2 - (parentY + parentHeight / 2)
 
           currentArrow.styles({
             top: parentY + parentHeight / 2 - (blocksManager.position().top + window.scrollY) + 'px'
@@ -797,7 +794,7 @@ function flowy({
               </svg>
             `)
           }
-        }
+        })
       }
     }
   }
