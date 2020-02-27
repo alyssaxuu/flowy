@@ -13,51 +13,51 @@ document.addEventListener('DOMContentLoaded', function() {
   var tempblock2
 
   document.getElementById('blocklist').innerHTML = `
-      <div class="blockelem create-flowy noselect">
-        <input type="hidden" name="blockelemtype" class="blockelemtype" value="1">
-        <div class="grabme"><img src="${images.grabme}"></div>
-        <div class="blockin">
-          <div class="blockico"><span></span><img src="${images.eye}"></div>
-          <div class="blocktext">
-            <p class="blocktitle">New visitor</p>
-            <p class="blockdesc">Triggers when somebody visits a specified page</p>
-          </div>
+    <div class="blockelem create-flowy noselect">
+      <input type="hidden" name="blockelemtype" class="blockelemtype" value="1">
+      <div class="grabme"><img src="${images.grabme}"></div>
+      <div class="blockin">
+        <div class="blockico"><span></span><img src="${images.eye}"></div>
+        <div class="blocktext">
+          <p class="blocktitle">New visitor</p>
+          <p class="blockdesc">Triggers when somebody visits a specified page</p>
         </div>
       </div>
-      <div class="blockelem create-flowy noselect">
-        <input type="hidden" name="blockelemtype" class="blockelemtype" value="2">
-        <div class="grabme"><img src="${images.grabme}"></div>
-        <div class="blockin">
-          <div class="blockico"><span></span><img src="${images.action}"></div>
-          <div class="blocktext">
-            <p class="blocktitle">Action is performed</p>
-            <p class="blockdesc">Triggers when somebody performs a specified action</p>
-          </div>
+    </div>
+    <div class="blockelem create-flowy noselect">
+      <input type="hidden" name="blockelemtype" class="blockelemtype" value="2">
+      <div class="grabme"><img src="${images.grabme}"></div>
+      <div class="blockin">
+        <div class="blockico"><span></span><img src="${images.action}"></div>
+        <div class="blocktext">
+          <p class="blocktitle">Action is performed</p>
+          <p class="blockdesc">Triggers when somebody performs a specified action</p>
         </div>
       </div>
-      <div class="blockelem create-flowy noselect">
-        <input type="hidden" name="blockelemtype" class="blockelemtype" value="3">
-        <div class="grabme"><img src="${images.grabme}"></div>
-        <div class="blockin">
-          <div class="blockico"><span></span><img src="${images.time}"></div>
-          <div class="blocktext">
-            <p class="blocktitle">Time has passed</p>
-            <p class="blockdesc">Triggers after a specified amount of time</p>
-          </div>
+    </div>
+    <div class="blockelem create-flowy noselect">
+      <input type="hidden" name="blockelemtype" class="blockelemtype" value="3">
+      <div class="grabme"><img src="${images.grabme}"></div>
+      <div class="blockin">
+        <div class="blockico"><span></span><img src="${images.time}"></div>
+        <div class="blocktext">
+          <p class="blocktitle">Time has passed</p>
+          <p class="blockdesc">Triggers after a specified amount of time</p>
         </div>
       </div>
-      <div class="blockelem create-flowy noselect">
-        <input type="hidden" name="blockelemtype" class="blockelemtype" value="4">
-        <div class="grabme"><img src="${images.grabme}"></div>
-        <div class="blockin">
-          <div class="blockico"><span></span><img src="${images.error}"></div>
-          <div class="blocktext">
-            <p class="blocktitle">Error prompt</p>
-            <p class="blockdesc">Triggers when a specified error happens</p>
-          </div>
+    </div>
+    <div class="blockelem create-flowy noselect">
+      <input type="hidden" name="blockelemtype" class="blockelemtype" value="4">
+      <div class="grabme"><img src="${images.grabme}"></div>
+      <div class="blockin">
+        <div class="blockico"><span></span><img src="${images.error}"></div>
+        <div class="blocktext">
+          <p class="blocktitle">Error prompt</p>
+          <p class="blockdesc">Triggers when a specified error happens</p>
         </div>
       </div>
-    `
+    </div>
+  `
 
   flowy(document.getElementById('canvas'), drag, release, snapping)
 
@@ -267,51 +267,51 @@ document.addEventListener('DOMContentLoaded', function() {
         break
       case 'actions':
         document.getElementById('blocklist').innerHTML = `
-        <div class="blockelem create-flowy noselect">
-          <input type="hidden" name="blockelemtype" class="blockelemtype" value="5">
-          <div class="grabme"><img src="${images.grabme}"></div>
-          <div class="blockin">
-            <div class="blockico"><span></span><img src="${images.database}"></div>
-            <div class="blocktext">
-              <p class="blocktitle">New database entry</p>
-              <p class="blockdesc">Adds a new entry to a specified database</p>
+          <div class="blockelem create-flowy noselect">
+            <input type="hidden" name="blockelemtype" class="blockelemtype" value="5">
+            <div class="grabme"><img src="${images.grabme}"></div>
+            <div class="blockin">
+              <div class="blockico"><span></span><img src="${images.database}"></div>
+              <div class="blocktext">
+                <p class="blocktitle">New database entry</p>
+                <p class="blockdesc">Adds a new entry to a specified database</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="blockelem create-flowy noselect">
-          <input type="hidden" name="blockelemtype" class="blockelemtype" value="6">
-          <div class="grabme"><img src="${images.grabme}"></div>
-          <div class="blockin">
-            <div class="blockico"><span></span><img src="${images.database}"></div>
-            <div class="blocktext">
-              <p class="blocktitle">Update database</p>
-              <p class="blockdesc">Edits and deletes database entries and properties</p>
+          <div class="blockelem create-flowy noselect">
+            <input type="hidden" name="blockelemtype" class="blockelemtype" value="6">
+            <div class="grabme"><img src="${images.grabme}"></div>
+            <div class="blockin">
+              <div class="blockico"><span></span><img src="${images.database}"></div>
+              <div class="blocktext">
+                <p class="blocktitle">Update database</p>
+                <p class="blockdesc">Edits and deletes database entries and properties</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="blockelem create-flowy noselect">
-          <input type="hidden" name="blockelemtype" class="blockelemtype" value="7">
-          <div class="grabme"><img src="${images.grabme}"></div>
-          <div class="blockin">
-            <div class="blockico"><span></span><img src="${images.action}"></div>
-            <div class="blocktext">
-              <p class="blocktitle">Perform an action</p>
-              <p class="blockdesc">Performs or edits a specified action</p>
+          <div class="blockelem create-flowy noselect">
+            <input type="hidden" name="blockelemtype" class="blockelemtype" value="7">
+            <div class="grabme"><img src="${images.grabme}"></div>
+            <div class="blockin">
+              <div class="blockico"><span></span><img src="${images.action}"></div>
+              <div class="blocktext">
+                <p class="blocktitle">Perform an action</p>
+                <p class="blockdesc">Performs or edits a specified action</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="blockelem create-flowy noselect">
-          <input type="hidden" name="blockelemtype" class="blockelemtype" value="8">
-          <div class="grabme"><img src="${images.grabme}"></div>
-          <div class="blockin">
-            <div class="blockico"><span></span><img src="${images.twitter}"></div>
-            <div class="blocktext">
-              <p class="blocktitle">Make a tweet</p>
-              <p class="blockdesc">Makes a tweet with a specified query</p>
+          <div class="blockelem create-flowy noselect">
+            <input type="hidden" name="blockelemtype" class="blockelemtype" value="8">
+            <div class="grabme"><img src="${images.grabme}"></div>
+            <div class="blockin">
+              <div class="blockico"><span></span><img src="${images.twitter}"></div>
+              <div class="blocktext">
+                <p class="blocktitle">Make a tweet</p>
+                <p class="blockdesc">Makes a tweet with a specified query</p>
+              </div>
             </div>
           </div>
-        </div>
-      `
+        `
         break
       case 'loggers':
         document.getElementById('blocklist').innerHTML = `
@@ -356,14 +356,16 @@ document.addEventListener('DOMContentLoaded', function() {
   addEventListenerMulti('click', disabledClick, false, '.side')
 
   document.getElementById('close').addEventListener('click', function() {
-    if (rightcard) {
-      rightcard = false
-      document.getElementById('properties').classList.remove('expanded')
-      setTimeout(function() {
-        document.getElementById('propwrap').classList.remove('itson')
-      }, 300)
-      tempblock.classList.remove('selectedblock')
+    if (!rightcard) {
+      return
     }
+
+    rightcard = false
+    document.getElementById('properties').classList.remove('expanded')
+    setTimeout(function() {
+      document.getElementById('propwrap').classList.remove('itson')
+    }, 300)
+    tempblock.classList.remove('selectedblock')
   })
 
   document.getElementById('removeblock').addEventListener('click', function() {
