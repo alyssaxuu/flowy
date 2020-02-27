@@ -306,7 +306,7 @@ function flowy({
 
         for (var w = 0; w < blockstemp.length; w++) {
           if (parseInt(blockstemp[w].id) === parseInt(drag.querySelector('.blockid').value)) {
-            return
+            continue
           }
 
           const blockParent = document.querySelector(`.blockid[value='${blockstemp[w].id}']`).parentNode
