@@ -91,7 +91,7 @@ function flowy({
       manager.toggleRearranging(false)
 
       blockstemp.forEach(block => {
-        if (block.id !== draggedBlock.id) {
+        if (block.id == draggedBlock.id) {
           return
         }
 
