@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var rightcard = false
   var tempblock
   var tempblock2
+
   document.getElementById('blocklist').innerHTML = `
       <div class="blockelem create-flowy noselect">
         <input type="hidden" name="blockelemtype" class="blockelemtype" value="1">
@@ -57,20 +58,25 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
     `
+
   flowy(document.getElementById('canvas'), drag, release, snapping)
+
   function addEventListenerMulti(type, listener, capture, selector) {
     var nodes = document.querySelectorAll(selector)
-    for (var i = 0; i < nodes.length; i++) {
-      nodes[i].addEventListener(type, listener, capture)
-    }
+
+    nodes.forEach(node => node.addEventListener(type, listener, capture))
   }
+
   function snapping(drag, first) {
     var grab = drag.querySelector('.grabme')
-    grab.parentNode.removeChild(grab)
+    grab.remove()
     var blockin = drag.querySelector('.blockin')
-    blockin.parentNode.removeChild(blockin)
-    if (drag.querySelector('.blockelemtype').value == '1') {
-      drag.innerHTML += `
+    blockin.remove()
+    var blockelemtype = parseInt(drag.querySelector('.blockelemtype').value)
+
+    switch (blockelemtype) {
+      case 1:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.eyeblue}'>
             <p class='blockyname'>New visitor</p>
@@ -79,8 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>When a <span>new visitor</span> goes to <span>Site 1</span></div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '2') {
-      drag.innerHTML += `
+        break
+      case 2:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.actionblue}'>
             <p class='blockyname'>Action is performed</p>
@@ -89,8 +96,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>When <span>Action 1</span> is performed</div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '3') {
-      drag.innerHTML += `
+        break
+      case 3:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.timeblue}'>
             <p class='blockyname'>Time has passed</p>
@@ -99,8 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>When <span>10 seconds</span> have passed</div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '4') {
-      drag.innerHTML += `
+        break
+      case 4:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.errorblue}'>
             <p class='blockyname'>Error prompt</p>
@@ -109,8 +118,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>When <span>Error 1</span> is triggered</div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '5') {
-      drag.innerHTML += `
+        break
+      case 5:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.databaseorange}'>
             <p class='blockyname'>New database entry</p>
@@ -119,8 +129,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>Add <span>Data object</span> to <span>Database 1</span></div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '6') {
-      drag.innerHTML += `
+        break
+      case 6:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.databaseorange}'>
             <p class='blockyname'>Update database</p>
@@ -129,8 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>Update <span>Database 1</span></div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '7') {
-      drag.innerHTML += `
+        break
+      case 7:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.actionorange}'>
             <p class='blockyname'>Perform an action</p>
@@ -138,8 +150,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockyright'><img src='${images.more}'></div>
           <div class='blockydiv'></div><div class='blockyinfo'>Perform <span>Action 1</span></div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '8') {
-      drag.innerHTML += `
+        break
+      case 8:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.twitterorange}'>
             <p class='blockyname'>Make a tweet</p>
@@ -148,8 +161,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>Tweet <span>Query 1</span> with the account <span>@alyssaxuu</span></div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '9') {
-      drag.innerHTML += `
+        break
+      case 9:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.logred}'>
             <p class='blockyname'>Add new log entry</p>
@@ -158,8 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>Add new <span>success</span> log entry</div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '10') {
-      drag.innerHTML += `
+        break
+      case 10:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.logred}'>
             <p class='blockyname'>Update logs</p>
@@ -168,8 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>Edit <span>Log Entry 1</span></div>
         `
-    } else if (drag.querySelector('.blockelemtype').value == '11') {
-      drag.innerHTML += `
+        break
+      case 11:
+        drag.innerHTML += `
           <div class='blockyleft'>
             <img src='${images.errorred}'>
             <p class='blockyname'>Prompt an error</p>
@@ -178,23 +194,31 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class='blockydiv'></div>
           <div class='blockyinfo'>Trigger <span>Error 1</span></div>
         `
+        break
     }
+
     return true
   }
+
   function drag(block) {
     block.classList.add('blockdisabled')
     tempblock2 = block
   }
+
   function release() {
     tempblock2.classList.remove('blockdisabled')
   }
+
   var disabledClick = function() {
     document.querySelector('.navactive').classList.add('navdisabled')
     document.querySelector('.navactive').classList.remove('navactive')
+
     this.classList.add('navactive')
     this.classList.remove('navdisabled')
-    if (this.getAttribute('id') == 'triggers') {
-      document.getElementById('blocklist').innerHTML = `
+
+    switch (this.getAttribute('id')) {
+      case 'triggers':
+        document.getElementById('blocklist').innerHTML = `
           <div class="blockelem create-flowy noselect">
             <input type="hidden" name="blockelemtype" class="blockelemtype" value="1">
             <div class="grabme"><img src="${images.grabme}"></div>
@@ -240,8 +264,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
           </div>
         `
-    } else if (this.getAttribute('id') == 'actions') {
-      document.getElementById('blocklist').innerHTML = `
+        break
+      case 'actions':
+        document.getElementById('blocklist').innerHTML = `
         <div class="blockelem create-flowy noselect">
           <input type="hidden" name="blockelemtype" class="blockelemtype" value="5">
           <div class="grabme"><img src="${images.grabme}"></div>
@@ -287,8 +312,9 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
       `
-    } else if (this.getAttribute('id') == 'loggers') {
-      document.getElementById('blocklist').innerHTML = `
+        break
+      case 'loggers':
+        document.getElementById('blocklist').innerHTML = `
           <div class="blockelem create-flowy noselect">
             <input type="hidden" name="blockelemtype" class="blockelemtype" value="9">
             <div class="grabme"><img src="${images.grabme}"></div>
@@ -323,9 +349,12 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
           </div>
         `
+        break
     }
   }
+
   addEventListenerMulti('click', disabledClick, false, '.side')
+
   document.getElementById('close').addEventListener('click', function() {
     if (rightcard) {
       rightcard = false
@@ -340,24 +369,32 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('removeblock').addEventListener('click', function() {
     flowy.deleteBlocks()
   })
+
   var aclick = false
-  var beginTouch = function(event) {
+
+  var beginTouch = function() {
     aclick = true
   }
-  var checkTouch = function(event) {
+
+  var checkTouch = function() {
     aclick = false
   }
+
   var doneTouch = function(event) {
-    if (event.type === 'mouseup' && aclick) {
-      if (!rightcard && event.target.closest('.block')) {
-        tempblock = event.target.closest('.block')
-        rightcard = true
-        document.getElementById('properties').classList.add('expanded')
-        document.getElementById('propwrap').classList.add('itson')
-        tempblock.classList.add('selectedblock')
-      }
+    if (event.type !== 'mouseup' || !aclick) {
+      return
     }
+    if (rightcard || !event.target.closest('.block')) {
+      return
+    }
+
+    tempblock = event.target.closest('.block')
+    rightcard = true
+    document.getElementById('properties').classList.add('expanded')
+    document.getElementById('propwrap').classList.add('itson')
+    tempblock.classList.add('selectedblock')
   }
+
   addEventListener('mousedown', beginTouch, false)
   addEventListener('mousemove', checkTouch, false)
   addEventListener('mouseup', doneTouch, false)
