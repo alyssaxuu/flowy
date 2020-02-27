@@ -626,13 +626,13 @@ function flowy({
         for (var w = 0; w < blocks.length; w++) {
           const { id, x, width, parent } = blocks.find(({ id }) => id == blocko[w])
           const currentBlock = blocksManager.findBlock(id)
-          const currentArrow = currentBlock.arrow()
 
           currentBlock.styles({
             left: x - width / 2 - currentOffsetLeft + 20
           })
 
           if (parent != -1) {
+            const currentArrow = currentBlock.arrow()
             var parentX = blocks.find(({ id }) => id == parent).x
             var arrowX = x - parentX
 
@@ -648,7 +648,7 @@ function flowy({
           blocks[w].x =
             currentBlock.position().left +
             (blocksManager.position().left + blocksManager.position().scrollLeft) -
-            draggedBlock.position().width / 2 -
+            dragManager.draggedBlock.position().width / 2 -
             40
         }
 
