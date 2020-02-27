@@ -1,6 +1,6 @@
 import Block from './Block'
 
-class Dragger {
+class Manager {
   constructor({ window, document }) {
     this.window = window
     this.document = document
@@ -87,4 +87,4 @@ class Dragger {
   }
 }
 
-export default Dragger
+export default Manager

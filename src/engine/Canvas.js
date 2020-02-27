@@ -1,6 +1,6 @@
 import Block from './Block'
 
-class Blocks {
+class Canvas {
   constructor({ window, document, canvas, spacingX = 20, spacingY = 80 }) {
     this.window = window
     this.document = document
@@ -124,4 +124,4 @@ class Blocks {
   }
 }
 
-export default Blocks
+export default Canvas
