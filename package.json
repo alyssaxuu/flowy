@@ -14,6 +14,7 @@
     "build:web": "rimraf dist && parcel build src/engine/index.css -o flowy -d dist && microbundle build -o dist -i src/engine -f cjs,umd,es",
     "build:demo": "rimraf demo && parcel build src/demo/index.html -d demo",
     "demo": "rimraf demo && parcel serve src/demo/index.html -d demo --open",
+    "demo:watch": "rimraf demo && parcel wath src/demo/index.html -d demo",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "lint": "standard --fix src/*.js"

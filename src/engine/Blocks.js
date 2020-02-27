@@ -1,5 +1,8 @@
+import Block from './Block'
+
 class Blocks {
-  constructor({ document, canvas, spacingX = 20, spacingY = 80 }) {
+  constructor({ window, document, canvas, spacingX = 20, spacingY = 80 }) {
+    this.window = window
     this.document = document
     this.canvas = canvas
     this.spacingX = spacingX
@@ -18,6 +21,8 @@ class Blocks {
       return
     }
 
+    this.isInitialized = true
+
     var el = this.document.createElement('DIV')
 
     el.classList.add('indicator')
@@ -27,22 +32,29 @@ class Blocks {
   }
 
   position = () => {
-    return Object.assign(this.canvas.getBoundingClientRect(), {
+    const { top, left } = this.canvas.getBoundingClientRect()
+    return {
+      top: top + this.window.scrollY,
+      left: left + this.window.scrollX,
       scrollTop: this.canvas.scrollTop,
       scrollLeft: this.canvas.scrollLeft
-    })
+    }
   }
 
   html = html => {
     if (html !== undefined) {
-      this.canvas.innerHtml = html
+      this.canvas.innerHTML = html
     }
-    return this.canvas.innerHtml
+    return this.canvas.innerHTML
   }
 
   appendHtml = html => (this.canvas.innerHTML += html)
 
-  appendChild = child => this.canvas.appendChild(child)
+  appendChild = (...children) => children.forEach(child => this.canvas.appendChild(child))
+
+  findElement = selector => this.document.querySelector(selector)
+
+  findBlock = id => Block.find(id, { window: this.window })
 
   import = output => {
     const { html, blockarr } = output
@@ -99,20 +111,14 @@ class Blocks {
     this.blocks.splice(0)
   }
 
-  toggleDragging = dragging => {
-    this.isDragging = dragging
-  }
+  showIndicator = show => {
+    const { classList } = this.document.querySelector('.indicator')
 
-  toggleDraggingBlock = dragging => {
-    this.isDraggingBlock = dragging
-  }
-
-  toggleRearranging = rearranging => {
-    this.isRearranging = rearranging
-  }
-
-  toggleLastEvent = last => {
-    this.isLastEvent = last
+    if (!show) {
+      classList.remove('invisible')
+    } else if (!classList.contains('invisible')) {
+      classList.add('invisible')
+    }
   }
 }
 
