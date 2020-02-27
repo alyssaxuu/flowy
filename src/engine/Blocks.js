@@ -111,8 +111,10 @@ class Blocks {
     this.blocks.splice(0)
   }
 
+  indicator = () => this.document.querySelector('.indicator')
+
   showIndicator = show => {
-    const { classList } = this.document.querySelector('.indicator')
+    const { classList } = this.indicator()
 
     if (!show) {
       classList.remove('invisible')
