@@ -15,6 +15,8 @@
     "build:demo": "rimraf demo && parcel build src/demo/index.html -d demo",
     "demo": "rimraf demo && parcel serve src/demo/index.html -d demo --open",
     "demo:watch": "rimraf demo && parcel wath src/demo/index.html -d demo",
+    "react": "rimraf react && parcel serve src/react/index.html -d react --open",
+    "react:watch": "rimraf react && parcel wath src/react/index.html -d react",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "lint": "standard --fix src/*.js"
@@ -46,16 +48,17 @@
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
-    "@babel/preset-env": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-export-default-from": "^7.8.3",
     "@babel/plugin-proposal-export-namespace-from": "^7.8.3",
     "@babel/plugin-proposal-logical-assignment-operators": "^7.8.3",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
     "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@babel/plugin-proposal-partial-application": "^7.8.3",
     "@babel/plugin-proposal-throw-expressions": "^7.8.3",
     "@babel/plugin-transform-block-scoping": "^7.8.3",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.8.3",
     "babel-plugin-transform-imports": "^2.0.0",
     "devolution": "^1.1.2",
     "jest": "^24.9.0",
@@ -64,5 +67,8 @@
     "rimraf": "^3.0.2",
     "standard": "^14.3.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
+  }
 }

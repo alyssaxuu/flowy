@@ -3,4 +3,5 @@ node_modules
 .DS_Store
 .cache
 /demo
+/react
 /dist
