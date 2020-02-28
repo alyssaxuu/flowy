@@ -195,7 +195,7 @@ function App(props) {
   return (
     <>
       <Navigation title="Your automation pipeline" description="Marketing automation" />
-      <LeftCard open={leftcard} onClose={() => setLeftCard(false)} />
+      <LeftCard open={leftcard} onToggle={() => setLeftCard(!leftcard)} />
       <RightCard
         open={rightcard}
         onClose={() => {

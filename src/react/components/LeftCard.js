@@ -3,11 +3,11 @@ import BlockList from './BlockList'
 import Footer from './Footer'
 import images from '../images'
 
-export default function({ open, onClose }) {
+export default function({ open, onToggle }) {
   return (
     <>
       <div id="leftcard" className={open ? 'expanded' : ''}>
-        <div id="closecard" onClick={onClose}>
+        <div id="closecard" onClick={onToggle}>
           <img src={images.closeleft} />
         </div>
         <p id="header">Blocks</p>
