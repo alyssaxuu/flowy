@@ -44,17 +44,20 @@ function flowy({
     previousOffsetLeft: 0
   })
 
+  const handleCoordinates = event => {
+    const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event
+    return manager.setState({
+      mouseX: clientX,
+      mouseY: clientY
+    })
+  }
+
   flowy.import = canvas.import
   flowy.output = canvas.output
   flowy.deleteBlocks = canvas.reset
 
   flowy.beginDrag = function(event) {
-    const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event
-
-    manager.setState({
-      mouseX: clientX,
-      mouseY: clientY
-    })
+    handleCoordinates(event)
 
     const { target, which } = event
     const grabbedElement = target.closest('.create-flowy')
@@ -401,12 +404,7 @@ function flowy({
 
     var theblock = event.target.closest('.block')
 
-    const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event
-
-    manager.setState({
-      mouseX: clientX,
-      mouseY: clientY
-    })
+    const { mouseX, mouseY } = handleCoordinates(event)
 
     if (
       event.type !== 'mouseup' &&
@@ -421,8 +419,8 @@ function flowy({
       const { draggedBlock } = manager
 
       manager.setState({
-        dragX: clientX - draggedBlock.position().left,
-        dragY: clientY - draggedBlock.position().top
+        dragX: mouseX - draggedBlock.position().left,
+        dragY: mouseY - draggedBlock.position().top
       })
     }
   }
@@ -436,13 +434,7 @@ function flowy({
   }
 
   flowy.moveBlock = function(event) {
-    const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event
-
-    manager.setState({
-      mouseX: clientX,
-      mouseY: clientY
-    })
-
+    const { mouseX, mouseY } = handleCoordinates(event)
     const { draggedBlock } = manager
 
     if (manager.isDraggingBlock) {
@@ -517,13 +509,13 @@ function flowy({
 
     if (manager.isDragging) {
       draggedBlock.styles({
-        left: `${clientX - dragX}px`,
-        top: `${clientY - dragY}px`
+        left: `${mouseX - dragX}px`,
+        top: `${mouseY - dragY}px`
       })
     } else if (manager.isRearranging) {
       draggedBlock.styles({
-        left: `${clientX - dragX - canvas.position().left + canvas.position().scrollLeft}px`,
-        top: `${clientY - dragY - canvas.position().top + canvas.position().scrollTop}px`
+        left: `${mouseX - dragX - canvas.position().left + canvas.position().scrollLeft}px`,
+        top: `${mouseY - dragY - canvas.position().top + canvas.position().scrollTop}px`
       })
 
       // TODO: Doesn't look like setting `x` and `y` does anything here - remove?
