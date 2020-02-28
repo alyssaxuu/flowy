@@ -1,9 +1,9 @@
-class Arrow {
+class ArrowElement {
   static find = block => {
     const element = document.querySelector(`.arrowid[value='${block.id}']`).parentNode
 
     if (element) {
-      return new Arrow(block, element)
+      return new this(block, element)
     }
   }
 
@@ -31,4 +31,4 @@ class Arrow {
   remove = () => this.element.remove()
 }
 
-export default Arrow
+export default ArrowElement

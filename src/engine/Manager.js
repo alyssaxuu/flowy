@@ -1,4 +1,4 @@
-import Block from './Block'
+import BlockElement from './BlockElement'
 
 class Manager {
   constructor({ window, document }) {
@@ -44,7 +44,7 @@ class Manager {
   }
 
   registerDragger = draggedElement => {
-    this.draggedBlock = Block.fromElement(draggedElement, { window: this.window })
+    this.draggedBlock = BlockElement.fromElement(draggedElement, { window: this.window })
   }
 
   toggleDragger = (start, { remove = false } = {}) => {

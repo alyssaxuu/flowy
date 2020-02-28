@@ -1,17 +1,17 @@
-import Arrow from './Arrow'
+import ArrowElement from './ArrowElement'
 
-class Block {
+class BlockElement {
   static find = (id, { window }) => {
     const { document } = window
     const element = document.querySelector(`.blockid[value='${id}']`).parentNode
 
-    return element ? new Block(id, element, { window }) : null
+    return element ? new this(id, element, { window }) : null
   }
 
   static fromElement = (element, { window }) => {
     const input = element.querySelector(`.blockid`)
 
-    return input ? new Block(parseInt(input.value), element, { window }) : null
+    return input ? new this(parseInt(input.value), element, { window }) : null
   }
 
   constructor(id, element, { window }) {
@@ -33,7 +33,7 @@ class Block {
 
   styles = styles => Object.assign(this.element.style, styles)
 
-  arrow = () => Arrow.find(this)
+  arrow = () => ArrowElement.find(this)
 }
 
-export default Block
+export default BlockElement
