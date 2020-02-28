@@ -48,7 +48,7 @@ class Manager {
   }
 
   toggleDragger = (start, { remove = false } = {}) => {
-    const draggedElement = this.draggedBlock.element
+    const draggedElement = this.draggedBlock.node
 
     if (start) {
       this.grabbedElement.classList.add('dragnow')

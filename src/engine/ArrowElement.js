@@ -1,34 +1,34 @@
 class ArrowElement {
   static find = block => {
-    const element = document.querySelector(`.arrowid[value='${block.id}']`).parentNode
+    const node = document.querySelector(`.arrowid[value='${block.id}']`).parentNode
 
-    if (element) {
-      return new this(block, element)
+    if (node) {
+      return new this(block, node)
     }
   }
 
-  constructor(block, element) {
+  constructor(block, node) {
     this.block = block
-    this.element = element
+    this.node = node
     this.window = block.window
     this.document = block.document
   }
 
   html = html => {
     if (html !== undefined) {
-      this.element.innerHTML = html
+      this.node.innerHTML = html
     }
-    return this.element.innerHTML
+    return this.node.innerHTML
   }
 
   position = () => ({
-    top: this.element.getBoundingClientRect().top + this.window.scrollY,
-    left: this.element.getBoundingClientRect().left + this.window.scrollX
+    top: this.node.getBoundingClientRect().top + this.window.scrollY,
+    left: this.node.getBoundingClientRect().left + this.window.scrollX
   })
 
-  styles = styles => Object.assign(this.element.style, styles)
+  styles = styles => Object.assign(this.node.style, styles)
 
-  remove = () => this.element.remove()
+  remove = () => this.node.remove()
 }
 
 export default ArrowElement

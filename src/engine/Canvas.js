@@ -54,7 +54,7 @@ class Canvas {
 
   findElement = selector => this.document.querySelector(selector)
 
-  findBlock = id => BlockElement.find(id, { window: this.window })
+  findBlockElement = id => BlockElement.find(id, { window: this.window })
 
   import = output => {
     const { html, blockarr } = output
