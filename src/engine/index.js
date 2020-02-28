@@ -5,7 +5,6 @@ let loaded = false
 
 function shim(canvas, drag, release, snapping, spacing_x, spacing_y) {
   return flowy({
-    window: window,
     document: document,
     canvas: new Canvas({ canvas, spacingX: spacing_x, spacingY: spacing_y, window, document }),
     manager: new Manager({ window, document }),
@@ -16,7 +15,6 @@ function shim(canvas, drag, release, snapping, spacing_x, spacing_y) {
 }
 
 function flowy({
-  window,
   document,
   canvas,
   manager,
