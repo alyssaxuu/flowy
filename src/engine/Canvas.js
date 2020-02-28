@@ -1,4 +1,4 @@
-import Block from './Block'
+import BlockElement from './BlockElement'
 
 class Canvas {
   constructor({ window, document, canvas, spacingX = 20, spacingY = 80 }) {
@@ -54,7 +54,7 @@ class Canvas {
 
   findElement = selector => this.document.querySelector(selector)
 
-  findBlock = id => Block.find(id, { window: this.window })
+  findBlock = id => BlockElement.find(id, { window: this.window })
 
   import = output => {
     const { html, blockarr } = output
