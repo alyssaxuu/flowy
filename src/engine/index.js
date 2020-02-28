@@ -24,6 +24,7 @@ function flowy({
   onBlockReleased = void 0,
   onBlockSnapped = void 0
 }) {
+  // NOTE: set callbacks even when initialized to allow React rerenders
   flowy.onBlockGrabbed = onBlockGrabbed
   flowy.onBlockReleased = onBlockReleased
   flowy.onBlockSnapped = onBlockSnapped
