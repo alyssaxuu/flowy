@@ -1,53 +1,199 @@
-import React, { useState } from 'react'
-import TriggersList from './TriggersList'
-import ActionsList from './ActionsList'
-import LoggersList from './LoggersList'
+import React, { useState, useEffect, useCallback } from 'react'
+import flowy from '../..'
+import Navigation from './Navigation'
+import BlockList from './BlockList'
+import Footer from './Footer'
+import images from '../images'
+import useEventListener from './hooks/useEventListener'
 
-import pngs from '../assets/*.png'
-import svgs from '../assets/*.svg'
-const images = { ...pngs, ...svgs }
+import '../../engine/index.css'
+import '../main.css'
 
-const TABS = {
-  triggers: {
-    name: 'Triggers',
-    Component: TriggersList
-  },
-  actions: {
-    name: 'Actions',
-    Component: ActionsList
-  },
-  loggers: {
-    name: 'Loggers',
-    Component: LoggersList
-  }
+function addEventListenerMulti(type, listener, capture, selector) {
+  var nodes = document.querySelectorAll(selector)
+
+  nodes.forEach(node => node.addEventListener(type, listener, capture))
 }
 
+function snapping(drag, first) {
+  var grab = drag.querySelector('.grabme')
+  grab.remove()
+  var blockin = drag.querySelector('.blockin')
+  blockin.remove()
+  var blockelemtype = parseInt(drag.querySelector('.blockelemtype').value)
+
+  switch (blockelemtype) {
+    case 1:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.eyeblue}'>
+            <p class='blockyname'>New visitor</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>When a <span>new visitor</span> goes to <span>Site 1</span></div>
+        `
+      break
+    case 2:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.actionblue}'>
+            <p class='blockyname'>Action is performed</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>When <span>Action 1</span> is performed</div>
+        `
+      break
+    case 3:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.timeblue}'>
+            <p class='blockyname'>Time has passed</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>When <span>10 seconds</span> have passed</div>
+        `
+      break
+    case 4:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.errorblue}'>
+            <p class='blockyname'>Error prompt</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>When <span>Error 1</span> is triggered</div>
+        `
+      break
+    case 5:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.databaseorange}'>
+            <p class='blockyname'>New database entry</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>Add <span>Data object</span> to <span>Database 1</span></div>
+        `
+      break
+    case 6:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.databaseorange}'>
+            <p class='blockyname'>Update database</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>Update <span>Database 1</span></div>
+        `
+      break
+    case 7:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.actionorange}'>
+            <p class='blockyname'>Perform an action</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div><div class='blockyinfo'>Perform <span>Action 1</span></div>
+        `
+      break
+    case 8:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.twitterorange}'>
+            <p class='blockyname'>Make a tweet</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>Tweet <span>Query 1</span> with the account <span>@alyssaxuu</span></div>
+        `
+      break
+    case 9:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.logred}'>
+            <p class='blockyname'>Add new log entry</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>Add new <span>success</span> log entry</div>
+        `
+      break
+    case 10:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.logred}'>
+            <p class='blockyname'>Update logs</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>Edit <span>Log Entry 1</span></div>
+        `
+      break
+    case 11:
+      drag.innerHTML += `
+          <div class='blockyleft'>
+            <img src='${images.errorred}'>
+            <p class='blockyname'>Prompt an error</p>
+          </div>
+          <div class='blockyright'><img src='${images.more}'></div>
+          <div class='blockydiv'></div>
+          <div class='blockyinfo'>Trigger <span>Error 1</span></div>
+        `
+      break
+  }
+
+  return true
+}
+
+// See: https://engineering.datorama.com/mastering-drag-drop-using-reactjs-hooks-fb58dc1f816f
 function App(props) {
-  const [activeTab, setActiveTab] = useState('triggers')
+  const [aclick, setAClick] = useState(false)
+  const [rightcard, setRightCard] = useState(false)
+  const [tempblock, setTempBlock] = useState(null)
+  const [tempblock2, setTempBlock2] = useState(null)
+
+  const beginTouch = () => setAClick(() => true)
+  const checkTouch = () => setAClick(() => false)
+  const doneTouch = ({ target, type }) => {
+    const block = target.closest('.block')
+
+    if (type !== 'mouseup' || !aclick || rightcard || !block) {
+      return
+    }
+
+    setTempBlock(() => block)
+    setRightCard(() => true)
+
+    block.classList.add('selectedblock')
+  }
+
+  const drag = block => {
+    block.classList.add('blockdisabled')
+    setTempBlock2(() => block)
+  }
+
+  const release = useCallback(() => {
+    tempblock2.classList.remove('blockdisabled')
+  }, [tempblock2])
+
+  useEffect(() => {
+    flowy(document.getElementById('canvas'), drag, release, snapping)
+  }, [drag, release, snapping])
+
+  useEventListener('mousedown', beginTouch)
+  useEventListener('mousemove', checkTouch)
+  useEventListener('mouseup', doneTouch)
+
+  useEffect(() => {
+    addEventListenerMulti('touchstart', beginTouch, false, '.block')
+  }, [beginTouch])
 
   return (
     <>
-      <div id="navigation">
-        <div id="leftside">
-          <div id="details">
-            <div id="back">
-              <img src={images.arrow} />
-            </div>
-            <div id="names">
-              <p id="title">Your automation pipeline</p>
-              <p id="subtitle">Marketing automation</p>
-            </div>
-          </div>
-        </div>
-        <div id="centerswitch">
-          <div id="leftswitch">Diagram view</div>
-          <div id="rightswitch">Code editor</div>
-        </div>
-        <div id="buttonsright">
-          <div id="discard">Discard</div>
-          <div id="publish">Publish to site</div>
-        </div>
-      </div>
+      <Navigation />
       <div id="leftcard">
         <div id="closecard">
           <img src={images.closeleft} />
@@ -57,40 +203,26 @@ function App(props) {
           <img src={images.search} />
           <input type="text" placeholder="Search blocks" />
         </div>
-        <div id="subnav">
-          {Object.entries(TABS).map(([key, { name }]) => (
-            <div
-              key={key}
-              id={key}
-              className={`${activeTab === key ? 'navactive' : 'navdisabled'} side`}
-              onClick={() => setActiveTab(key)}
-            >
-              {name}
-            </div>
-          ))}
-        </div>
-        <div id="blocklist">{React.createElement(TABS[activeTab].Component)}</div>
-
-        <div id="footer">
-          <a href="https://github.com/alyssaxuu/flowy/" target="_blank">
-            GitHub
-          </a>
-          <span>·</span>
-          <a href="https://twitter.com/alyssaxuu/status/1199724989353730048" target="_blank">
-            Twitter
-          </a>
-          <span>·</span>
-          <a href="https://alyssax.com" target="_blank">
-            <p>Made with</p>
-            <img src={images.heart} />
-            <p>by</p>
-            Alyssa X
-          </a>
-        </div>
+        <BlockList />
+        <Footer />
       </div>
-      <div id="propwrap">
-        <div id="properties">
-          <div id="close">
+      <div id="propwrap" className={rightcard ? 'itson' : ''}>
+        <div id="properties" className={rightcard ? 'expanded' : ''}>
+          <div
+            id="close"
+            onClick={() => {
+              if (!rightcard) {
+                return
+              }
+
+              setRightCard(() => false)
+
+              setTimeout(function() {
+                // TODO: Somehow delay "propwrap" style change
+              }, 300)
+              tempblock.classList.remove('selectedblock')
+            }}
+          >
             <img src={images.close} />
           </div>
           <p id="header2">Properties</p>
@@ -119,7 +251,9 @@ function App(props) {
             </div>
           </div>
           <div id="divisionthing"></div>
-          <div id="removeblock">Delete blocks</div>
+          <div id="removeblock" onClick={() => flowy.deleteBlocks()}>
+            Delete blocks
+          </div>
         </div>
       </div>
       <div id="canvas"></div>

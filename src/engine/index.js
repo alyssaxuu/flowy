@@ -1,6 +1,8 @@
 import Canvas from './Canvas'
 import Manager from './Manager'
 
+let loaded = false
+
 function shim(canvas, drag, release, snapping, spacing_x, spacing_y) {
   return flowy({
     window: window,
@@ -22,6 +24,16 @@ function flowy({
   onBlockReleased = void 0,
   onBlockSnapped = void 0
 }) {
+  flowy.onBlockGrabbed = onBlockGrabbed
+  flowy.onBlockReleased = onBlockReleased
+  flowy.onBlockSnapped = onBlockSnapped
+
+  if (loaded) {
+    return
+  }
+
+  loaded = true
+
   var blocks = canvas.blocks
   var blockstemp = []
   const paddingX = canvas.spacingX
@@ -55,7 +67,7 @@ function flowy({
     manager.createDragger(grabbedElement, canvas)
     manager.toggleDragging(true)
 
-    onBlockGrabbed(grabbedElement)
+    flowy.onBlockGrabbed(grabbedElement)
   }
 
   document.addEventListener('mousedown', touchblock, false)
@@ -76,7 +88,7 @@ function flowy({
 
     manager.toggleDraggingBlock(false)
 
-    onBlockReleased()
+    flowy.onBlockReleased()
 
     canvas.showIndicator(true)
 
@@ -127,7 +139,7 @@ function flowy({
       draggedBlock.position().top > canvas.position().top + window.scrollY &&
       draggedBlock.position().left > canvas.position().left + window.scrollX
     ) {
-      onBlockSnapped(draggedBlock.element, true, undefined)
+      flowy.onBlockSnapped(draggedBlock.element, true, undefined)
 
       manager.toggleDragging(false)
 
@@ -168,7 +180,7 @@ function flowy({
         ) {
           manager.toggleDragging(false)
 
-          if (manager.isRearranging || onBlockSnapped(draggedBlock.element, false, block)) {
+          if (manager.isRearranging || flowy.onBlockSnapped(draggedBlock.element, false, block)) {
             snap(draggedBlock, block)
           }
 

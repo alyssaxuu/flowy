@@ -1,8 +1,5 @@
 import React from 'react'
-
-import pngs from '../assets/*.png'
-import svgs from '../assets/*.svg'
-const images = { ...pngs, ...svgs }
+import images from '../images'
 
 function LoggersList(props) {
   return (
