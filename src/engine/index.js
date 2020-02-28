@@ -112,12 +112,12 @@ function flowy({
         const currentArrow = currentBlock.arrow()
 
         currentBlock.styles({
-          left: currentBlock.position().left - (canvas.position().left + window.scrollX) + canvas.position().scrollLeft,
-          top: currentBlock.position().top - (canvas.position().top + window.scrollY) + canvas.position().scrollTop
+          left: currentBlock.position().left - canvas.position().left + canvas.position().scrollLeft,
+          top: currentBlock.position().top - canvas.position().top + canvas.position().scrollTop
         })
 
         currentArrow.styles({
-          left: currentArrow.position().left - (canvas.position().left + window.scrollX) + canvas.position().scrollLeft,
+          left: currentArrow.position().left - canvas.position().left + canvas.position().scrollLeft,
           top: currentArrow.position().top - (canvas.position().top + canvas.position().scrollTop) + 'px'
         })
 
@@ -137,18 +137,16 @@ function flowy({
     } else if (
       manager.isDragging &&
       blocks.length == 0 &&
-      draggedBlock.position().top > canvas.position().top + window.scrollY &&
-      draggedBlock.position().left > canvas.position().left + window.scrollX
+      draggedBlock.position().top > canvas.position().top &&
+      draggedBlock.position().left > canvas.position().left
     ) {
       flowy.onBlockSnapped(draggedBlock.element, true, undefined)
 
       manager.toggleDragging(false)
 
       draggedBlock.styles({
-        top:
-          draggedBlock.position().top - (canvas.position().top + window.scrollY) + canvas.position().scrollTop + 'px',
-        left:
-          draggedBlock.position().left - (canvas.position().left + window.scrollX) + canvas.position().scrollLeft + 'px'
+        top: draggedBlock.position().top - canvas.position().top + canvas.position().scrollTop + 'px',
+        left: draggedBlock.position().left - canvas.position().left + canvas.position().scrollLeft + 'px'
       })
 
       canvas.appendChild(draggedBlock.element)
@@ -247,14 +245,14 @@ function flowy({
         blocks.find(id => id.id == block.id).x -
         totalwidth / 2 +
         totalremove -
-        (canvas.position().left + window.scrollX) +
+        canvas.position().left +
         canvas.position().scrollLeft +
         'px',
       top:
         blocks.find(id => id.id == block.id).y +
         blocks.find(id => id.id == block.id).height / 2 +
         paddingY -
-        (canvas.position().top + window.scrollY) +
+        canvas.position().top +
         'px'
     })
 
@@ -275,16 +273,12 @@ function flowy({
         const arrowParent = currentArrow.element
 
         currentBlock.styles({
-          left: currentBlock.position().left - (canvas.position().left + window.scrollX) + canvas.position().scrollLeft,
-          top: currentBlock.position().top - (canvas.position().top + window.scrollY) + canvas.position().scrollTop
+          left: currentBlock.position().left - canvas.position().left + canvas.position().scrollLeft,
+          top: currentBlock.position().top - canvas.position().top + canvas.position().scrollTop
         })
         currentArrow.styles({
-          left:
-            currentArrow.position().left -
-            (canvas.position().left + window.scrollX) +
-            canvas.position().scrollLeft +
-            20,
-          top: currentArrow.position().top - (canvas.position().top + window.scrollY) + canvas.position().scrollTop
+          left: currentArrow.position().left - canvas.position().left + canvas.position().scrollLeft + 20,
+          top: currentArrow.position().top - canvas.position().top + canvas.position().scrollTop
         })
 
         canvas.appendChild(blockParent, arrowParent)
@@ -336,7 +330,7 @@ function flowy({
           </div>
         `)
       draggedBlock.arrow().styles({
-        left: `${x - 5 - (canvas.position().left + window.scrollX) + canvas.position().scrollLeft}px`
+        left: `${x - 5 - canvas.position().left + canvas.position().scrollLeft}px`
       })
     } else {
       canvas.appendHtml(`
@@ -355,7 +349,7 @@ function flowy({
           </div>
         `)
       draggedBlock.arrow().styles({
-        left: `${block.x - 20 - (canvas.position().left + window.scrollX) + canvas.position().scrollLeft}px`
+        left: `${block.x - 20 - canvas.position().left + canvas.position().scrollLeft}px`
       })
     }
     draggedBlock.arrow().styles({
@@ -530,8 +524,8 @@ function flowy({
       })
     } else if (manager.isRearranging) {
       draggedBlock.styles({
-        left: `${clientX - dragX - (canvas.position().left + window.scrollX) + canvas.position().scrollLeft}px`,
-        top: `${clientY - dragY - (canvas.position().top + window.scrollY) + canvas.position().scrollTop}px`
+        left: `${clientX - dragX - canvas.position().left + canvas.position().scrollLeft}px`,
+        top: `${clientY - dragY - canvas.position().top + canvas.position().scrollTop}px`
       })
 
       // TODO: Doesn't look like setting `x` and `y` does anything here - remove?
@@ -583,7 +577,7 @@ function flowy({
 
     manager.setState({ currentOffsetLeft })
 
-    if (currentOffsetLeft < canvas.position().left + window.scrollX) {
+    if (currentOffsetLeft < canvas.position().left) {
       manager.toggleLastEvent(true)
 
       blocks.forEach(({ id, x, width, parent }) => {
@@ -623,7 +617,7 @@ function flowy({
   function fixOffset() {
     const { previousOffsetLeft } = manager.state
 
-    if (previousOffsetLeft >= canvas.position().left + window.scrollX) {
+    if (previousOffsetLeft >= canvas.position().left) {
       return
     }
 
@@ -647,10 +641,7 @@ function flowy({
       var arrowX = x - parentX
 
       currentArrow.styles({
-        left:
-          arrowX < 0
-            ? `${x - 5 - (canvas.position().left + window.scrollX)}px`
-            : parentX - 20 - (canvas.position().left + window.scrollX) + 'px'
+        left: arrowX < 0 ? `${x - 5 - canvas.position().left}px` : parentX - 20 - canvas.position().left + 'px'
       })
     })
 
@@ -705,12 +696,12 @@ function flowy({
               totalremove +
               children.childwidth / 2 -
               children.width / 2 -
-              (canvas.position().left + window.scrollX) +
+              canvas.position().left +
               'px'
           })
         } else {
           currentBlock.styles({
-            left: r_array[0].x - totalwidth / 2 + totalremove - (canvas.position().left + window.scrollX) + 'px'
+            left: r_array[0].x - totalwidth / 2 + totalremove - canvas.position().left + 'px'
           })
         }
 
@@ -723,12 +714,12 @@ function flowy({
         const arrowY = y - height / 2 - (parentY + parentHeight / 2)
 
         currentArrow.styles({
-          top: parentY + parentHeight / 2 - (canvas.position().top + window.scrollY) + 'px'
+          top: parentY + parentHeight / 2 - canvas.position().top + 'px'
         })
 
         if (arrowX < 0) {
           currentArrow.styles({
-            left: x - 5 - (canvas.position().left + window.scrollX) + 'px'
+            left: x - 5 - canvas.position().left + 'px'
           })
           currentArrow.html(`
               <input type="hidden" class="arrowid" value="${children.id}">
@@ -745,7 +736,7 @@ function flowy({
             `)
         } else {
           currentArrow.styles({
-            left: parentX - 20 - (canvas.position().left + window.scrollX) + 'px'
+            left: parentX - 20 - canvas.position().left + 'px'
           })
           currentArrow.html(`
               <input type="hidden" class="arrowid" value="${children.id}">
