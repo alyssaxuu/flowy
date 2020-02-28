@@ -3,9 +3,9 @@ import ArrowElement from './ArrowElement'
 class BlockElement {
   static find = (id, { window }) => {
     const { document } = window
-    const node = document.querySelector(`.blockid[value='${id}']`).parentNode
+    const node = document.querySelector(`.blockid[value='${id}']`)
 
-    return node ? new this(id, node, { window }) : null
+    return node ? new this(id, node.parentNode, { window }) : null
   }
 
   static fromElement = (node, { window }) => {
@@ -31,9 +31,13 @@ class BlockElement {
     }
   }
 
-  styles = styles => Object.assign(this.node.style, styles)
+  styles = styles => {
+    return Object.assign(this.node.style, styles)
+  }
 
-  arrow = () => ArrowElement.find(this)
+  arrow = () => {
+    return ArrowElement.find(this)
+  }
 }
 
 export default BlockElement

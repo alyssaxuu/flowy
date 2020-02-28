@@ -1,19 +1,23 @@
 import BlockElement from './BlockElement'
+import Block from './Block'
 
 class Canvas {
-  constructor({ window, document, canvas, spacingX = 20, spacingY = 80 }) {
+  constructor({ window, document, node, spacingX = 20, spacingY = 80 }) {
     this.window = window
     this.document = document
-    this.canvas = canvas
+    this.node = node
     this.spacingX = spacingX
     this.spacingY = spacingY
 
+    this.state = {}
     this.blocks = []
     this.isInitialized = false
     this.isDragging = false
     this.isDraggingBlock = false
     this.isRearranging = false
     this.isLastEvent = false
+    this.grabbedNode = null
+    this.draggedElement = null
   }
 
   initialize = () => {
@@ -28,31 +32,31 @@ class Canvas {
     el.classList.add('indicator')
     el.classList.add('invisible')
 
-    this.canvas.appendChild(el)
+    this.node.appendChild(el)
   }
 
   position = () => {
-    const { top, left } = this.canvas.getBoundingClientRect()
+    const { top, left } = this.node.getBoundingClientRect()
     return {
       top: top + this.window.scrollY,
       left: left + this.window.scrollX,
-      scrollTop: this.canvas.scrollTop,
-      scrollLeft: this.canvas.scrollLeft
+      scrollTop: this.node.scrollTop,
+      scrollLeft: this.node.scrollLeft
     }
   }
 
   html = html => {
     if (html !== undefined) {
-      this.canvas.innerHTML = html
+      this.node.innerHTML = html
     }
-    return this.canvas.innerHTML
+    return this.node.innerHTML
   }
 
-  appendHtml = html => (this.canvas.innerHTML += html)
+  appendHtml = html => (this.node.innerHTML += html)
 
-  appendChild = (...children) => children.forEach(child => this.canvas.appendChild(child))
-
-  findElement = selector => this.document.querySelector(selector)
+  appendChild = (...children) => {
+    children.forEach(child => this.node.appendChild(child))
+  }
 
   findBlockElement = id => BlockElement.find(id, { window: this.window })
 
@@ -63,9 +67,96 @@ class Canvas {
     this.replaceBlocks(blockarr)
   }
 
-  replaceBlocks = blocks => this.blocks.splice(0, this.blocks.length, ...blocks)
+  createDragger = grabbedNode => {
+    const { mouseX, mouseY } = this.state
+    const draggedElement = grabbedNode.cloneNode(true)
+    const id = this.nextBlockID()
 
-  appendBlocks = blocks => this.blocks.push(...blocks)
+    draggedElement.classList.remove('create-flowy')
+    draggedElement.innerHTML += `<input type='hidden' name='blockid' class='blockid' value='${id}'>`
+
+    this.document.body.appendChild(draggedElement)
+
+    this.grabbedNode = grabbedNode
+
+    this.registerDragger(draggedElement)
+
+    const { dragX, dragY } = this.setState({
+      dragX: mouseX - grabbedNode.offsetLeft,
+      dragY: mouseY - grabbedNode.offsetTop
+    })
+
+    this.draggedElement.styles({
+      left: `${mouseX - dragX}px`,
+      top: `${mouseY - dragY}px`
+    })
+
+    this.toggleDragger(true)
+
+    return draggedElement
+  }
+
+  registerDragger = draggedElement => {
+    this.draggedElement = BlockElement.fromElement(draggedElement, { window: this.window })
+  }
+
+  toggleDragger = (start, { remove = false } = {}) => {
+    const draggedElement = this.draggedElement.node
+
+    if (start) {
+      this.grabbedNode.classList.add('dragnow')
+      draggedElement.classList.add('dragging')
+      draggedElement.classList.add('block')
+    } else {
+      this.grabbedNode.classList.remove('dragnow')
+      draggedElement.classList.remove('dragging')
+
+      if (remove) {
+        draggedElement.remove()
+      }
+    }
+  }
+
+  nextBlockID = () => (this.blocks.length === 0 ? 0 : Math.max(...this.blocks.map(({ id }) => id)) + 1)
+
+  addBlockForElement = (blockElement, { parent = -1, childWidth = 0 } = {}) => {
+    this.blocks.push(
+      new Block({
+        parent,
+        childWidth,
+        id: blockElement.id,
+        x: blockElement.position().left + blockElement.position().width / 2 + this.position().scrollLeft,
+        y: blockElement.position().top + blockElement.position().height / 2 + this.position().scrollTop,
+        width: blockElement.position().width,
+        height: blockElement.position().height
+      })
+    )
+  }
+
+  findBlockForElement = blockElement => this.blocks.find(({ id }) => id === blockElement.id)
+
+  replaceBlocks = blocks => {
+    this.blocks.splice(0, this.blocks.length, ...blocks)
+  }
+
+  appendBlocks = blocks => {
+    this.blocks.push(...blocks)
+  }
+
+  removeBlock = (block, { removeArrow = false } = {}) => {
+    this.replaceBlocks(this.blocks.filter(({ id }) => id != block.id))
+
+    // remove arrow for child blocks
+    if (removeArrow) {
+      this.findBlockElement(block.id)
+        .arrow()
+        .remove()
+    }
+  }
+
+  childBlocksFor = block => {
+    return this.blocks.filter(({ parent }) => parent == block.id)
+  }
 
   output = () => {
     const { blocks } = this
@@ -121,6 +212,29 @@ class Canvas {
     } else if (!classList.contains('invisible')) {
       classList.add('invisible')
     }
+  }
+
+  setState = state => {
+    return Object.assign(this.state, state)
+  }
+
+  getState = key => this.state[key]
+
+  toggleDragging = dragging => {
+    this.isDragging = dragging
+  }
+
+  toggleDraggingBlock = dragging => {
+    this.isDraggingBlock = dragging
+  }
+
+  toggleRearranging = rearranging => {
+    this.isRearranging = rearranging
+  }
+
+  toggleLastEvent = last => {
+    console.log('[toggleLastEvent]', last)
+    this.isLastEvent = last
   }
 }
 
