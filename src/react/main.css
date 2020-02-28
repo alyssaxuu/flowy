@@ -147,16 +147,6 @@ html {
   z-index: 2;
   transition: left 0.25s cubic-bezier(0.05, 0.03, 0.35, 1);
 }
-#propwrap {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 311px;
-  height: 100%;
-  padding-left: 20px;
-  overflow: hidden;
-  z-index: -2;
-}
 #leftcard.expanded {
   left: 0 !important;
   /* opacity: 1 !important; */
@@ -414,16 +404,6 @@ html {
   z-index: 0;
   overflow: auto;
 }
-#propwrap {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 311px;
-  height: 100%;
-  padding-left: 20px;
-  overflow: hidden;
-  z-index: -2;
-}
 #properties {
   position: absolute;
   height: 100%;
@@ -433,18 +413,15 @@ html {
   opacity: 0;
   z-index: 2;
   top: 0;
-  box-shadow: -4px 0px 40px rgba(26, 26, 73, 0);
   padding-left: 20px;
+  box-shadow: -4px 0px 40px rgba(26, 26, 73, 0);
   transition: all 0.25s cubic-bezier(0.05, 0.03, 0.35, 1);
-}
-#propwrap.itson {
-  z-index: 2 !important;
 }
 #properties.expanded {
   right: 0 !important;
   opacity: 1 !important;
-  box-shadow: -4px 0px 40px rgba(26, 26, 73, 0.05);
   z-index: 2;
+  box-shadow: -4px 0px 40px rgba(26, 26, 73, 0.05);
 }
 #header2 {
   font-size: 20px;
