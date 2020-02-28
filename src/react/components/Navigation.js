@@ -1,7 +1,7 @@
 import React from 'react'
 import images from '../images'
 
-export default function(props) {
+export default function({ title, description }) {
   return (
     <>
       <div id="navigation">
@@ -11,8 +11,8 @@ export default function(props) {
               <img src={images.arrow} />
             </div>
             <div id="names">
-              <p id="title">Your automation pipeline</p>
-              <p id="subtitle">Marketing automation</p>
+              <p id="title">{title}</p>
+              <p id="subtitle">{description}</p>
             </div>
           </div>
         </div>

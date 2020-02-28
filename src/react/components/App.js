@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import flowy from '../..'
 import Navigation from './Navigation'
-import BlockList from './BlockList'
-import Footer from './Footer'
+import LeftCard from './LeftCard'
+import RightCard from './RightCard'
 import images from '../images'
 import useEventListener from './hooks/useEventListener'
 
@@ -151,6 +151,7 @@ function snapping(drag, first) {
 // See: https://engineering.datorama.com/mastering-drag-drop-using-reactjs-hooks-fb58dc1f816f
 function App(props) {
   const [aclick, setAClick] = useState(false)
+  const [leftcard, setLeftCard] = useState(true)
   const [rightcard, setRightCard] = useState(false)
   const [tempblock, setTempBlock] = useState(null)
   const [tempblock2, setTempBlock2] = useState(null)
@@ -193,69 +194,19 @@ function App(props) {
 
   return (
     <>
-      <Navigation />
-      <div id="leftcard">
-        <div id="closecard">
-          <img src={images.closeleft} />
-        </div>
-        <p id="header">Blocks</p>
-        <div id="search">
-          <img src={images.search} />
-          <input type="text" placeholder="Search blocks" />
-        </div>
-        <BlockList />
-        <Footer />
-      </div>
-      <div id="propwrap" className={rightcard ? 'itson' : ''}>
-        <div id="properties" className={rightcard ? 'expanded' : ''}>
-          <div
-            id="close"
-            onClick={() => {
-              if (!rightcard) {
-                return
-              }
+      <Navigation title="Your automation pipeline" description="Marketing automation" />
+      <LeftCard open={leftcard} onClose={() => setLeftCard(false)} />
+      <RightCard
+        open={rightcard}
+        onClose={() => {
+          setRightCard(false)
 
-              setRightCard(() => false)
-
-              setTimeout(function() {
-                // TODO: Somehow delay "propwrap" style change
-              }, 300)
-              tempblock.classList.remove('selectedblock')
-            }}
-          >
-            <img src={images.close} />
-          </div>
-          <p id="header2">Properties</p>
-          <div id="propswitch">
-            <div id="dataprop">Data</div>
-            <div id="alertprop">Alerts</div>
-            <div id="logsprop">Logs</div>
-          </div>
-          <div id="proplist">
-            <p className="inputlabel">Select database</p>
-            <div className="dropme">
-              Database 1 <img src={images.dropdown} />
-            </div>
-            <p className="inputlabel">Check properties</p>
-            <div className="dropme">
-              All
-              <img src={images.dropdown} />
-            </div>
-            <div className="checkus">
-              <img src={images.checkon} />
-              <p>Log on successful performance</p>
-            </div>
-            <div className="checkus">
-              <img src={images.checkoff} />
-              <p>Give priority to this block</p>
-            </div>
-          </div>
-          <div id="divisionthing"></div>
-          <div id="removeblock" onClick={() => flowy.deleteBlocks()}>
-            Delete blocks
-          </div>
-        </div>
-      </div>
+          setTimeout(function() {
+            // TODO: Somehow delay "propwrap" style change
+          }, 300)
+          tempblock.classList.remove('selectedblock')
+        }}
+      />
       <div id="canvas"></div>
     </>
   )
