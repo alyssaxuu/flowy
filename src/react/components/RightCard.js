@@ -1,7 +1,7 @@
 import React from 'react'
 import images from '../images'
 
-export default function({ open, onClose }) {
+export default function({ open, onRemove, onClose }) {
   return (
     <>
       <div id="properties" className={open ? 'expanded' : ''}>
@@ -34,7 +34,7 @@ export default function({ open, onClose }) {
           </div>
         </div>
         <div id="divisionthing"></div>
-        <div id="removeblock" onClick={() => flowy.deleteBlocks()}>
+        <div id="removeblock" onClick={onRemove}>
           Delete blocks
         </div>
       </div>

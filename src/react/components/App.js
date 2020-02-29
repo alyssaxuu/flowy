@@ -198,6 +198,11 @@ function App(props) {
       <LeftCard open={leftcard} onToggle={() => setLeftCard(!leftcard)} />
       <RightCard
         open={rightcard}
+        onRemove={() => {
+          flowy.deleteBlocks()
+          setRightCard(false)
+          setLeftCard(true)
+        }}
         onClose={() => {
           setRightCard(false)
 
