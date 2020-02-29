@@ -474,7 +474,8 @@ function flowy({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap =
 
       var totalRemove = 0
 
-      const childBlocks = canvas.blocks.filter(({ parent }) => parent == parents[z])
+      const parentBlock = canvas.findBlock(parents[z])
+      const childBlocks = canvas.findChildBlocks(parents[z])
 
       var totalWidth = childBlocks.reduce((total, block, i) => {
         if (canvas.findChildBlocks(block.id).length == 0) {
@@ -489,7 +490,7 @@ function flowy({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap =
       }, 0)
 
       if (parents[z] != -1) {
-        canvas.blocks.find(a => a.id == parents[z]).childWidth = totalWidth
+        parentBlock.childWidth = totalWidth
       }
 
       const { left, top } = canvas.position()
@@ -497,25 +498,24 @@ function flowy({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap =
       childBlocks.forEach(block => {
         const blockElement = canvas.findBlockElement(block.id)
         const arrowElement = blockElement.arrow()
-        // TODO: Fix use of `r_array` as array of results and as instance below
-        const r_array = canvas.blocks.filter(({ id }) => id == parents[z])
 
-        blockElement.styles({
-          top: r_array.y + canvas.spacingY
-        })
-        r_array.y = r_array.y + canvas.spacingY
+        // blockElement.styles({
+        //   top: parentBlock.y + canvas.spacingY + 'px'
+        // })
+
+        // parentBlock.y = parentBlock.y + canvas.spacingY
 
         if (block.childWidth > block.width) {
           blockElement.styles({
-            left: r_array[0].x - totalWidth / 2 + totalRemove + block.childWidth / 2 - block.width / 2 - left
+            left: parentBlock.x - totalWidth / 2 + totalRemove + block.childWidth / 2 - block.width / 2 - left + 'px'
           })
         } else {
           blockElement.styles({
-            left: r_array[0].x - totalWidth / 2 + totalRemove - left
+            left: parentBlock.x - totalWidth / 2 + totalRemove - left + 'px'
           })
         }
 
-        block.x = r_array[0].x - totalWidth / 2 + totalRemove + block.maxWidth / 2
+        block.x = parentBlock.x - totalWidth / 2 + totalRemove + block.maxWidth / 2
         totalRemove += block.maxWidth + canvas.spacingX
 
         const parent = canvas.findBlock(block.parent)
