@@ -273,10 +273,13 @@ function flowy({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap =
       do {
         const children = canvas.blocks.filter(({ parent }) => parent == loopBlock.id)
 
-        loopBlock.childWidth = children.reduce(
-          (zwidth, { maxWidth }) => zwidth + maxWidth,
-          children.length ? canvas.spacingX : 0
-        )
+        loopBlock.childWidth = children.reduce((zwidth, { maxWidth }, w) => {
+          // skip one item
+          if (w !== 0) {
+            zwidth += canvas.spacingX
+          }
+          return zwidth + maxWidth
+        }, 0)
 
         loopBlock = canvas.blocks.find(({ id }) => id == loopBlock.parent)
       } while (loopBlock.parent != -1)
