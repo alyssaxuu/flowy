@@ -21,11 +21,12 @@ class BlockElement {
   }
 
   position = () => {
+    const { top, left } = this.node.getBoundingClientRect()
     const { height, width } = this.window.getComputedStyle(this.node)
 
     return {
-      top: this.node.getBoundingClientRect().top + this.window.scrollY,
-      left: this.node.getBoundingClientRect().left + this.window.scrollX,
+      top: top + this.window.scrollY,
+      left: left + this.window.scrollX,
       height: parseInt(height),
       width: parseInt(width)
     }

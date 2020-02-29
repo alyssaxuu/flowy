@@ -20,10 +20,14 @@ class ArrowElement {
     return this.node.innerHTML
   }
 
-  position = () => ({
-    top: this.node.getBoundingClientRect().top + this.window.scrollY,
-    left: this.node.getBoundingClientRect().left + this.window.scrollX
-  })
+  position = () => {
+    const { top, left } = this.node.getBoundingClientRect()
+
+    return {
+      top: top + this.window.scrollY,
+      left: left + this.window.scrollX
+    }
+  }
 
   styles = styles => {
     return Object.assign(this.node.style, styles)
