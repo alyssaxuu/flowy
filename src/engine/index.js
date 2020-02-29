@@ -2,32 +2,27 @@ import Canvas from './Canvas'
 
 let loaded = false
 
-function shim(canvas, drag, release, snapping, spacing_x, spacing_y) {
+function shim(canvas, onGrab, onRelease, onSnap, spacingX, spacingY) {
   return flowy({
     document: document,
-    canvas: new Canvas({ node: canvas, spacingX: spacing_x, spacingY: spacing_y, window, document }),
-    onBlockGrabbed: drag,
-    onBlockReleased: release,
-    onBlockSnapped: snapping
+    canvas: new Canvas({ node: canvas, spacingX, spacingY, window, document }),
+    onGrab,
+    onRelease,
+    onSnap
   })
 }
 
-function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = void 0, onBlockSnapped = void 0 }) {
+function flowy({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap = void 0 }) {
   // NOTE: set callbacks even when initialized to allow React rerenders
-  flowy.onBlockGrabbed = onBlockGrabbed
-  flowy.onBlockReleased = onBlockReleased
-  flowy.onBlockSnapped = onBlockSnapped
+  flowy.onGrab = onGrab
+  flowy.onRelease = onRelease
+  flowy.onSnap = onSnap
 
   if (loaded) {
     return
   }
 
   loaded = true
-
-  var blocks = canvas.blocks
-  var blocksTemp = []
-  const paddingX = canvas.spacingX
-  const paddingY = canvas.spacingY
 
   canvas.initialize()
   canvas.setState({
@@ -57,10 +52,10 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
       return
     }
 
-    canvas.createDragger(grabbedNode)
+    canvas.grab(grabbedNode)
     canvas.toggleDragging(true)
 
-    flowy.onBlockGrabbed(grabbedNode)
+    flowy.onGrab(grabbedNode)
   }
 
   document.addEventListener('mousedown', touchblock, false)
@@ -81,9 +76,9 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
 
     canvas.toggleDraggingBlock(false)
 
-    flowy.onBlockReleased()
+    flowy.onRelease()
 
-    canvas.showIndicator(true)
+    canvas.showIndicator(false)
 
     const { draggedElement } = canvas
 
@@ -94,89 +89,39 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
     if (draggedElement.id === 0 && canvas.isRearranging) {
       canvas.toggleDragger(false)
       canvas.toggleRearranging(false)
+      canvas.ungroupDraggedTree()
+    } else if (canvas.isDragging && canvas.blocks.length == 0) {
+      if (canvas.inDropZone()) {
+        flowy.onSnap(draggedElement.node, true, undefined)
 
-      blocksTemp.forEach(block => {
-        if (block.id == draggedElement.id) {
-          return
-        }
-
-        const blockElement = canvas.findBlockElement(block.id)
-        const arrowElement = blockElement.arrow()
-
-        blockElement.styles({
-          left: blockElement.position().left - canvas.position().left + canvas.position().scrollLeft,
-          top: blockElement.position().top - canvas.position().top + canvas.position().scrollTop
-        })
-
-        arrowElement.styles({
-          left: arrowElement.position().left - canvas.position().left + canvas.position().scrollLeft,
-          top: arrowElement.position().top - (canvas.position().top + canvas.position().scrollTop)
-        })
-
-        canvas.appendChild(blockElement.node, arrowElement.node)
-
-        block.x = blockElement.position().left + blockElement.node.offsetWidth / 2 + canvas.position().scrollLeft
-        block.y = blockElement.position().top + blockElement.node.offsetHeight / 2 + canvas.position().scrollTop
-      })
-
-      const firstBlock = blocksTemp.find(({ id }) => id == 0)
-
-      firstBlock.x = draggedElement.position().left + draggedElement.position().width / 2
-      firstBlock.y = draggedElement.position().top + draggedElement.position().height / 2
-
-      canvas.appendBlocks(blocksTemp)
-      blocksTemp = []
-    } else if (
-      canvas.isDragging &&
-      blocks.length == 0 &&
-      draggedElement.position().top > canvas.position().top &&
-      draggedElement.position().left > canvas.position().left
-    ) {
-      flowy.onBlockSnapped(draggedElement.node, true, undefined)
-
-      canvas.toggleDragging(false)
-
-      draggedElement.styles({
-        top: draggedElement.position().top - canvas.position().top + canvas.position().scrollTop,
-        left: draggedElement.position().left - canvas.position().left + canvas.position().scrollLeft
-      })
-
-      canvas.appendChild(draggedElement.node)
-      canvas.addBlockForElement(draggedElement)
-    } else if (canvas.isDragging && blocks.length == 0) {
-      canvas.appendChild(document.querySelector('.indicator'))
-      canvas.toggleDragger(false, { remove: true })
+        canvas.toggleDragging(false)
+        canvas.drop()
+      } else {
+        canvas.cancelDrop()
+      }
     } else if (canvas.isDragging || canvas.isRearranging) {
-      var xpos = draggedElement.position().left + draggedElement.position().width / 2 + canvas.position().scrollLeft
-      var ypos = draggedElement.position().top + canvas.position().scrollTop
-
-      for (var i = 0; i < blocks.length; i++) {
-        const block = blocks[i]
-        const { x, y, height, width } = block
-
-        if (
-          xpos >= x - width / 2 - paddingX &&
-          xpos <= x + width / 2 + paddingX &&
-          ypos >= y - height / 2 &&
-          ypos <= y + height
-        ) {
+      const snapped = canvas.blocks.find((block, i) => {
+        if (canvas.inSnapZoneFor(block)) {
           canvas.toggleDragging(false)
 
-          if (canvas.isRearranging || flowy.onBlockSnapped(draggedElement.node, false, block)) {
-            snap(draggedElement, block)
+          if (canvas.isRearranging || flowy.onSnap(draggedElement.node, false, block)) {
+            snap(block)
           }
 
-          break
-        } else if (i == blocks.length - 1) {
-          if (canvas.isRearranging) {
-            canvas.toggleRearranging(false)
-            blocksTemp = []
-          }
-
-          canvas.toggleDragging(false)
-          canvas.appendChild(document.querySelector('.indicator'))
-          canvas.toggleDragger(false, { remove: true })
+          return true
         }
+      })
+
+      if (!snapped) {
+        if (canvas.isRearranging) {
+          canvas.toggleRearranging(false)
+          // TODO: Determine if we need to do more than clear out `draggedTree`
+          // blocksTemp = []
+          canvas.draggedTree.splice(0)
+        }
+
+        canvas.toggleDragging(false)
+        canvas.cancelDrop()
       }
     }
   }
@@ -184,28 +129,29 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
   document.addEventListener('mouseup', flowy.endDrag, false)
   document.addEventListener('touchend', flowy.endDrag, false)
 
-  function snap(draggedElement, block) {
+  function snap(block) {
+    const { draggedElement } = canvas
     if (!canvas.isRearranging) {
+      // TODO: replace with `canvas.drop()`?
       canvas.appendChild(draggedElement.node)
     }
 
-    var totalWidth = 0
     var totalRemove = 0
-    var maxheight = 0
 
-    const childBlocks = canvas.childBlocksFor(block)
+    const childBlocks = canvas.findChildBlocks(block.id)
 
-    childBlocks.forEach(block => (totalWidth += block.maxWidth + paddingX))
-
-    totalWidth += draggedElement.position().width
+    const totalWidth = childBlocks.reduce(
+      (total, { maxWidth }) => total + maxWidth + canvas.spacingX,
+      canvas.draggedElement.position().width
+    )
 
     childBlocks.forEach(childBlock => {
-      const { id, childWidth, width } = childBlock
+      const { id, childWidth, width, maxWidth } = childBlock
       const childElement = canvas.findBlockElement(id)
       let left = block.x - totalWidth / 2 + totalRemove
 
-      childBlock.x = left + childBlock.maxWidth / 2 + 200
-      totalRemove += childBlock.maxWidth + paddingX
+      childBlock.x = left + maxWidth / 2 + 200
+      totalRemove += maxWidth + canvas.spacingX
 
       if (childWidth > width) {
         left += childWidth / 2 - width / 2
@@ -214,139 +160,126 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
       childElement.styles({ left })
     })
 
-    draggedElement.styles({
-      left:
-        blocks.find(id => id.id == block.id).x -
-        totalWidth / 2 +
-        totalRemove -
-        canvas.position().left +
-        canvas.position().scrollLeft,
-      top:
-        blocks.find(id => id.id == block.id).y +
-        blocks.find(id => id.id == block.id).height / 2 +
-        paddingY -
-        canvas.position().top
+    const { top, left, scrollTop, scrollLeft } = canvas.position()
+
+    canvas.draggedElement.styles({
+      left: block.x - totalWidth / 2 + totalRemove - left + scrollLeft,
+      top: block.y + block.height / 2 + canvas.spacingY - top
     })
 
     if (canvas.isRearranging) {
-      const dragtemp = blocksTemp.find(({ id }) => id == draggedElement.id)
-      dragtemp.x =
-        draggedElement.position().left + draggedElement.position().width / 2 + canvas.position().scrollLeft * 2
-      dragtemp.y = draggedElement.position().top + draggedElement.position().height / 2 + canvas.position().scrollTop
-      dragtemp.parent = block.id
+      const { height, width } = draggedElement.position()
+      const draggedTreeBlock = canvas.findBlock(draggedElement.id, { tree: true })
 
-      for (var w = 0; w < blocksTemp.length; w++) {
-        if (parseInt(blocksTemp[w].id) === draggedElement.id) {
-          continue
+      draggedTreeBlock.x = draggedElement.position().left + width / 2 + scrollLeft * 2
+      draggedTreeBlock.y = draggedElement.position().top + height / 2 + scrollTop
+      draggedTreeBlock.parent = block.id
+
+      canvas.draggedTree.forEach(treeBlock => {
+        if (treeBlock.id === draggedElement.id) {
+          return
         }
 
-        const blockElement = canvas.findBlockElement(blocksTemp[w].id)
+        const blockElement = canvas.findBlockElement(treeBlock.id)
         const arrowElement = blockElement.arrow()
         const blockParent = blockElement.node
         const arrowParent = arrowElement.node
 
         blockElement.styles({
-          left: blockElement.position().left - canvas.position().left + canvas.position().scrollLeft,
-          top: blockElement.position().top - canvas.position().top + canvas.position().scrollTop
+          left: blockElement.position().left - left + scrollLeft,
+          top: blockElement.position().top - top + scrollTop
         })
         arrowElement.styles({
-          left: arrowElement.position().left - canvas.position().left + canvas.position().scrollLeft + 20,
-          top: arrowElement.position().top - canvas.position().top + canvas.position().scrollTop
+          left: arrowElement.position().left - left + scrollLeft + 20,
+          top: arrowElement.position().top - top + scrollTop
         })
 
         canvas.appendChild(blockParent, arrowParent)
 
-        blocksTemp[w].x =
-          blockElement.position().left + draggedElement.position().width / 2 + canvas.position().scrollLeft
-        blocksTemp[w].y =
-          blockElement.position().top + draggedElement.position().height / 2 + canvas.position().scrollTop
-      }
+        treeBlock.x = blockElement.position().left + width / 2 + scrollLeft
+        treeBlock.y = blockElement.position().top + height / 2 + scrollTop
+      })
 
-      canvas.appendBlocks(blocksTemp)
-      blocksTemp = []
+      canvas.appendBlocks(canvas.draggedTree)
+      canvas.draggedTree.splice(0)
     } else {
       canvas.addBlockForElement(draggedElement, { parent: block.id })
     }
 
-    var { x, y, height } = blocks.find(({ id }) => id == draggedElement.id)
-    var arrowX = x - block.x + 20
-    var arrowY = parseFloat(
+    const draggedBlock = canvas.findBlock(draggedElement.id)
+    const { x, y, height } = draggedBlock
+    const arrowX = x - block.x + 20
+    // TODO: should this be using the first match?
+    const arrowY = parseFloat(
       y -
         height / 2 -
-        (blocks.find(({ parent }) => parent == block.id).y +
-          blocks.find(({ parent }) => parent == block.id).height / 2) +
-        canvas.position().scrollTop
+        (canvas.blocks.find(({ parent }) => parent == block.id).y +
+          canvas.blocks.find(({ parent }) => parent == block.id).height / 2) +
+        scrollTop
     )
 
     if (arrowX < 0) {
       canvas.appendHtml(`
-          <div class="arrowblock">
-            <input type="hidden" class="arrowid" value="${draggedElement.id}">
-            <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="
-                M${blocks.find(a => a.id == block.id).x - x + 5}
-                0L${blocks.find(a => a.id == block.id).x - x + 5}
-                ${paddingY / 2}L5
-                ${paddingY / 2}L5
-                ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
-              <path d="M0 ${arrowY - 5}H10L5
-                ${arrowY}L0
-                ${arrowY - 5}Z" fill="#C5CCD0"/>
-            </svg>
-          </div>
-        `)
+        <div class="arrowblock">
+          <input type="hidden" class="arrowid" value="${draggedElement.id}">
+          <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="
+              M ${block.x - x + 5} 0
+              L ${block.x - x + 5} ${canvas.spacingY / 2}
+              L 5 ${canvas.spacingY / 2}
+              L 5 ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
+            <path d="
+              M 0 ${arrowY - 5}
+              H 10
+              L 5 ${arrowY}
+              L 0 ${arrowY - 5}
+              Z" fill="#C5CCD0"/>
+          </svg>
+        </div>
+      `)
       draggedElement.arrow().styles({
-        left: `${x - 5 - canvas.position().left + canvas.position().scrollLeft}px`
+        left: x - 5 - left + scrollLeft
       })
     } else {
       canvas.appendHtml(`
-          <div class="arrowblock">
-            <input type="hidden" class="arrowid" value="${draggedElement.id}">
-            <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 0L20
-                ${paddingY / 2}L${arrowX}
-                ${paddingY / 2}L${arrowX}
-                ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
-              <path d="M${arrowX - 5}
-                ${arrowY - 5}H${arrowX + 5}L${arrowX}
-                ${arrowY}L${arrowX - 5}
-                ${arrowY - 5}Z" fill="#C5CCD0"/>
-            </svg>
-          </div>
-        `)
+        <div class="arrowblock">
+          <input type="hidden" class="arrowid" value="${draggedElement.id}">
+          <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="
+              M 20 0
+              L 20 ${canvas.spacingY / 2}
+              L ${arrowX} ${canvas.spacingY / 2}
+              L ${arrowX} ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
+            <path d="
+              M ${arrowX - 5} ${arrowY - 5}
+              H ${arrowX + 5}
+              L ${arrowX} ${arrowY}
+              L ${arrowX - 5} ${arrowY - 5}
+              Z" fill="#C5CCD0"/>
+          </svg>
+        </div>
+      `)
       draggedElement.arrow().styles({
-        left: `${block.x - 20 - canvas.position().left + canvas.position().scrollLeft}px`
+        left: block.x - 20 - left + scrollLeft
       })
     }
     draggedElement.arrow().styles({
-      top: `${block.y + block.height / 2}px`
+      top: block.y + block.height / 2
     })
 
     if (block.parent != -1) {
-      let idval = block.id
-      let loopBlock
+      let loopBlock = block
 
-      while (true) {
-        loopBlock = blocks.find(({ id }) => id == idval)
+      do {
+        const children = canvas.blocks.filter(({ parent }) => parent == loopBlock.id)
 
-        if (loopBlock.parent == -1) {
-          break
-        }
+        loopBlock.childWidth = children.reduce(
+          (zwidth, { maxWidth }) => zwidth + maxWidth,
+          children.length ? canvas.spacingX : 0
+        )
 
-        let zwidth = 0
-        const parents = blocks.filter(({ parent }) => parent == idval)
-
-        parents.forEach(({ childWidth, width }, w) => {
-          zwidth += Math.max(childWidth, width)
-
-          if (w !== parents.length - 1) {
-            zwidth += paddingX
-          }
-        })
-
-        loopBlock.childWidth = zwidth
-        idval = loopBlock.parent
-      }
+        loopBlock = canvas.blocks.find(({ id }) => id == loopBlock.parent)
+      } while (loopBlock.parent != -1)
 
       loopBlock.childWidth = totalWidth
     }
@@ -399,54 +332,14 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
   }
 
   flowy.moveBlock = function(event) {
-    const { mouseX, mouseY } = handleCoordinates(event)
+    handleCoordinates(event)
+
     const { draggedElement } = canvas
 
     if (canvas.isDraggingBlock) {
       canvas.toggleRearranging(true)
       canvas.toggleDragger(true)
-
-      const draggedBlock = canvas.findBlockForElement(draggedElement)
-
-      blocksTemp.push(draggedBlock)
-      // remove dragged block from canvas
-      canvas.removeBlock(draggedBlock, { removeArrow: true })
-
-      const childBlocks = canvas.childBlocksFor(draggedBlock)
-      let layer = childBlocks
-      const allBlocks = []
-
-      // Move child block DOM nodes into dragged block node for easier dragging
-      do {
-        const foundids = layer.map(({ id }) => id)
-
-        layer.forEach(block => {
-          blocksTemp.push(block)
-
-          const blockElement = canvas.findBlockElement(block.id)
-          const arrowElement = blockElement.arrow()
-
-          blockElement.styles({
-            left: blockElement.position().left - draggedElement.position().left,
-            top: blockElement.position().top - draggedElement.position().top
-          })
-          arrowElement.styles({
-            left: arrowElement.position().left - draggedElement.position().left,
-            top: arrowElement.position().top - draggedElement.position().top
-          })
-
-          draggedElement.node.appendChild(blockElement.node)
-          draggedElement.node.appendChild(arrowElement.node)
-        })
-
-        allBlocks.push(...layer)
-
-        // finds next children
-        layer = canvas.blocks.filter(({ parent }) => foundids.includes(parent))
-      } while (layer.length)
-
-      childBlocks.forEach(canvas.removeBlock)
-      allBlocks.forEach(canvas.removeBlock)
+      canvas.groupDraggedTree()
 
       if (canvas.blocks.length > 1) {
         rearrangeMe()
@@ -459,23 +352,15 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
       canvas.toggleDraggingBlock(false)
     }
 
-    const { dragX, dragY } = canvas.state
-
     if (canvas.isDragging) {
-      draggedElement.styles({
-        left: `${mouseX - dragX}px`,
-        top: `${mouseY - dragY}px`
-      })
+      canvas.updateDragPosition()
     } else if (canvas.isRearranging) {
-      draggedElement.styles({
-        left: `${mouseX - dragX - canvas.position().left + canvas.position().scrollLeft}px`,
-        top: `${mouseY - dragY - canvas.position().top + canvas.position().scrollTop}px`
-      })
+      canvas.updateRearrangePosition()
 
       // TODO: Doesn't look like setting `x` and `y` does anything here - remove?
-      blocksTemp.filter(({ id }) => id == draggedElement.id).x =
+      canvas.draggedTree.filter(({ id }) => id == draggedElement.id).x =
         draggedElement.position().left + draggedElement.position().width / 2 + canvas.position().scrollLeft
-      blocksTemp.filter(({ id }) => id == draggedElement.id).y =
+      canvas.draggedTree.filter(({ id }) => id == draggedElement.id).y =
         draggedElement.position().left + draggedElement.position().height / 2 + canvas.position().scrollTop
     }
 
@@ -483,31 +368,16 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
       return
     }
 
-    var xpos = draggedElement.position().left + draggedElement.position().width / 2 + canvas.position().scrollLeft
-    var ypos = draggedElement.position().top + canvas.position().scrollTop
+    const snapped = canvas.blocks.find((block, i) => {
+      if (canvas.inSnapZoneFor(block)) {
+        canvas.showIndicator(true, block)
 
-    for (var i = 0; i < canvas.blocks.length; i++) {
-      const { x, y, width, height, id } = canvas.blocks[i]
-
-      if (
-        xpos >= x - width / 2 - paddingX &&
-        xpos <= x + width / 2 + paddingX &&
-        ypos >= y - height / 2 &&
-        ypos <= y + height
-      ) {
-        const blockElement = canvas.findBlockElement(id)
-        const indicator = canvas.indicator()
-        blockElement.node.appendChild(indicator)
-
-        indicator.style.left = draggedElement.position().width / 2 - 5
-        indicator.style.top = blockElement.position().height
-
-        canvas.showIndicator(false)
-
-        break
-      } else if (i == blocks.length - 1) {
-        canvas.showIndicator(true)
+        return true
       }
+    })
+
+    if (!snapped) {
+      canvas.showIndicator(false)
     }
   }
 
@@ -515,15 +385,15 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
   document.addEventListener('touchmove', flowy.moveBlock, false)
 
   function checkOffset() {
-    var widths = blocks.map(a => a.width)
-    const currentOffsetLeft = Math.min(...blocks.map(({ x }, index) => x - widths[index] / 2))
+    var widths = canvas.blocks.map(({ width }) => width)
+    const currentOffsetLeft = Math.min(...canvas.blocks.map(({ x }, index) => x - widths[index] / 2))
 
     canvas.setState({ currentOffsetLeft })
 
     if (currentOffsetLeft < canvas.position().left) {
       canvas.toggleLastEvent(true)
 
-      blocks.forEach(({ id, x, width, parent }) => {
+      canvas.blocks.forEach(({ id, x, width, parent }) => {
         const blockElement = canvas.findBlockElement(id)
 
         blockElement.styles({
@@ -535,15 +405,15 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
         }
 
         const arrowElement = blockElement.arrow()
-        const parentX = blocks.find(({ id }) => id == parent).x
+        const parentX = canvas.blocks.find(({ id }) => id == parent).x
         const arrowX = x - parentX
 
         arrowElement.styles({
-          left: arrowX < 0 ? `${x - currentOffsetLeft + 20 - 5}px` : `${parentX - 20 - currentOffsetLeft + 20}px`
+          left: arrowX < 0 ? x - currentOffsetLeft + 20 - 5 : parentX - 20 - currentOffsetLeft + 20
         })
       })
 
-      blocks.forEach(block => {
+      canvas.blocks.forEach(block => {
         const blockElement = canvas.findBlockElement(block.id)
 
         block.x =
@@ -566,7 +436,7 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
 
     canvas.toggleLastEvent(false)
 
-    blocks.forEach(block => {
+    canvas.blocks.forEach(block => {
       const { id, x, width, parent } = block
       const blockElement = canvas.findBlockElement(id)
       const arrowElement = blockElement.arrow()
@@ -580,11 +450,11 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
         return
       }
 
-      const parentX = blocks.find(({ id }) => id == parent).x
+      const parentX = canvas.blocks.find(({ id }) => id == parent).x
       var arrowX = x - parentX
 
       arrowElement.styles({
-        left: arrowX < 0 ? `${x - 5 - canvas.position().left}px` : parentX - 20 - canvas.position().left + 'px'
+        left: arrowX < 0 ? x - 5 - canvas.position().left : parentX - 20 - canvas.position().left
       })
     })
 
@@ -592,108 +462,109 @@ function flowy({ document, canvas, onBlockGrabbed = void 0, onBlockReleased = vo
   }
 
   function rearrangeMe() {
-    var parents = blocks.map(({ parent }) => parent)
+    var parents = canvas.blocks.map(({ parent }) => parent)
 
     for (var z = 0; z < parents.length; z++) {
       if (parents[z] == -1) {
         z++
       }
 
-      var totalWidth = 0
       var totalRemove = 0
-      var maxheight = 0
 
-      const filteredBlocks = blocks.filter(({ parent }) => parent == parents[z])
+      const childBlocks = canvas.blocks.filter(({ parent }) => parent == parents[z])
 
-      filteredBlocks.forEach((children, w) => {
-        if (blocks.filter(({ parent }) => parent == children.id).length == 0) {
-          children.childWidth = 0
+      var totalWidth = childBlocks.reduce((total, block, i) => {
+        if (canvas.findChildBlocks(block.id).length == 0) {
+          block.childWidth = 0
+        }
+        // skip one item
+        if (i !== 0) {
+          total += canvas.spacingX
         }
 
-        totalWidth += Math.max(children.childWidth, children.width)
-
-        if (w !== filteredBlocks.length - 1) {
-          totalWidth += paddingX
-        }
-      })
+        return total + block.maxWidth
+      }, 0)
 
       if (parents[z] != -1) {
-        blocks.find(a => a.id == parents[z]).childWidth = totalWidth
+        canvas.blocks.find(a => a.id == parents[z]).childWidth = totalWidth
       }
 
-      filteredBlocks.forEach(children => {
-        const blockElement = canvas.findBlockElement(children.id)
+      const { left, top } = canvas.position()
+
+      childBlocks.forEach(block => {
+        const blockElement = canvas.findBlockElement(block.id)
         const arrowElement = blockElement.arrow()
-        const r_array = blocks.filter(({ id }) => id == parents[z])
+        // TODO: Fix use of `r_array` as array of results and as instance below
+        const r_array = canvas.blocks.filter(({ id }) => id == parents[z])
 
         blockElement.styles({
-          top: `${r_array.y + paddingY}px`
+          top: r_array.y + canvas.spacingY
         })
-        r_array.y = r_array.y + paddingY
+        r_array.y = r_array.y + canvas.spacingY
 
-        if (children.childWidth > children.width) {
+        if (block.childWidth > block.width) {
           blockElement.styles({
-            left:
-              r_array[0].x -
-              totalWidth / 2 +
-              totalRemove +
-              children.childWidth / 2 -
-              children.width / 2 -
-              canvas.position().left +
-              'px'
+            left: r_array[0].x - totalWidth / 2 + totalRemove + block.childWidth / 2 - block.width / 2 - left
           })
         } else {
           blockElement.styles({
-            left: r_array[0].x - totalWidth / 2 + totalRemove - canvas.position().left + 'px'
+            left: r_array[0].x - totalWidth / 2 + totalRemove - left
           })
         }
 
-        children.x = r_array[0].x - totalWidth / 2 + totalRemove + Math.max(children.childWidth, children.width) / 2
-        totalRemove += Math.max(children.childWidth, children.width) + paddingX
+        block.x = r_array[0].x - totalWidth / 2 + totalRemove + block.maxWidth / 2
+        totalRemove += block.maxWidth + canvas.spacingX
 
-        const { x, y, height } = blocks.find(({ id }) => id == children.id)
-        const { x: parentX, y: parentY, height: parentHeight } = blocks.find(({ id }) => id == children.parent)
+        const parent = canvas.findBlock(block.parent)
+        const { x: parentX, y: parentY, height: parentHeight } = parent
+        const { x, y, height } = canvas.blocks.find(({ id }) => id == block.id)
         const arrowX = x - parentX + 20
         const arrowY = y - height / 2 - (parentY + parentHeight / 2)
 
         arrowElement.styles({
-          top: parentY + parentHeight / 2 - canvas.position().top + 'px'
+          top: parentY + parentHeight / 2 - top
         })
 
         if (arrowX < 0) {
           arrowElement.styles({
-            left: x - 5 - canvas.position().left + 'px'
+            left: x - 5 - left
           })
           arrowElement.html(`
-              <input type="hidden" class="arrowid" value="${children.id}">
-              <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M${parentX - x + 5}
-                  0L${blocks.find(id => id.id == children.parent).x - x + 5} ${paddingY / 2}L5
-                  ${paddingY / 2}L5
-                  ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
-                <path d="M0
-                  ${arrowY - 5}H10L5
-                  ${arrowY}L0
-                  ${arrowY - 5}Z" fill="#C5CCD0"/>
-              </svg>
-            `)
+            <input type="hidden" class="arrowid" value="${block.id}">
+            <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="
+                M ${parentX - x + 5} 0
+                L ${parent.x - x + 5} ${canvas.spacingY / 2}
+                L 5 ${canvas.spacingY / 2}
+                L 5 ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
+              <path d="
+                M 0 ${arrowY - 5}
+                H 10
+                L 5 ${arrowY}
+                L 0 ${arrowY - 5}
+                Z" fill="#C5CCD0"/>
+            </svg>
+          `)
         } else {
           arrowElement.styles({
-            left: parentX - 20 - canvas.position().left + 'px'
+            left: parentX - 20 - left
           })
           arrowElement.html(`
-              <input type="hidden" class="arrowid" value="${children.id}">
-              <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 0L20
-                  ${paddingY / 2}L${arrowX}
-                  ${paddingY / 2}L${arrowX}
-                  ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
-                <path d="M${arrowX - 5}
-                  ${arrowY - 5}H${arrowX + 5}L${arrowX}
-                  ${arrowY}L${arrowX - 5}
-                  ${arrowY - 5}Z" fill="#C5CCD0"/>
-              </svg>
-            `)
+            <input type="hidden" class="arrowid" value="${block.id}">
+            <svg preserveaspectratio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="
+                M 20 0
+                L 20 ${canvas.spacingY / 2}
+                L ${arrowX} ${canvas.spacingY / 2}
+                L ${arrowX} ${arrowY}" stroke="#C5CCD0" stroke-width="2px"/>
+              <path d="
+                M ${arrowX - 5} ${arrowY - 5}
+                H ${arrowX + 5}
+                L ${arrowX} ${arrowY}
+                L ${arrowX - 5} ${arrowY - 5}
+                Z" fill="#C5CCD0"/>
+            </svg>
+          `)
         }
       })
     }

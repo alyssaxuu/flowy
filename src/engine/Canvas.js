@@ -18,6 +18,7 @@ class Canvas {
     this.isLastEvent = false
     this.grabbedNode = null
     this.draggedElement = null
+    this.draggedTree = []
   }
 
   initialize = () => {
@@ -27,12 +28,7 @@ class Canvas {
 
     this.isInitialized = true
 
-    var el = this.document.createElement('DIV')
-
-    el.classList.add('indicator')
-    el.classList.add('invisible')
-
-    this.node.appendChild(el)
+    this.reset()
   }
 
   position = () => {
@@ -67,7 +63,7 @@ class Canvas {
     this.replaceBlocks(blockarr)
   }
 
-  createDragger = grabbedNode => {
+  grab = grabbedNode => {
     const { mouseX, mouseY } = this.state
     const draggedElement = grabbedNode.cloneNode(true)
     const id = this.nextBlockID()
@@ -87,8 +83,8 @@ class Canvas {
     })
 
     this.draggedElement.styles({
-      left: `${mouseX - dragX}px`,
-      top: `${mouseY - dragY}px`
+      left: mouseX - dragX,
+      top: mouseY - dragY
     })
 
     this.toggleDragger(true)
@@ -120,20 +116,22 @@ class Canvas {
   nextBlockID = () => (this.blocks.length === 0 ? 0 : Math.max(...this.blocks.map(({ id }) => id)) + 1)
 
   addBlockForElement = (blockElement, { parent = -1, childWidth = 0 } = {}) => {
+    const { scrollLeft, scrollTop } = this.position()
+
     this.blocks.push(
       new Block({
         parent,
         childWidth,
         id: blockElement.id,
-        x: blockElement.position().left + blockElement.position().width / 2 + this.position().scrollLeft,
-        y: blockElement.position().top + blockElement.position().height / 2 + this.position().scrollTop,
+        x: blockElement.position().left + blockElement.position().width / 2 + scrollLeft,
+        y: blockElement.position().top + blockElement.position().height / 2 + scrollTop,
         width: blockElement.position().width,
         height: blockElement.position().height
       })
     )
   }
 
-  findBlockForElement = blockElement => this.blocks.find(({ id }) => id === blockElement.id)
+  findBlock = (id, { tree = false } = {}) => (tree ? this.draggedTree : this.blocks).find(block => block.id === id)
 
   replaceBlocks = blocks => {
     this.blocks.splice(0, this.blocks.length, ...blocks)
@@ -148,14 +146,16 @@ class Canvas {
 
     // remove arrow for child blocks
     if (removeArrow) {
-      this.findBlockElement(block.id)
-        .arrow()
-        .remove()
+      const arrowElement = this.findBlockElement(block.id).arrow()
+
+      if (arrowElement) {
+        arrowElement.remove()
+      }
     }
   }
 
-  childBlocksFor = block => {
-    return this.blocks.filter(({ parent }) => parent == block.id)
+  findChildBlocks = id => {
+    return this.blocks.filter(({ parent }) => parent == id)
   }
 
   output = () => {
@@ -202,16 +202,162 @@ class Canvas {
     this.blocks.splice(0)
   }
 
+  groupDraggedTree = () => {
+    const { top, left } = this.draggedElement.position()
+    const draggedBlock = this.findBlock(this.draggedElement.id)
+
+    this.draggedTree.push(draggedBlock)
+    // remove dragged block from canvas
+    this.removeBlock(draggedBlock, { removeArrow: true })
+
+    const childBlocks = this.findChildBlocks(draggedBlock.id)
+    let layer = childBlocks
+    const allBlocks = []
+
+    // Move child block DOM nodes into dragged block node for easier dragging
+    do {
+      const foundids = layer.map(({ id }) => id)
+
+      layer.forEach(block => {
+        this.draggedTree.push(block)
+
+        const blockElement = this.findBlockElement(block.id)
+        const arrowElement = blockElement.arrow()
+
+        blockElement.styles({
+          left: blockElement.position().left - left,
+          top: blockElement.position().top - top
+        })
+        arrowElement.styles({
+          left: arrowElement.position().left - left,
+          top: arrowElement.position().top - top
+        })
+
+        this.draggedElement.node.appendChild(blockElement.node)
+        this.draggedElement.node.appendChild(arrowElement.node)
+      })
+
+      allBlocks.push(...layer)
+
+      // finds next children
+      layer = this.blocks.filter(({ parent }) => foundids.includes(parent))
+    } while (layer.length)
+
+    childBlocks.forEach(this.removeBlock)
+    allBlocks.forEach(this.removeBlock)
+  }
+
+  ungroupDraggedTree = () => {
+    this.draggedTree.forEach(block => {
+      if (block.id == this.draggedElement.id) {
+        return
+      }
+
+      const blockElement = this.findBlockElement(block.id)
+      const arrowElement = blockElement.arrow()
+      const { left, top, scrollLeft, scrollTop } = this.position()
+
+      blockElement.styles({
+        left: blockElement.position().left - left + scrollLeft,
+        top: blockElement.position().top - top + scrollTop
+      })
+
+      arrowElement.styles({
+        left: arrowElement.position().left - left + scrollLeft,
+        top: arrowElement.position().top - (top + scrollTop)
+      })
+
+      this.appendChild(blockElement.node, arrowElement.node)
+
+      block.x = blockElement.position().left + blockElement.node.offsetWidth / 2 + scrollLeft
+      block.y = blockElement.position().top + blockElement.node.offsetHeight / 2 + scrollTop
+    })
+
+    const rootBlock = this.draggedTree.find(({ id }) => id == 0)
+
+    rootBlock.x = this.draggedElement.position().left + this.draggedElement.position().width / 2
+    rootBlock.y = this.draggedElement.position().top + this.draggedElement.position().height / 2
+
+    this.appendBlocks(this.draggedTree)
+    this.draggedTree.splice(0)
+  }
+
+  inSnapZoneFor = block => {
+    const { x, y, width, height } = block
+    const { left, top, width: draggedWidth } = this.draggedElement.position()
+    const { scrollLeft, scrollTop } = this.position()
+
+    const zoneX = left + draggedWidth / 2 + scrollLeft
+    const zoneY = top + scrollTop
+
+    return (
+      zoneX >= x - width / 2 - this.spacingX &&
+      zoneX <= x + width / 2 + this.spacingX &&
+      zoneY >= y - height / 2 &&
+      zoneY <= y + height
+    )
+  }
+
+  inDropZone = () => {
+    const { top, left } = this.draggedElement.position()
+
+    return top > this.position().top && left > this.position().left
+  }
+
+  drop = () => {
+    const { top, left, scrollTop, scrollLeft } = this.position()
+
+    this.draggedElement.styles({
+      top: this.draggedElement.position().top - top + scrollTop,
+      left: this.draggedElement.position().left - left + scrollLeft
+    })
+
+    this.appendChild(this.draggedElement.node)
+    this.addBlockForElement(this.draggedElement)
+  }
+
+  cancelDrop = () => {
+    this.appendChild(this.indicator())
+    this.toggleDragger(false, { remove: true })
+  }
+
   indicator = () => this.document.querySelector('.indicator')
 
-  showIndicator = show => {
-    const { classList } = this.indicator()
+  showIndicator = (show, block) => {
+    const indicator = this.indicator()
 
-    if (!show) {
-      classList.remove('invisible')
-    } else if (!classList.contains('invisible')) {
-      classList.add('invisible')
+    if (show) {
+      if (block) {
+        const blockElement = this.findBlockElement(block.id)
+        blockElement.node.appendChild(indicator)
+
+        indicator.style.left = this.draggedElement.position().width / 2 - 5
+        indicator.style.top = blockElement.position().height
+      }
+
+      indicator.classList.remove('invisible')
+    } else if (!indicator.classList.contains('invisible')) {
+      indicator.classList.add('invisible')
     }
+  }
+
+  updateDragPosition = () => {
+    const { mouseX, mouseY, dragX, dragY } = this.state
+
+    this.draggedElement.styles({
+      left: mouseX - dragX,
+      top: mouseY - dragY
+    })
+  }
+
+  updateRearrangePosition = () => {
+    const { mouseX, mouseY, dragX, dragY } = this.state
+    const { left, top, scrollLeft, scrollTop } = this.position()
+
+    this.draggedElement.styles({
+      left: mouseX - dragX - left + scrollLeft,
+      top: mouseY - dragY - top + scrollTop
+    })
   }
 
   setState = state => {
@@ -233,7 +379,6 @@ class Canvas {
   }
 
   toggleLastEvent = last => {
-    console.log('[toggleLastEvent]', last)
     this.isLastEvent = last
   }
 }
