@@ -56,10 +56,8 @@ class Canvas {
 
   findBlockElement = id => BlockElement.find(id, { window: this.window })
 
-  import = output => {
-    const { html, blockarr } = output
-
-    this.html(JSON.parse(html))
+  import = ({ html, blockarr }) => {
+    this.html(html)
     this.replaceBlocks(blockarr)
   }
 
@@ -162,39 +160,23 @@ class Canvas {
     const { blocks } = this
 
     if (blocks.length === 0) {
-      return
+      return null
     }
 
-    var json = {
-      html: JSON.stringify(this.html()),
-      blockarr: blocks,
-      blocks: []
-    }
+    return {
+      html: this.html(),
+      blockarr: blocks.slice(),
+      blocks: blocks.map(({ id, parent }) => {
+        const { node } = this.findBlockElement(id)
 
-    for (var i = 0; i < blocks.length; i++) {
-      json.blocks.push({
-        id: blocks[i].id,
-        parent: blocks[i].parent,
-        data: [],
-        attr: []
-      })
-      var blockParent = document.querySelector(`.blockid[value='${blocks[i].id}']`).parentNode
-      blockParent.querySelectorAll('input').forEach(function(block) {
-        var json_name = block.getAttribute('name')
-        var json_value = block.value
-        json.blocks[i].data.push({
-          name: json_name,
-          value: json_value
-        })
-      })
-      Array.prototype.slice.call(blockParent.attributes).forEach(function(attribute) {
-        var jsonobj = {}
-        jsonobj[attribute.name] = attribute.value
-        json.blocks[i].attr.push(jsonobj)
+        return {
+          id,
+          parent,
+          data: [...node.querySelectorAll('input')].map(({ name, value }) => ({ name, value })),
+          attr: [...node.attributes].map(({ name, value }) => ({ name, value }))
+        }
       })
     }
-
-    return json
   }
 
   reset = () => {
