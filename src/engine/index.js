@@ -2,8 +2,8 @@ import Canvas from './Canvas'
 
 let loaded = false
 
-function shim(canvas, onGrab, onRelease, onSnap, spacingX, spacingY) {
-  return flowy({
+function flowy(canvas, onGrab, onRelease, onSnap, spacingX, spacingY) {
+  engine({
     document: document,
     canvas: new Canvas({ node: canvas, spacingX, spacingY, window, document }),
     onGrab,
@@ -12,7 +12,7 @@ function shim(canvas, onGrab, onRelease, onSnap, spacingX, spacingY) {
   })
 }
 
-function flowy({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap = void 0 }) {
+function engine({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap = void 0 }) {
   // NOTE: set callbacks even when initialized to allow React rerenders
   flowy.onGrab = onGrab
   flowy.onRelease = onRelease
@@ -574,4 +574,4 @@ function flowy({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap =
   }
 }
 
-export default shim
+export default flowy
