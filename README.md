@@ -102,14 +102,7 @@ To define the blocks that can be dragged, you need to add the class `.create-flo
 var spacing_x = 40
 var spacing_y = 100
 // Initialize Flowy
-flowy(
-  document.getElementById('canvas'),
-  onGrab,
-  onRelease,
-  onSnap,
-  spacing_x,
-  spacing_y
-)
+flowy(document.getElementById('canvas'), onGrab, onRelease, onSnap, spacing_x, spacing_y)
 function onGrab(block) {
   // When the user grabs a block
 }
@@ -179,28 +172,29 @@ JSON.stringify(flowy.output())
 
 The JSON object that gets outputted looks like this:
 
-```javascript
-[
-	html: "",
-	blockarr: [],
-	blocks: [
-		{
-			"id": 1,
-			"parent": 0,
-			"data": [
-				{
-				"name": "blockid",
-				"value": "1"
-				}
-			],
-			"attr": [
-				{
-				"id": "block-id",
-				"class": "block-class"
-			]
-		}
-	]
-]
+```json
+{
+  "html": "",
+  "blockarr": [],
+  "blocks": [
+    {
+      "id": 1,
+      "parent": 0,
+      "data": [
+        {
+          "name": "blockid",
+          "value": "1"
+        }
+      ],
+      "attr": [
+        {
+          "id": "block-id",
+          "class": "block-class"
+        }
+      ]
+    }
+  ]
+}
 ```
 
 Here's what each property means:
