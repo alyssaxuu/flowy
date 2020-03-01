@@ -141,7 +141,7 @@ function engine({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap 
     const childBlocks = canvas.findChildBlocks(block.id)
 
     const totalWidth = childBlocks.reduce(
-      (total, { maxWidth }) => total + maxWidth + canvas.spacingX,
+      (total, { maxWidth }) => total + maxWidth() + canvas.spacingX,
       canvas.draggedElement.position().width
     )
 
@@ -150,8 +150,8 @@ function engine({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap 
       const childElement = canvas.findBlockElement(id)
       let left = block.x - totalWidth / 2 + totalRemove
 
-      childBlock.x = left + maxWidth / 2 + 200
-      totalRemove += maxWidth + canvas.spacingX
+      childBlock.x = left + maxWidth() / 2 + 200
+      totalRemove += maxWidth() + canvas.spacingX
 
       if (childWidth > width) {
         left += childWidth / 2 - width / 2
@@ -278,7 +278,7 @@ function engine({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap 
           if (w !== 0) {
             zwidth += canvas.spacingX
           }
-          return zwidth + maxWidth
+          return zwidth + maxWidth()
         }, 0)
 
         loopBlock = canvas.blocks.find(({ id }) => id == loopBlock.parent)
@@ -486,7 +486,7 @@ function engine({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap 
           total += canvas.spacingX
         }
 
-        return total + block.maxWidth
+        return total + block.maxWidth()
       }, 0)
 
       if (parents[z] != -1) {
@@ -515,8 +515,8 @@ function engine({ document, canvas, onGrab = void 0, onRelease = void 0, onSnap 
           })
         }
 
-        block.x = parentBlock.x - totalWidth / 2 + totalRemove + block.maxWidth / 2
-        totalRemove += block.maxWidth + canvas.spacingX
+        block.x = parentBlock.x - totalWidth / 2 + totalRemove + block.maxWidth() / 2
+        totalRemove += block.maxWidth() + canvas.spacingX
 
         const parent = canvas.findBlock(block.parent)
         const { x: parentX, y: parentY, height: parentHeight } = parent

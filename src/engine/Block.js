@@ -9,9 +9,9 @@ class Block {
       width,
       height
     })
-
-    this.maxWidth = Math.max(childWidth, width)
   }
+
+  maxWidth = () => Math.max(this.childWidth, this.width)
 }
 
 export default Block
