@@ -625,6 +625,8 @@ transition: all .3s cubic-bezier(.05,.03,.35,1);
     box-shadow: 0px 4px 30px rgba(22, 33, 74, 0.05);
 }
 .selectedblock {
+    margin-top: -1px !important;
+    margin-left: -1px;
     border: 2px solid #217CE8;
     box-shadow: 0px 4px 30px rgba(22, 33, 74, 0.08);
 }
@@ -637,5 +639,5 @@ transition: all .3s cubic-bezier(.05,.03,.35,1);
 @media only screen and (max-width: 560px) {
     #names {
         display: none;
-    }   
+    }
 }
