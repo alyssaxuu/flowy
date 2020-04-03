@@ -92,7 +92,6 @@ var checkTouch = function (event) {
 var doneTouch = function (event) {
     if (event.type === "mouseup" && aclick && !noinfo) {
       if (!rightcard && event.target.closest(".block") && !event.target.closest(".block").classList.contains("dragging")) {
-          console.log(event.target.closest(".block").classList.contains("dragging"));
             tempblock = event.target.closest(".block");
             rightcard = true;
             document.getElementById("properties").classList.add("expanded");
