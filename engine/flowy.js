@@ -104,8 +104,8 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                 blockGrabbed(event.target.closest(".create-flowy"));
                 drag.classList.add("dragging");
                 active = true;
-                dragx = mouse_x - (event.target.closest(".create-flowy").offsetLeft);
-                dragy = mouse_y - (event.target.closest(".create-flowy").offsetTop - event.target.closest(".create-flowy").parentNode.scrollTop);
+                dragx = mouse_x - (event.target.closest(".create-flowy").getBoundingClientRect().left);
+                dragy = mouse_y - (event.target.closest(".create-flowy").getBoundingClientRect().top);
                 drag.style.left = mouse_x - dragx + "px";
                 drag.style.top = mouse_y - dragy + "px";
             }
