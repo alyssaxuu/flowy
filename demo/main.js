@@ -45,7 +45,9 @@ document.addEventListener("DOMContentLoaded", function(){
         tempblock2 = block;
     }
     function release() {
-        tempblock2.classList.remove("blockdisabled");
+        if (tempblock2) {
+            tempblock2.classList.remove("blockdisabled");
+        }
     }
     var disabledClick = function(){
         document.querySelector(".navactive").classList.add("navdisabled");
