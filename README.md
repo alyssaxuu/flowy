@@ -50,7 +50,7 @@ You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
 ## Installation
 Adding Flowy to your WebApp is incredibly simple:
 
-1.  Link  `flowy.min.js`  and  `flowy.min.css`  to your project. Through jsdeliver: 
+1.  Link  `flowy.min.js`  and  `flowy.min.css`  to your project. Through jsDelivr: 
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.css"> 
 <script src="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.js"></script>
