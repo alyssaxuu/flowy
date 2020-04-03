@@ -49,9 +49,14 @@ You can suggest new features [here](https://github.com/alyssaxuu/flowy/issues)
 
 ## Installation
 Adding Flowy to your WebApp is incredibly simple:
-1. Link `flowy.min.js` and `flowy.min.css` to your project
-2. Create a canvas element that will contain the flowchart (for example, `<div id="canvas"></div>`)
-3. Create the draggable blocks with the `.create-flowy` class (for example, `<div class="create-flowy">Grab me</div>`)
+
+1.  Link  `flowy.min.js`  and  `flowy.min.css`  to your project. Through jsdeliver: 
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.css"> 
+<script src="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.js"></script>
+```
+2.  Create a canvas element that will contain the flowchart (for example,  `<div id="canvas"></div>`)
+3.  Create the draggable blocks with the  `.create-flowy`  class (for example,  `<div class="create-flowy">Grab me</div>`)
 
 ## Running Flowy
 
