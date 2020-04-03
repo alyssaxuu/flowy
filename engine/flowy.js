@@ -42,6 +42,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         flowy.import = function(output) {
             canvas_div.innerHTML = JSON.parse(output.html);
             blocks = output.blockarr;
+            rearrangeMe();
         }
         flowy.output = function() {
             var html_ser = JSON.stringify(canvas_div.innerHTML);
