@@ -40,12 +40,15 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         el.classList.add('invisible');
         canvas_div.appendChild(el);
         flowy.import = function(output) {
-            canvas_div.innerHTML = JSON.parse(output.html);
+            canvas_div.innerHTML = output.html;
             blocks = output.blockarr;
             rearrangeMe();
         }
+        function escapeChar(str) {
+            return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+        }
         flowy.output = function() {
-            var html_ser = JSON.stringify(canvas_div.innerHTML);
+            var html_ser = escapeChar(canvas_div.innerHTML);
             var json_data = {html:html_ser, blockarr:blocks, blocks:[]};
             if (blocks.length > 0) {
                 for (var i = 0; i < blocks.length; i++) {
