@@ -7,7 +7,7 @@ import pngs from './assets/*.png'
 import svgs from './assets/*.svg'
 const images = { ...pngs, ...svgs }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   var rightcard = false
   var tempblock
   var tempblock2
@@ -186,9 +186,11 @@ document.addEventListener('DOMContentLoaded', function() {
     tempblock2 = block
   }
   function release() {
-    tempblock2.classList.remove('blockdisabled')
+    if (tempblock2) {
+      tempblock2.classList.remove('blockdisabled')
+    }
   }
-  var disabledClick = function() {
+  var disabledClick = function () {
     document.querySelector('.navactive').classList.add('navdisabled')
     document.querySelector('.navactive').classList.remove('navactive')
     this.classList.add('navactive')
@@ -326,30 +328,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   addEventListenerMulti('click', disabledClick, false, '.side')
-  document.getElementById('close').addEventListener('click', function() {
+  document.getElementById('close').addEventListener('click', function () {
     if (rightcard) {
       rightcard = false
       document.getElementById('properties').classList.remove('expanded')
-      setTimeout(function() {
+      setTimeout(function () {
         document.getElementById('propwrap').classList.remove('itson')
       }, 300)
       tempblock.classList.remove('selectedblock')
     }
   })
 
-  document.getElementById('removeblock').addEventListener('click', function() {
+  document.getElementById('removeblock').addEventListener('click', function () {
     flowy.deleteBlocks()
   })
   var aclick = false
-  var beginTouch = function(event) {
+  var noinfo = false
+  var beginTouch = function (event) {
     aclick = true
+    noinfo = false
+    if (event.target.closest('.create-flowy')) {
+      noinfo = true
+    }
   }
-  var checkTouch = function(event) {
+  var checkTouch = function (event) {
     aclick = false
   }
-  var doneTouch = function(event) {
-    if (event.type === 'mouseup' && aclick) {
-      if (!rightcard && event.target.closest('.block')) {
+  var doneTouch = function (event) {
+    if (event.type === 'mouseup' && aclick && !noinfo) {
+      if (
+        !rightcard &&
+        event.target.closest('.block') &&
+        !event.target.closest('.block').classList.contains('dragging')
+      ) {
         tempblock = event.target.closest('.block')
         rightcard = true
         document.getElementById('properties').classList.add('expanded')

@@ -1,12 +1,12 @@
-var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
+var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
   if (!grab) {
-    grab = function() {}
+    grab = function () {}
   }
   if (!release) {
-    release = function() {}
+    release = function () {}
   }
   if (!snapping) {
-    snapping = function() {
+    snapping = function () {
       return true
     }
   }
@@ -17,7 +17,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
     spacing_y = 80
   }
   var loaded = false
-  flowy.load = function() {
+  flowy.load = function () {
     if (!loaded) loaded = true
     else return
     var blocks = []
@@ -37,12 +37,16 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
     el.classList.add('indicator')
     el.classList.add('invisible')
     canvas_div.appendChild(el)
-    flowy.import = function(output) {
-      canvas_div.innerHTML = JSON.parse(output.html)
+    flowy.import = function (output) {
+      canvas_div.innerHTML = output.html
       blocks = output.blockarr
+      rearrangeMe()
     }
-    flowy.output = function() {
-      var html_ser = JSON.stringify(canvas_div.innerHTML)
+    function escapeChar(str) {
+      return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0')
+    }
+    flowy.output = function () {
+      var html_ser = escapeChar(canvas_div.innerHTML)
       var json_data = { html: html_ser, blockarr: blocks, blocks: [] }
       if (blocks.length > 0) {
         for (var i = 0; i < blocks.length; i++) {
@@ -55,7 +59,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
           var blockParent = document.querySelector(
             ".blockid[value='" + blocks[i].id + "']"
           ).parentNode
-          blockParent.querySelectorAll('input').forEach(function(block) {
+          blockParent.querySelectorAll('input').forEach(function (block) {
             var json_name = block.getAttribute('name')
             var json_value = block.value
             json_data.blocks[i].data.push({
@@ -65,7 +69,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
           })
           Array.prototype.slice
             .call(blockParent.attributes)
-            .forEach(function(attribute) {
+            .forEach(function (attribute) {
               var jsonobj = {}
               jsonobj[attribute.name] = attribute.value
               json_data.blocks[i].attr.push(jsonobj)
@@ -74,12 +78,12 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         return json_data
       }
     }
-    flowy.deleteBlocks = function() {
+    flowy.deleteBlocks = function () {
       blocks = []
       canvas_div.innerHTML = "<div class='indicator invisible'></div>"
     }
 
-    flowy.beginDrag = function(event) {
+    flowy.beginDrag = function (event) {
       if (event.targetTouches) {
         mouse_x = event.changedTouches[0].clientX
         mouse_y = event.changedTouches[0].clientY
@@ -127,8 +131,12 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         blockGrabbed(event.target.closest('.create-flowy'))
         drag.classList.add('dragging')
         active = true
-        dragx = mouse_x - event.target.closest('.create-flowy').offsetLeft
-        dragy = mouse_y - event.target.closest('.create-flowy').offsetTop
+        dragx =
+          mouse_x -
+          event.target.closest('.create-flowy').getBoundingClientRect().left
+        dragy =
+          mouse_y -
+          event.target.closest('.create-flowy').getBoundingClientRect().top
         drag.style.left = mouse_x - dragx + 'px'
         drag.style.top = mouse_y - dragy + 'px'
       }
@@ -137,13 +145,13 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
     document.addEventListener('touchstart', touchblock, false)
     document.addEventListener('mouseup', touchblock, false)
 
-    flowy.touchDone = function() {
+    flowy.touchDone = function () {
       dragblock = false
     }
     document.addEventListener('mousedown', flowy.beginDrag)
     document.addEventListener('touchstart', flowy.beginDrag)
 
-    flowy.endDrag = function(event) {
+    flowy.endDrag = function (event) {
       if (event.which != 3 && (active || rearrange)) {
         dragblock = false
         blockReleased()
@@ -636,7 +644,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
       return element.parentNode && hasParentClass(element.parentNode, classname)
     }
 
-    flowy.moveBlock = function(event) {
+    flowy.moveBlock = function (event) {
       if (event.targetTouches) {
         mouse_x = event.targetTouches[0].clientX
         mouse_y = event.targetTouches[0].clientY
@@ -649,7 +657,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         drag.classList.add('dragging')
         var blockid = parseInt(drag.querySelector('.blockid').value)
         blockstemp.push(blocks.filter(a => a.id == blockid)[0])
-        blocks = blocks.filter(function(e) {
+        blocks = blocks.filter(function (e) {
           return e.id != blockid
         })
         if (blockid != 0) {
@@ -706,13 +714,13 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
           i++
         ) {
           var blocknumber = blocks.filter(a => a.parent == blockid)[i]
-          blocks = blocks.filter(function(e) {
+          blocks = blocks.filter(function (e) {
             return e.id != blocknumber
           })
         }
         for (var i = 0; i < allids.length; i++) {
           var blocknumber = allids[i]
-          blocks = blocks.filter(function(e) {
+          blocks = blocks.filter(function (e) {
             return e.id != blocknumber
           })
         }
@@ -823,7 +831,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
     function checkOffset() {
       offsetleft = blocks.map(a => a.x)
       var widths = blocks.map(a => a.width)
-      var mathmin = offsetleft.map(function(item, index) {
+      var mathmin = offsetleft.map(function (item, index) {
         return item - widths[index] / 2
       })
       offsetleft = Math.min.apply(Math, mathmin)

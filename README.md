@@ -50,9 +50,18 @@ You can install the Flowy package and use it as a module.
 Adding Flowy to your WebApp is incredibly simple:
 
 1. Run `npm run build:web`
-1. Link `dist/flowy.js` and `dist/flowy.css` to your project
-1. Create a canvas element that will contain the flowchart (for example, `<div id="canvas"></div>`)
-1. Create the draggable blocks with the `.create-flowy` class (for example, `<div class="create-flowy">Grab me</div>`)
+2. Link `dist/flowy.js` and `dist/flowy.css` to your project -- or via CDN:
+
+```html
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.js"></script>
+```
+
+3. Create a canvas element that will contain the flowchart (for example, `<div id="canvas"></div>`)
+4. Create the draggable blocks with the `.create-flowy` class (for example, `<div class="create-flowy">Grab me</div>`)
 
 ### Publish NPM Module
 
@@ -179,27 +188,28 @@ JSON.stringify(flowy.output())
 
 The JSON object that gets outputted looks like this:
 
-```javascript
+```json
 [
-	html: "",
-	blockarr: [],
-	blocks: [
-		{
-			"id": 1,
-			"parent": 0,
-			"data": [
-				{
-				"name": "blockid",
-				"value": "1"
-				}
-			],
-			"attr": [
-				{
-				"id": "block-id",
-				"class": "block-class"
-			]
-		}
-	]
+  "html": "",
+  "blockarr": [],
+  "blocks": [
+    {
+      "id": 1,
+      "parent": 0,
+      "data": [
+        {
+          "name": "blockid",
+          "value": "1"
+        }
+      ],
+      "attr": [
+        {
+          "id": "block-id",
+          "class": "block-class"
+        }
+      ]
+    }
+  ]
 ]
 ```
 
