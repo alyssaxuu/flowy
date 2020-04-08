@@ -74,35 +74,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
                 return json_data;
             }
         }
-        flowy.output = function() {
-            var html_ser = canvas_div.innerHTML;
-            var json_data = {html:html_ser, blockarr:blocks, blocks:[]};
-            if (blocks.length > 0) {
-                for (var i = 0; i < blocks.length; i++) {
-                    json_data.blocks.push({
-                        id: blocks[i].id,
-                        parent: blocks[i].parent,
-                        data: [],
-                        attr: []
-                    });
-                    var blockParent = document.querySelector(".blockid[value='" + blocks[i].id + "']").parentNode;
-                    blockParent.querySelectorAll("input").forEach(function(block) {
-                        var json_name = block.getAttribute("name");
-                        var json_value = block.value;
-                        json_data.blocks[i].data.push({
-                            name: json_name,
-                            value: json_value
-                        });
-                    });
-                    Array.prototype.slice.call(blockParent.attributes).forEach(function(attribute) {
-                        var jsonobj = {};
-                        jsonobj[attribute.name] = attribute.value;
-                        json_data.blocks[i].attr.push(jsonobj);
-                    });
-                }
-                return json_data;
-            }
-        }
+        
         flowy.deleteBlocks = function() {
             blocks = [];
             canvas_div.innerHTML = "<div class='indicator invisible'></div>";
