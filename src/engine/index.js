@@ -42,11 +42,8 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
       blocks = output.blockarr
       rearrangeMe()
     }
-    function escapeChar(str) {
-      return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0')
-    }
     flowy.output = function () {
-      var html_ser = escapeChar(canvas_div.innerHTML)
+      var html_ser = canvas_div.innerHTML
       var json_data = { html: html_ser, blockarr: blocks, blocks: [] }
       if (blocks.length > 0) {
         for (var i = 0; i < blocks.length; i++) {
@@ -181,17 +178,20 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
                 blockParent.getBoundingClientRect().left +
                 window.scrollX -
                 (canvas_div.getBoundingClientRect().left + window.scrollX) +
-                canvas_div.scrollLeft
+                canvas_div.scrollLeft +
+                'px'
               blockParent.style.top =
                 blockParent.getBoundingClientRect().top +
                 window.scrollY -
                 (canvas_div.getBoundingClientRect().top + window.scrollY) +
-                canvas_div.scrollTop
+                canvas_div.scrollTop +
+                'px'
               arrowParent.style.left =
                 arrowParent.getBoundingClientRect().left +
                 window.scrollX -
                 (canvas_div.getBoundingClientRect().left + window.scrollX) +
-                canvas_div.scrollLeft
+                canvas_div.scrollLeft +
+                'px'
               arrowParent.style.top =
                 arrowParent.getBoundingClientRect().top +
                 window.scrollY -
@@ -428,23 +428,27 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
               blockParent.getBoundingClientRect().left +
               window.scrollX -
               (canvas_div.getBoundingClientRect().left + window.scrollX) +
-              canvas_div.scrollLeft
+              canvas_div.scrollLeft +
+              'px'
             blockParent.style.top =
               blockParent.getBoundingClientRect().top +
               window.scrollY -
               (canvas_div.getBoundingClientRect().top + window.scrollY) +
-              canvas_div.scrollTop
+              canvas_div.scrollTop +
+              'px'
             arrowParent.style.left =
               arrowParent.getBoundingClientRect().left +
               window.scrollX -
               (canvas_div.getBoundingClientRect().left + window.scrollX) +
               canvas_div.scrollLeft +
-              20
+              20 +
+              'px'
             arrowParent.style.top =
               arrowParent.getBoundingClientRect().top +
               window.scrollY -
               (canvas_div.getBoundingClientRect().top + window.scrollY) +
-              canvas_div.scrollTop
+              canvas_div.scrollTop +
+              'px'
             canvas_div.appendChild(blockParent)
             canvas_div.appendChild(arrowParent)
 
@@ -682,19 +686,23 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
               blockParent.style.left =
                 blockParent.getBoundingClientRect().left +
                 window.scrollX -
-                (drag.getBoundingClientRect().left + window.scrollX)
+                (drag.getBoundingClientRect().left + window.scrollX) +
+                'px'
               blockParent.style.top =
                 blockParent.getBoundingClientRect().top +
                 window.scrollY -
-                (drag.getBoundingClientRect().top + window.scrollY)
+                (drag.getBoundingClientRect().top + window.scrollY) +
+                'px'
               arrowParent.style.left =
                 arrowParent.getBoundingClientRect().left +
                 window.scrollX -
-                (drag.getBoundingClientRect().left + window.scrollX)
+                (drag.getBoundingClientRect().left + window.scrollX) +
+                'px'
               arrowParent.style.top =
                 arrowParent.getBoundingClientRect().top +
                 window.scrollY -
-                (drag.getBoundingClientRect().top + window.scrollY)
+                (drag.getBoundingClientRect().top + window.scrollY) +
+                'px'
               drag.appendChild(blockParent)
               drag.appendChild(arrowParent)
               foundids.push(layer[i].id)
@@ -804,12 +812,11 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
                 2 -
               5 +
               'px'
-            document.querySelector(
-              '.indicator'
-            ).style.top = window.getComputedStyle(
-              document.querySelector(".blockid[value='" + blocko[i] + "']")
-                .parentNode
-            ).height
+            document.querySelector('.indicator').style.top =
+              window.getComputedStyle(
+                document.querySelector(".blockid[value='" + blocko[i] + "']")
+                  .parentNode
+              ).height + 'px'
             document.querySelector('.indicator').classList.remove('invisible')
             break
           } else if (i == blocks.length - 1) {
@@ -850,7 +857,8 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
             blocks.filter(a => a.id == blocko[w])[0].x -
             blocks.filter(a => a.id == blocko[w])[0].width / 2 -
             offsetleft +
-            20
+            20 +
+            'px'
           if (blocks.filter(a => a.id == blocko[w])[0].parent != -1) {
             var arrowhelp = blocks.filter(a => a.id == blocko[w])[0]
             var arrowx =
@@ -912,7 +920,8 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
             blocks.filter(a => a.id == blocko[w])[0].x -
             blocks.filter(a => a.id == blocko[w])[0].width / 2 -
             offsetleftold -
-            20
+            20 +
+            'px'
           blocks.filter(a => a.id == blocko[w])[0].x =
             document
               .querySelector(
