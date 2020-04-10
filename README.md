@@ -53,10 +53,7 @@ Adding Flowy to your WebApp is incredibly simple:
 2. Link `dist/flowy.js` and `dist/flowy.css` to your project -- or via CDN:
 
 ```html
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.css"
-/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.css" />
 <script src="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.js"></script>
 ```
 
@@ -111,14 +108,7 @@ To define the blocks that can be dragged, you need to add the class `.create-flo
 var spacing_x = 40
 var spacing_y = 100
 // Initialize Flowy
-flowy(
-  document.getElementById('canvas'),
-  onGrab,
-  onRelease,
-  onSnap,
-  spacing_x,
-  spacing_y
-)
+flowy(document.getElementById('canvas'), onGrab, onRelease, onSnap, spacing_x, spacing_y)
 function onGrab(block) {
   // When the user grabs a block
 }
@@ -189,7 +179,7 @@ JSON.stringify(flowy.output())
 The JSON object that gets outputted looks like this:
 
 ```json
-[
+{
   "html": "",
   "blockarr": [],
   "blocks": [
@@ -210,7 +200,7 @@ The JSON object that gets outputted looks like this:
       ]
     }
   ]
-]
+}
 ```
 
 Here's what each property means:
