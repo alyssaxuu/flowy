@@ -143,7 +143,7 @@ flowy.output();
 JSON.stringify(flowy.output());
 ```
 The JSON object that gets outputted looks like this:
-```json
+```javascript
 [
 	html: "",
 	blockarr: [],
