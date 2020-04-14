@@ -40,7 +40,7 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         el.classList.add('invisible');
         canvas_div.appendChild(el);
         flowy.import = function(output) {
-            canvas_div.innerHTML = JSON.parse(output.html);
+            canvas_div.innerHTML = output.html;
             blocks = output.blockarr;
             rearrangeMe();
         }
