@@ -42,7 +42,9 @@ var flowy = function(canvas, grab, release, snapping, spacing_x, spacing_y) {
         flowy.import = function(output) {
             canvas_div.innerHTML = output.html;
             blocks = output.blockarr;
-            rearrangeMe();
+            if (blocks.length > 1) {
+                rearrangeMe();
+            }
         }
         flowy.output = function() {
             var html_ser = canvas_div.innerHTML;
