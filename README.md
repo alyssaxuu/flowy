@@ -147,7 +147,7 @@ function onRearrange(block, parent){
 	return true;
 }
 ```
-Gets triggered when blocks are rearranged and are dropped anywhere in the canvas, without a parent to attach to. You can either prevent the blocks from being deleted (they will be automatically attached to the previous parent), or allow it by using `return true;`
+Gets triggered when blocks are rearranged and are dropped anywhere in the canvas, without a parent to attach to. You can either allow the blocks to be deleted, or prevent it and thus have them re-attach to their previous parent using `return true;`
 
 Parameter | Type | Description
 --- | --- | ---
