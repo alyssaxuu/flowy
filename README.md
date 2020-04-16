@@ -40,6 +40,7 @@ Currently, Flowy supports the following:
  - [x] Delete blocks
  - [x] Automatic block centering
  - [x] Conditional snapping
+ - [x] Conditional block removal
  - [x] Import saved files
  - [x] Mobile support
  - [x] Vanilla javascript (no dependencies)
