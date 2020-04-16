@@ -207,7 +207,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                             snap(drag,i,blocko);
                             break;
                         } else if (i == blocks.length - 1) {
-                            if (beforeDelete(drag, false, blocks.filter(id => id.id == blocko[i])[0])) {
+                            if (beforeDelete(drag, blocks.filter(id => id.id == blocko[i])[0])) {
                                 active = false;
                                 snap(drag, blocko.indexOf(prevblock), blocko);
                             } else {
@@ -594,8 +594,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         return snapping(drag, first, parent);
     }
     
-    function beforeDelete(drag, first, parent) {
-        return rearrange(drag, first, parent);
+    function beforeDelete(drag, parent) {
+        return rearrange(drag, parent);
     }
     
     function addEventListenerMulti(type, listener, capture, selector) {
