@@ -143,11 +143,11 @@ flowy.output();
 JSON.stringify(flowy.output());
 ```
 The JSON object that gets outputted looks like this:
-```javascript
-[
-	html: "",
-	blockarr: [],
-	blocks: [
+```json
+{
+	"html": "",
+	"blockarr": [],
+	"blocks": [
 		{
 			"id": 1,
 			"parent": 0,
@@ -161,10 +161,11 @@ The JSON object that gets outputted looks like this:
 				{
 				"id": "block-id",
 				"class": "block-class"
+				}
 			]
 		}
 	]
-]
+}
 ```
 
 Here's what each property means:
