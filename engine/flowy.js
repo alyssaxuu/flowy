@@ -204,11 +204,13 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     for (var i = 0; i < blocks.length; i++) {
                         if (xpos >= blocks.filter(a => a.id == blocko[i])[0].x - (blocks.filter(a => a.id == blocko[i])[0].width / 2) - paddingx && xpos <= blocks.filter(a => a.id == blocko[i])[0].x + (blocks.filter(a => a.id == blocko[i])[0].width / 2) + paddingx && ypos >= blocks.filter(a => a.id == blocko[i])[0].y - (blocks.filter(a => a.id == blocko[i])[0].height / 2) && ypos <= blocks.filter(a => a.id == blocko[i])[0].y + blocks.filter(a => a.id == blocko[i])[0].height) {
                             active = false;
+                            drag.classList.remove("dragging");
                             snap(drag,i,blocko);
                             break;
                         } else if (i == blocks.length - 1) {
                             if (beforeDelete(drag, blocks.filter(id => id.id == blocko[i])[0])) {
                                 active = false;
+                                drag.classList.remove("dragging");
                                 snap(drag, blocko.indexOf(prevblock), blocko);
                             } else {
                                 rearrange = false;
