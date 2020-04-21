@@ -20,6 +20,7 @@ Made by [Alyssa X](https://alyssax.com)
   - [On grab](#on-grab)
   - [On release](#on-release)
   - [On snap](#on-snap)
+  - [On rearrange](#on-rearrange)
 - [Methods](#methods)
   - [Get the flowchart data](#get-the-flowchart-data)
   - [Import the flowchart data](#import-the-flowchart-data)
@@ -35,6 +36,7 @@ Currently, Flowy supports the following:
 - [x] Delete blocks
 - [x] Automatic block centering
 - [x] Conditional snapping
+- [x] Conditional block removal
 - [x] Import saved files
 - [x] Mobile support
 - [x] Vanilla javascript (no dependencies)
@@ -82,17 +84,18 @@ If you want to build the demo without running it in your browser, run `npm run b
 ### Initialization
 
 ```javascript
-flowy(canvas, ongrab, onrelease, onsnap, spacing_x, spacing_y)
+flowy(canvas, ongrab, onrelease, onsnap, onrearrange, spacing_x, spacing_y)
 ```
 
-| Parameter   | Type                     | Description                                                      |
-| ----------- | ------------------------ | ---------------------------------------------------------------- |
-| `canvas`    | _javascript DOM element_ | The element that will contain the blocks                         |
-| `ongrab`    | _function_ (optional)    | Function that gets triggered when a block is dragged             |
-| `onrelease` | _function_ (optional)    | Function that gets triggered when a block is released            |
-| `onsnap`    | _function_ (optional)    | Function that gets triggered when a block snaps with another one |
-| `spacing_x` | _integer_ (optional)     | Horizontal spacing between blocks (default 20px)                 |
-| `spacing_y` | _integer_ (optional)     | Vertical spacing between blocks (default 80px)                   |
+| Parameter     | Type                     | Description                                                      |
+| ------------- | ------------------------ | ---------------------------------------------------------------- |
+| `canvas`      | _javascript DOM element_ | The element that will contain the blocks                         |
+| `ongrab`      | _function_ (optional)    | Function that gets triggered when a block is dragged             |
+| `onrelease`   | _function_ (optional)    | Function that gets triggered when a block is released            |
+| `onsnap`      | _function_ (optional)    | Function that gets triggered when a block snaps with another one |
+| `onrearrange` | _function_ (optional)    | Function that gets triggered when blocks are rearranged          |
+| `spacing_x`   | _integer_ (optional)     | Horizontal spacing between blocks (default 20px)                 |
+| `spacing_y`   | _integer_ (optional)     | Vertical spacing between blocks (default 80px)                   |
 
 To define the blocks that can be dragged, you need to add the class `.create-flowy`
 
@@ -111,7 +114,7 @@ To define the blocks that can be dragged, you need to add the class `.create-flo
 var spacing_x = 40
 var spacing_y = 100
 // Initialize Flowy
-flowy(document.getElementById('canvas'), onGrab, onRelease, onSnap, spacing_x, spacing_y)
+flowy(document.getElementById('canvas'), onGrab, onRelease, onSnap, onRearrange, spacing_x, spacing_y)
 function onGrab(block) {
   // When the user grabs a block
 }
@@ -120,6 +123,9 @@ function onRelease() {
 }
 function onSnap(block, first, parent) {
   // When a block snaps with another one
+}
+function onRearrange(block, parent) {
+  // When a block is rearranged
 }
 ```
 
@@ -167,6 +173,22 @@ Gets triggered when a block can attach to another parent block. You can either p
 | `block`   | _javascript DOM element_ | The block that has been grabbed                                         |
 | `first`   | _boolean_                | If true, the block that has been dragged is the first one in the canvas |
 | `parent`  | _javascript DOM element_ | The parent the block can attach to                                      |
+
+### On rearrange
+
+```javascript
+function onRearrange(block, parent) {
+  // When a block is rearranged
+  return true
+}
+```
+
+Gets triggered when blocks are rearranged and are dropped anywhere in the canvas, without a parent to attach to. You can either allow the blocks to be deleted, or prevent it and thus have them re-attach to their previous parent using `return true`.
+
+| Parameter | Type                     | Description                        |
+| --------- | ------------------------ | ---------------------------------- |
+| `block`   | _javascript DOM element_ | The block that has been grabbed    |
+| `parent`  | _javascript DOM element_ | The parent the block can attach to |
 
 ## Methods
 

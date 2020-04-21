@@ -1,4 +1,4 @@
-var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
+var flowy = function (canvas, grab, release, snapping, rearrange, spacing_x, spacing_y) {
   if (!grab) {
     grab = function () {}
   }
@@ -8,6 +8,11 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
   if (!snapping) {
     snapping = function () {
       return true
+    }
+  }
+  if (!rearrange) {
+    rearrange = function () {
+      return false
     }
   }
   if (!spacing_x) {
@@ -33,14 +38,17 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
     var drag, dragx, dragy, original
     var mouse_x, mouse_y
     var dragblock = false
+    var prevblock = 0
     var el = document.createElement('DIV')
     el.classList.add('indicator')
     el.classList.add('invisible')
     canvas_div.appendChild(el)
     flowy.import = function (output) {
-      canvas_div.innerHTML = JSON.parse(output.html)
+      canvas_div.innerHTML = output.html
       blocks = output.blockarr
-      rearrangeMe()
+      if (blocks.length > 1) {
+        rearrangeMe()
+      }
     }
     flowy.output = function () {
       var html_ser = canvas_div.innerHTML
@@ -236,7 +244,7 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
         } else if (active && blocks.length == 0) {
           canvas_div.appendChild(document.querySelector('.indicator'))
           drag.parentNode.removeChild(drag)
-        } else if (active || rearrange) {
+        } else if (active) {
           var xpos =
             drag.getBoundingClientRect().left + window.scrollX + parseInt(window.getComputedStyle(drag).width) / 2 + canvas_div.scrollLeft
           var ypos = drag.getBoundingClientRect().top + window.scrollY + canvas_div.scrollTop
@@ -256,13 +264,39 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
               }
               break
             } else if (i == blocks.length - 1) {
-              if (rearrange) {
-                rearrange = false
-                blockstemp = []
-              }
               active = false
               canvas_div.appendChild(document.querySelector('.indicator'))
               drag.parentNode.removeChild(drag)
+            }
+          }
+        } else if (rearrange) {
+          var xpos =
+            drag.getBoundingClientRect().left + window.scrollX + parseInt(window.getComputedStyle(drag).width) / 2 + canvas_div.scrollLeft
+          var ypos = drag.getBoundingClientRect().top + window.scrollY + canvas_div.scrollTop
+          var blocko = blocks.map(a => a.id)
+          for (var i = 0; i < blocks.length; i++) {
+            if (
+              xpos >= blocks.filter(a => a.id == blocko[i])[0].x - blocks.filter(a => a.id == blocko[i])[0].width / 2 - paddingx &&
+              xpos <= blocks.filter(a => a.id == blocko[i])[0].x + blocks.filter(a => a.id == blocko[i])[0].width / 2 + paddingx &&
+              ypos >= blocks.filter(a => a.id == blocko[i])[0].y - blocks.filter(a => a.id == blocko[i])[0].height / 2 &&
+              ypos <= blocks.filter(a => a.id == blocko[i])[0].y + blocks.filter(a => a.id == blocko[i])[0].height
+            ) {
+              active = false
+              drag.classList.remove('dragging')
+              snap(drag, i, blocko)
+              break
+            } else if (i == blocks.length - 1) {
+              if (beforeDelete(drag, blocks.filter(id => id.id == blocko[i])[0])) {
+                active = false
+                drag.classList.remove('dragging')
+                snap(drag, blocko.indexOf(prevblock), blocko)
+              } else {
+                rearrange = false
+                blockstemp = []
+                active = false
+                canvas_div.appendChild(document.querySelector('.indicator'))
+                drag.parentNode.removeChild(drag)
+              }
             }
           }
         }
@@ -532,6 +566,7 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
         rearrange = true
         drag.classList.add('dragging')
         var blockid = parseInt(drag.querySelector('.blockid').value)
+        prevblock = blocks.filter(a => a.id == blockid)[0].parent
         blockstemp.push(blocks.filter(a => a.id == blockid)[0])
         blocks = blocks.filter(function (e) {
           return e.id != blockid
@@ -839,6 +874,10 @@ var flowy = function (canvas, grab, release, snapping, spacing_x, spacing_y) {
 
   function blockSnap(drag, first, parent) {
     return snapping(drag, first, parent)
+  }
+
+  function beforeDelete(drag, parent) {
+    return rearrange(drag, parent)
   }
 
   function addEventListenerMulti(type, listener, capture, selector) {
