@@ -212,12 +212,14 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                                 active = false;
                                 drag.classList.remove("dragging");
                                 snap(drag, blocko.indexOf(prevblock), blocko);
+                                break;
                             } else {
                                 rearrange = false;
                                 blockstemp = [];
                                 active = false;
                                 canvas_div.appendChild(document.querySelector(".indicator"));
                                 drag.parentNode.removeChild(drag);
+                                break;
                             }
                         }
                     }
