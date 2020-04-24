@@ -185,10 +185,12 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     for (var i = 0; i < blocks.length; i++) {
                         if (xpos >= blocks.filter(a => a.id == blocko[i])[0].x - (blocks.filter(a => a.id == blocko[i])[0].width / 2) - paddingx && xpos <= blocks.filter(a => a.id == blocko[i])[0].x + (blocks.filter(a => a.id == blocko[i])[0].width / 2) + paddingx && ypos >= blocks.filter(a => a.id == blocko[i])[0].y - (blocks.filter(a => a.id == blocko[i])[0].height / 2) && ypos <= blocks.filter(a => a.id == blocko[i])[0].y + blocks.filter(a => a.id == blocko[i])[0].height) {
                                             active = false;
-                            if (!rearrange && blockSnap(drag, false, blocks.filter(id => id.id == blocko[i])[0])) {
+                            if (blockSnap(drag, false, blocks.filter(id => id.id == blocko[i])[0])) {
                                 snap(drag,i, blocko);
-                            } else if (rearrange) {
-                                snap(drag,i,blocko);
+                            } else {
+                                active = false;
+                                canvas_div.appendChild(document.querySelector(".indicator"));
+                                drag.parentNode.removeChild(drag);
                             }
                             break;
                         } else if (i == blocks.length - 1) {
