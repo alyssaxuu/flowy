@@ -85,7 +85,60 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             blocks = [];
             canvas_div.innerHTML = "<div class='indicator invisible'></div>";
         }
-        
+        flowy.deleteBlock = function (id) {
+          let newParentId;
+
+          if (!Number.isInteger(id)) {
+            id = parseInt(id);
+          }
+
+          for (var i = 0; i < blocks.length; i++) {
+            if (blocks[i].id === id) {
+              newParentId = blocks[i].parent;
+              canvas_div.appendChild(document.querySelector(".indicator"));
+              removeBlockEls(blocks[i].id);
+              blocks.splice(i, 1);
+              modifyChildBlocks(id);
+              break;
+            }
+          }
+
+          if (blocks.length > 1) {
+            rearrangeMe();
+          }
+
+          return Math.max.apply(
+            Math,
+            blocks.map((a) => a.id)
+          );
+
+          function modifyChildBlocks(parentId) {
+            let children = [];
+            let blocko = blocks.map((a) => a.id);
+            for (var i = blocko.length - 1; i >= 0; i--) {
+              let currentBlock = blocks.filter((a) => a.id == blocko[i])[0];
+              if (currentBlock.parent === parentId) {
+                children.push(currentBlock.id);
+                removeBlockEls(currentBlock.id);
+                blocks.splice(i, 1);
+              }
+            }
+
+            for (var i = 0; i < children.length; i++) {
+              modifyChildBlocks(children[i]);
+            }
+          }
+          function removeBlockEls(id) {
+            document
+              .querySelector(".blockid[value='" + id + "']")
+              .parentNode.remove();
+            if (document.querySelector(".arrowid[value='" + id + "']")) {
+              document
+                .querySelector(".arrowid[value='" + id + "']")
+                .parentNode.remove();
+            }
+          }
+        };
         flowy.beginDrag = function(event) {
             if (event.targetTouches) {
                 mouse_x = event.changedTouches[0].clientX;
