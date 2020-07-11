@@ -1,0 +1,23 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "ie": 11
+                },
+                "debug": true,
+                "useBuiltIns": "entry",
+                "sourceMaps": true
+            }
+        ]
+    ],
+    "plugins": [
+        [
+            "@babel/plugin-transform-arrow-functions",
+            {
+                "spec": false
+            }
+        ]
+    ]
+}

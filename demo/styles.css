@@ -301,7 +301,6 @@ body, html {
     width: 15px;
 }
 #blocklist {
-    height: calc(100% - 220px);
     overflow: auto;
 }
 #proplist {
