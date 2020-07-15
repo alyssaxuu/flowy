@@ -6,9 +6,7 @@
                 "targets": {
                     "ie": 11
                 },
-                "debug": true,
-                "useBuiltIns": "entry",
-                "sourceMaps": true
+                "useBuiltIns": "entry"
             }
         ]
     ],

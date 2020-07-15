@@ -130,7 +130,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     document.body.appendChild(newNode);
                     drag = document.querySelector(".blockid[value='" + blocks.length + "']").parentNode;
                 } else {
-                    newNode.append(string2DomElem("<input type='hidden' name='blockid' class='blockid' value='" + (Math.max.apply(Math, blocks.map(a => a.id)) + 1) + "'>"));
+                    newNode.appendChild(string2DomElem("<input type='hidden' name='blockid' class='blockid' value='" + (Math.max.apply(Math, blocks.map(a => a.id)) + 1) + "'>"));
                     document.body.appendChild(newNode);
                     drag = document.querySelector(".blockid[value='" + (parseInt(Math.max.apply(Math, blocks.map(a => a.id))) + 1) + "']").parentNode;
                 }
