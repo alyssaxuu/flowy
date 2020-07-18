@@ -1,4 +1,4 @@
-var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spacing_y) {
+var flowy = function(wrapperElement, grab, release, snapping, rearrange, spacing_x, spacing_y) {
     if (!grab) {
         grab = function() {};
     }
@@ -43,7 +43,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             return;
         var blocks = [];
         var blockstemp = [];
-        var canvas_div = canvas;
+        var canvas_div = wrapperElement.querySelector('#canvas');
         var active = false;
         var paddingx = spacing_x;
         var paddingy = spacing_y;
@@ -127,11 +127,11 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 newNode.classList.remove("create-flowy");
                 if (blocks.length === 0) {
                     newNode.appendChild(string2DomElem("<input type='hidden' name='blockid' class='blockid' value='" + blocks.length + "'>"));
-                    document.body.appendChild(newNode);
+                    wrapperElement.appendChild(newNode);
                     drag = document.querySelector(".blockid[value='" + blocks.length + "']").parentNode;
                 } else {
                     newNode.appendChild(string2DomElem("<input type='hidden' name='blockid' class='blockid' value='" + (Math.max.apply(Math, blocks.map(a => a.id)) + 1) + "'>"));
-                    document.body.appendChild(newNode);
+                    wrapperElement.appendChild(newNode);
                     drag = document.querySelector(".blockid[value='" + (parseInt(Math.max.apply(Math, blocks.map(a => a.id))) + 1) + "']").parentNode;
                 }
                 blockGrabbed(event.target.closest(".create-flowy"));
@@ -143,15 +143,15 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 drag.style.top = mouse_y - dragy + "px";
             }
         }
-        document.addEventListener("mousedown",touchblock, false);
-        document.addEventListener("touchstart",touchblock, false);
-        document.addEventListener("mouseup", touchblock, false);
+        wrapperElement.addEventListener("mousedown",touchblock, false);
+        wrapperElement.addEventListener("touchstart",touchblock, false);
+        wrapperElement.addEventListener("mouseup", touchblock, false);
 
         flowy.touchDone = function() {
             dragblock = false;
         }
-        document.addEventListener('mousedown',flowy.beginDrag);
-        document.addEventListener('touchstart',flowy.beginDrag);
+        wrapperElement.addEventListener('mousedown',flowy.beginDrag);
+        wrapperElement.addEventListener('touchstart',flowy.beginDrag);
         
         flowy.endDrag = function(event) {
             if (event.which != 3 && (active || rearrange)) {
@@ -254,8 +254,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             }
         }
         
-        document.addEventListener("mouseup", flowy.endDrag, false);
-        document.addEventListener("touchend", flowy.endDrag, false);
+        wrapperElement.addEventListener("mouseup", flowy.endDrag, false);
+        wrapperElement.addEventListener("touchend", flowy.endDrag, false);
         
         function snap(drag, i, blocko) {
             if (!rearrange) {
@@ -496,8 +496,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             }
         }
         
-        document.addEventListener("mousemove", flowy.moveBlock, false);
-        document.addEventListener("touchmove", flowy.moveBlock, false);
+        wrapperElement.addEventListener("mousemove", flowy.moveBlock, false);
+        wrapperElement.addEventListener("touchmove", flowy.moveBlock, false);
 
         function checkOffset() {
             offsetleft = blocks.map(a => a.x);
