@@ -211,6 +211,10 @@ Allows you to import entire flowcharts initially exported using the previous met
 Parameter | Type | Description
 --- | --- | ---
    `output` | *javascript DOM element* | The data from `flowy.output()`
+   
+#### Warning
+
+This method accepts raw HTML and does **not** sanitize it, therefore this method is vulnerable to [XSS](https://owasp.org/www-community/attacks/DOM_Based_XSS). The _only_ safe use for this method is when the input is **absolutely** trusted, if the input is _not_ to be trusted the use this method can introduce a vulnerability in your system.
 
 ### Delete all blocks
 To remove all blocks at once use:
