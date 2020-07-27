@@ -1,0 +1,28 @@
+{
+  "name": "flowy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "flowy.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel engine/ -d lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iammukeshpatel/flowy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iammukeshpatel/flowy/issues"
+  },
+  "homepage": "https://github.com/iammukeshpatel/flowy#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.4",
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5"
+  }
+}
