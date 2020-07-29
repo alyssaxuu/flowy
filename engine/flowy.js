@@ -474,6 +474,15 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 blockstemp.filter(a => a.id == parseInt(drag.querySelector(".blockid").value)).y = (drag.getBoundingClientRect().left + window.scrollX) + (parseInt(window.getComputedStyle(drag).height) / 2) + canvas_div.scrollTop;
             }
             if (active || rearrange) {
+                if (mouse_x > canvas_div.getBoundingClientRect().width+canvas_div.getBoundingClientRect().left-10 && mouse_x < canvas_div.getBoundingClientRect().width+canvas_div.getBoundingClientRect().left+10) {
+                    canvas_div.scrollLeft += 10;
+                } else if (mouse_x < canvas_div.getBoundingClientRect().left+10 && mouse_x > canvas_div.getBoundingClientRect().left-10) {
+                    canvas_div.scrollLeft -= 10;
+                } else if (mouse_y > canvas_div.getBoundingClientRect().height+canvas_div.getBoundingClientRect().top-10 && mouse_y < canvas_div.getBoundingClientRect().height+canvas_div.getBoundingClientRect().top+10) {
+                    canvas_div.scrollTop += 10;
+                } else if (mouse_y < canvas_div.getBoundingClientRect().top+10 && mouse_y > canvas_div.getBoundingClientRect().top-10) {
+                    canvas_div.scrollLeft -= 10;
+                }
                 var xpos = (drag.getBoundingClientRect().left + window.scrollX) + (parseInt(window.getComputedStyle(drag).width) / 2) + canvas_div.scrollLeft;
                 var ypos = (drag.getBoundingClientRect().top + window.scrollY) + canvas_div.scrollTop;
                 var blocko = blocks.map(a => a.id);
