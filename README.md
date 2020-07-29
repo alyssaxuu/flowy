@@ -36,6 +36,7 @@ Currently, Flowy supports the following:
 
  - [x] Responsive drag and drop
  - [x] Automatic snapping
+ - [x] Automatic scrolling
  - [x] Block rearrangement
  - [x] Delete blocks
  - [x] Automatic block centering
