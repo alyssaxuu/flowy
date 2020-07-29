@@ -462,9 +462,6 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 if (blocks.length > 1) {
                     rearrangeMe();
                 }
-                if (lastevent) {
-                    fixOffset();
-                }
                 dragblock = false;
             }
             if (active) {
