@@ -53,6 +53,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         var lastevent = false;
         var drag, dragx, dragy, original;
         var mouse_x, mouse_y;
+        var begin_mouse_x, begin_mouse_y;
         var dragblock = false;
         var prevblock = 0;
         var el = document.createElement("DIV");
@@ -110,7 +111,60 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             blocks = [];
             canvas_div.innerHTML = "<div class='indicator invisible'></div>";
         }
-        
+        flowy.deleteBlock = function (id) {
+          let newParentId;
+
+          if (!Number.isInteger(id)) {
+            id = parseInt(id);
+          }
+
+          for (var i = 0; i < blocks.length; i++) {
+            if (blocks[i].id === id) {
+              newParentId = blocks[i].parent;
+              canvas_div.appendChild(document.querySelector(".indicator"));
+              removeBlockEls(blocks[i].id);
+              blocks.splice(i, 1);
+              modifyChildBlocks(id);
+              break;
+            }
+          }
+
+          if (blocks.length > 1) {
+            rearrangeMe();
+          }
+
+          return Math.max.apply(
+            Math,
+            blocks.map((a) => a.id)
+          );
+
+          function modifyChildBlocks(parentId) {
+            let children = [];
+            let blocko = blocks.map((a) => a.id);
+            for (var i = blocko.length - 1; i >= 0; i--) {
+              let currentBlock = blocks.filter((a) => a.id == blocko[i])[0];
+              if (currentBlock.parent === parentId) {
+                children.push(currentBlock.id);
+                removeBlockEls(currentBlock.id);
+                blocks.splice(i, 1);
+              }
+            }
+
+            for (var i = 0; i < children.length; i++) {
+              modifyChildBlocks(children[i]);
+            }
+          }
+          function removeBlockEls(id) {
+            document
+              .querySelector(".blockid[value='" + id + "']")
+              .parentNode.remove();
+            if (document.querySelector(".arrowid[value='" + id + "']")) {
+              document
+                .querySelector(".arrowid[value='" + id + "']")
+                .parentNode.remove();
+            }
+          }
+        };
         flowy.beginDrag = function(event) {
             if (event.targetTouches) {
                 mouse_x = event.changedTouches[0].clientX;
@@ -119,6 +173,9 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 mouse_x = event.clientX;
                 mouse_y = event.clientY;
             }
+            begin_mouse_x = mouse_x;
+            begin_mouse_y = mouse_y;
+            
             if (event.which != 3 && event.target.closest(".create-flowy")) {
                 original = event.target.closest(".create-flowy");
                 var newNode = event.target.closest(".create-flowy").cloneNode(true);
@@ -154,6 +211,23 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         document.addEventListener('touchstart',flowy.beginDrag);
         
         flowy.endDrag = function(event) {
+            let diffx = mouse_x - begin_mouse_x;
+            let diffy = mouse_y - begin_mouse_y;
+
+            if (
+                Math.abs(diffx) < 50 &&
+                Math.abs(diffy) < 50 &&
+                rearrange &&
+                parseInt(drag.querySelector(".blockid").value) !== 0
+            ) {
+                var blocko = blocks.map((a) => a.id);
+                active = false;
+                drag.classList.remove("dragging");
+                snap(drag, blocko.indexOf(prevblock), blocko);
+                document.querySelector(".indicator").classList.add("invisible");
+                return;
+            }
+            
             if (event.which != 3 && (active || rearrange)) {
                 dragblock = false;
                 blockReleased();
