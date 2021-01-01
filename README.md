@@ -99,7 +99,8 @@ function onRelease(){
 	// When the user releases a block
 }
 function onSnap(block, first, parent){
-	// When a block snaps with another one
+	// When a block can attach to a parent
+	return true;
 }
 function onRearrange(block, parent){
 	// When a block is rearranged

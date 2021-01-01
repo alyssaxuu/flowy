@@ -637,7 +637,11 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
     }
 
     function blockSnap(drag, first, parent) {
-        return snapping(drag, first, parent);
+        var hasSnap = snapping(drag, first, parent);
+        if (hasSnap !== undefined) {
+            return hasSnap
+        }
+        return true;
     }
 
     function beforeDelete(drag, parent) {
