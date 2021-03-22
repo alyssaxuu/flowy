@@ -235,8 +235,11 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         
         function firstBlock(type) {
             if (type == "drop") {
-                blockSnap(drag, true, undefined);
                 active = false;
+                if (!blockSnap(drag, true, undefined)) {
+                    removeSelection();
+                    return false;
+                }
                 drag.style.top = (drag.getBoundingClientRect().top + window.scrollY) - (absy + window.scrollY) + canvas_div.scrollTop + "px";
                 drag.style.left = (drag.getBoundingClientRect().left + window.scrollX) - (absx + window.scrollX) + canvas_div.scrollLeft + "px";
                 canvas_div.appendChild(drag);
