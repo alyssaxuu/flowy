@@ -229,7 +229,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         
         function removeSelection() {
             canvas_div.appendChild(document.querySelector(".indicator"));
-            drag.parentNode.removeChild(drag);
+            if (drag.parentNode !== null)
+                drag.parentNode.removeChild(drag);
         }
         
         function firstBlock(type) {
