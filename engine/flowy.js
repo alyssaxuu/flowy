@@ -156,7 +156,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             }
         }
 
-        flowy.endDrag = function(event) {
+        flowy.endDrag = async function(event) {
             if (event.which != 3 && (active || rearrange)) {
                 dragblock = false;
                 blockReleased();
@@ -178,7 +178,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     for (var i = 0; i < blocks.length; i++) {
                         if (checkAttach(blocko[i])) {
                             active = false;
-                            if (blockSnap(drag, false, document.querySelector(".blockid[value='" + blocko[i] + "']").parentNode)) {
+                            if (await blockSnap(drag, false, document.querySelector(".blockid[value='" + blocko[i] + "']").parentNode)) {
                                 snap(drag, i, blocko);
                             } else {
                                 active = false;
