@@ -1,26 +1,11 @@
 var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spacing_y) {
-    if (!grab) {
-        grab = function() {};
-    }
-    if (!release) {
-        release = function() {};
-    }
-    if (!snapping) {
-        snapping = function() {
-            return true;
-        }
-    }
-    if (!rearrange) {
-        rearrange = function() {
-            return false;
-        }
-    }
-    if (!spacing_x) {
-        spacing_x = 20;
-    }
-    if (!spacing_y) {
-        spacing_y = 80;
-    }
+    grab = grab || function() {};
+    release = release || function() {};
+    snapping = snapping || function () { true; }
+    rearrange = rearrange || function () { false; }
+    spacing_x = typeof spacing_x == undefined ? 20 : spacing_x;
+    spacing_y = typeof spacing_y == undefined ? 20 : spacing_y;
+
     if (!Element.prototype.matches) {
         Element.prototype.matches = Element.prototype.msMatchesSelector ||
             Element.prototype.webkitMatchesSelector;
