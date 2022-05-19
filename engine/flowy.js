@@ -1,4 +1,19 @@
 var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spacing_y) {
+
+    function makeid(length, with_timestamp) {
+        var result           = '';
+        var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        for ( var i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        if(with_timestamp) {
+            return result+'_'+Date.now();
+        } else {
+            return result;
+        }
+    }
+
     if (!grab) {
         grab = function() {};
     }
@@ -36,6 +51,14 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         };
     }
     var loaded = false;
+    var with_timestamp=true;
+    var id_length=6;
+    var flowy_id = makeid(id_length, with_timestamp);
+
+    flowy.get_id = function() {
+        return flowy_id;
+    }
+
     flowy.load = function() {
         if (!loaded)
             loaded = true;
@@ -64,7 +87,14 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         el.classList.add('invisible');
         canvas_div.appendChild(el);
         flowy.import = function(output) {
+
             canvas_div.innerHTML = output.html;
+            if(output.flowy_id == undefined) {
+                flowy_id = makeid(id_length, with_timestamp);
+            } else {
+                flowy_id = output.flowy_id;
+            }
+
             for (var a = 0; a < output.blockarr.length; a++) {
                 blocks.push({
                     childwidth: parseFloat(output.blockarr[a].childwidth),
@@ -86,7 +116,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             var json_data = {
                 html: html_ser,
                 blockarr: blocks,
-                blocks: []
+                blocks: [],
+                'flowy_id': flowy_id
             };
             if (blocks.length > 0) {
                 for (var i = 0; i < blocks.length; i++) {
@@ -114,7 +145,172 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 return json_data;
             }
         }
+
+        function moveChildrenToParentPos(id) {
+            let childern_block_idx = [];
+            for(let idx=0; idx<blocks.length; idx++) {
+                if(blocks[idx].parent == id) {
+                    moveChildrenToParentPos(blocks[idx].id);
+                    childern_block_idx.push(idx);
+                }
+            }
+
+            for(let i=0; i<childern_block_idx.length; i++) {
+                let child_block = blocks[childern_block_idx[i]];
+
+                document.querySelector(".blockid[value='" + child_block.id + "']").parentNode.style.top = document.querySelector(".blockid[value='" + child_block.parent + "']").parentNode.style.top;
+                    
+                if(document.querySelector(".arrowid[value='" + child_block.id + "']")) {
+                    document.querySelector(".arrowid[value='" + child_block.id + "']").parentNode.style.top = document.querySelector(".arrowid[value='" + child_block.parent + "']").parentNode.style.top;
+                }
+
+            }
+        }
+
+        function moveChildrenToParentBlockInfo(id) {
+            let childern_block_idx = [];
+            for(let i=0; i<blocks.length; i++) {
+                if(blocks[i].parent == id) {
+                    moveChildrenToParentBlockInfo(blocks[i].id);
+                    childern_block_idx.push(i);
+                }
+            }
+
+            let own_block_idx=null;
+            for(let i=0; i<blocks.length; i++) {
+                if (blocks[i].id == id) {
+                    own_block_idx = i;
+                    break;
+                }
+            }
+
+            for(let i=0; i<childern_block_idx.length; i++) {
+                let child_block = blocks[childern_block_idx[i]];
+                child_block.y = blocks[own_block_idx].y;
+            }
+
+        }
+
+        flowy.deleteBlock = function(id) {
+
+            if(id==0) {
+                flowy.deleteBlocks();
+            } else {
+                let parent_block_idx = null;
+                let own_block_idx = null;
+                let childern_block_idx = []
+                for(let idx=0; idx<blocks.length; idx++) {
+                    if(blocks[idx].id  == id) {
+                        own_block_idx = idx;
+                    } 
+                }
+
+                for(let idx=0; idx<blocks.length; idx++) {
+                    if(blocks[idx].parent == id) {
+                        childern_block_idx.push(idx);
+                    }
+                }
+
+                for(let idx=0; idx<blocks.length; idx++) {
+                    if(blocks[own_block_idx].parent  == blocks[idx].id) {
+                        parent_block_idx = idx;
+                    }
+                }
+
+                let remove_block_elem = document.querySelector(".blockid[value='" + id + "']");
+
+                moveChildrenToParentPos(id);
+                moveChildrenToParentBlockInfo(id);
+
+                // Set indicator to canvas before performing delete operations
+                canvas_div.appendChild(document.querySelector(".indicator"));
+
+                if (document.querySelector(".arrowid[value='" + id + "']")) {
+                    document.querySelector(".arrowid[value='" + id + "']").parentNode.remove();
+                }
+
+                // remove block
+                if(remove_block_elem) {
+                    remove_block_elem.parentNode.remove();
+                }
+                for(let i=0; i<childern_block_idx.length; i++) {
+                    let child_block = blocks[childern_block_idx[i]];
+                    child_block.parent = blocks[own_block_idx].parent;
+                }
+                if(own_block_idx != null) {
+                    blocks.splice(own_block_idx, 1);
+                }
+
+                // If no childred for node to be deleted then set the parent child width as zeros
+                // Also only call rearrngeMe if we have more than 1 nodes in the flow
+                if(childern_block_idx.length == 0) {
+                    blocks[parent_block_idx].childwidth=0;
+                } else {
+                    rearrangeMe();
+                }
+
+
+            }
+
+        }
+
+        flowy.deleteBranch = function (id) {
+          let newParentId;
+
+          if (!Number.isInteger(id)) {
+            id = parseInt(id);
+          }
+
+          for (var i = 0; i < blocks.length; i++) {
+            if (blocks[i].id === id) {
+              newParentId = blocks[i].parent;
+              canvas_div.appendChild(document.querySelector(".indicator"));
+              removeBlockEls(blocks[i].id);
+              blocks.splice(i, 1);
+              modifyChildBlocks(id);
+              break;
+            }
+          }
+
+          if (blocks.length > 1) {
+            rearrangeMe();
+          }
+
+          return Math.max.apply(
+            Math,
+            blocks.map((a) => a.id)
+          );
+
+          function modifyChildBlocks(parentId) {
+            let children = [];
+            let blocko = blocks.map((a) => a.id);
+            for (var i = blocko.length - 1; i >= 0; i--) {
+              let currentBlock = blocks.filter((a) => a.id == blocko[i])[0];
+              if (currentBlock.parent === parentId) {
+                children.push(currentBlock.id);
+                removeBlockEls(currentBlock.id);
+                blocks.splice(i, 1);
+              }
+            }
+
+            for (var i = 0; i < children.length; i++) {
+              modifyChildBlocks(children[i]);
+            }
+          }
+          function removeBlockEls(id) {
+            document
+              .querySelector(".blockid[value='" + id + "']")
+              .parentNode.remove();
+            if (document.querySelector(".arrowid[value='" + id + "']")) {
+              document
+                .querySelector(".arrowid[value='" + id + "']")
+                .parentNode.remove();
+            }
+          }
+        };
+
         flowy.deleteBlocks = function() {
+            flowy_id = makeid(id_length, with_timestamp);
             blocks = [];
             canvas_div.innerHTML = "<div class='indicator invisible'></div>";
         }
@@ -424,8 +620,9 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         }
 
         function hasParentClass(element, classname) {
+
             if (element.className) {
-                if (element.className.split(' ').indexOf(classname) >= 0) return true;
+                if (typeof(element.className) !== 'object' && element.className.split(' ').indexOf(classname) >= 0) return true;
             }
             return element.parentNode && hasParentClass(element.parentNode, classname);
         }
@@ -587,6 +784,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                         }
                     }
                 }
+
                 if (result[z] != -1) {
                     blocks.filter(a => a.id == result[z])[0].childwidth = totalwidth;
                 }
