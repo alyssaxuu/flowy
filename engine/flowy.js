@@ -64,6 +64,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         el.classList.add('invisible');
         canvas_div.appendChild(el);
         flowy.import = function(output) {
+            // Reset the blocks before an import.
+            blocks = []
             canvas_div.innerHTML = output.html;
             for (var a = 0; a < output.blockarr.length; a++) {
                 blocks.push({
