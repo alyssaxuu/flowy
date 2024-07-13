@@ -10,36 +10,50 @@ document.addEventListener("DOMContentLoaded", function(){
             nodes[i].addEventListener(type, listener, capture);
         }
     }
+
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'blocks.json', false);
+    xhr.send();
+    var blocks = JSON.parse(xhr.responseText);
+
+    var blocklist = document.getElementById("blocklist");
+    blocklist.innerHTML = '';
+    blocks.forEach(function(block) {
+        var blockElem = document.createElement("div");
+        blockElem.className = "blockelem create-flowy noselect";
+        blockElem.innerHTML = "<input type='hidden' name='blockelemtype' class='blockelemtype' value='" + block.blockelemtype + "'>" +
+                              "<div class='grabme'><img src='assets/grabme.svg'></div>" +
+                              "<div class='blockin'>" +
+                              "<div class='blockico'><span></span><img src='" + block.blockimg + "'></div>" +
+                              "<div class='blocktext'>" +
+                              "<p class='blocktitle'>" + block.blocktitle + "</p>" +
+                              "<p class='blockdesc'>" + block.blockdesc + "</p>" +
+                              "</div>" +
+                              "</div>";
+
+        blocklist.appendChild(blockElem);
+      });
+
+
     function snapping(drag, first) {
-        var grab = drag.querySelector(".grabme");
-        grab.parentNode.removeChild(grab);
-        var blockin = drag.querySelector(".blockin");
-        blockin.parentNode.removeChild(blockin);
-        if (drag.querySelector(".blockelemtype").value == "1") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/eyeblue.svg'><p class='blockyname'>New visitor</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>When a <span>new visitor</span> goes to <span>Site 1</span></div>";
-        } else if (drag.querySelector(".blockelemtype").value == "2") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/actionblue.svg'><p class='blockyname'>Action is performed</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>When <span>Action 1</span> is performed</div>";
-        } else if (drag.querySelector(".blockelemtype").value == "3") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/timeblue.svg'><p class='blockyname'>Time has passed</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>When <span>10 seconds</span> have passed</div>";
-        } else if (drag.querySelector(".blockelemtype").value == "4") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/errorblue.svg'><p class='blockyname'>Error prompt</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>When <span>Error 1</span> is triggered</div>";
-        } else if (drag.querySelector(".blockelemtype").value == "5") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/databaseorange.svg'><p class='blockyname'>New database entry</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Add <span>Data object</span> to <span>Database 1</span></div>";
-        } else if (drag.querySelector(".blockelemtype").value == "6") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/databaseorange.svg'><p class='blockyname'>Update database</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Update <span>Database 1</span></div>";
-        } else if (drag.querySelector(".blockelemtype").value == "7") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/actionorange.svg'><p class='blockyname'>Perform an action</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Perform <span>Action 1</span></div>";
-        } else if (drag.querySelector(".blockelemtype").value == "8") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/twitterorange.svg'><p class='blockyname'>Make a tweet</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Tweet <span>Query 1</span> with the account <span>@alyssaxuu</span></div>";
-        } else if (drag.querySelector(".blockelemtype").value == "9") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/logred.svg'><p class='blockyname'>Add new log entry</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Add new <span>success</span> log entry</div>";
-        } else if (drag.querySelector(".blockelemtype").value == "10") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/logred.svg'><p class='blockyname'>Update logs</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Edit <span>Log Entry 1</span></div>";
-        } else if (drag.querySelector(".blockelemtype").value == "11") {
-            drag.innerHTML += "<div class='blockyleft'><img src='assets/errorred.svg'><p class='blockyname'>Prompt an error</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Trigger <span>Error 1</span></div>";
-        }
-        return true;
+      var blockType = drag.querySelector(".blockelemtype").value;
+      var block = blocks.find(function(b) {
+        return b.blockelemtype === blockType;
+      });
+
+      drag.innerHTML += "<div class='blockyleft'><img src='" + block.blockimgblue + "'><p class='blockyname'>" + block.blocktitle + "</p></div>" +
+                        "<div class='blockyright'><img src='assets/more.svg'></div>" +
+                        "<div class='blockydiv'></div>" +
+                        "<div class='blockyinfo'>" + block.blockinfo + "</div>";
+
+      drag.querySelector(".block .grabme").style.display='none';
+      drag.querySelector(".block .blockin").style.display='none';
+
+      return true;
     }
+
+
     function drag(block) {
         block.classList.add("blockdisabled");
         tempblock2 = block;
@@ -63,17 +77,8 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     }
     addEventListenerMulti("click", disabledClick, false, ".side");
-    document.getElementById("close").addEventListener("click", function(){
-       if (rightcard) {
-           rightcard = false;
-           document.getElementById("properties").classList.remove("expanded");
-           setTimeout(function(){
-                document.getElementById("propwrap").classList.remove("itson"); 
-           }, 300);
-            tempblock.classList.remove("selectedblock");
-       } 
-    });
-    
+
+
 document.getElementById("removeblock").addEventListener("click", function(){
  flowy.deleteBlocks();
 });
@@ -89,17 +94,102 @@ var beginTouch = function (event) {
 var checkTouch = function (event) {
     aclick = false;
 }
-var doneTouch = function (event) {
+var doneTouch = function(event) {
     if (event.type === "mouseup" && aclick && !noinfo) {
-      if (!rightcard && event.target.closest(".block") && !event.target.closest(".block").classList.contains("dragging")) {
-            tempblock = event.target.closest(".block");
-            rightcard = true;
-            document.getElementById("properties").classList.add("expanded");
-            document.getElementById("propwrap").classList.add("itson");
-            tempblock.classList.add("selectedblock");
-       } 
+        if (event.target.closest(".block") && !event.target.closest(".block").classList.contains("dragging")) {
+            var blockType = event.target.closest(".block").querySelector(".blockid").value;
+            var propId = 'properties-' + blockType;
+            if (!document.getElementById(propId)) {
+                createPropertiesDiv(blockType);
+            }
+            showPropertiesDiv(propId);
+            var selectedblock = document.querySelectorAll(".selectedblock");
+            for (var i = 0; i < selectedblock.length; i++) {
+                var str = selectedblock[i].classList.remove("selectedblock");
+            }
+            event.target.closest(".block").classList.add("selectedblock");        }
     }
 }
+
+function createPropertiesDiv(blockType) {
+  var div = document.createElement("div");
+  div.id = 'properties-' + blockType;
+  div.className = 'properties';
+  div.innerHTML = '<div id="close"><img src="assets/close.svg"></div><p id="header2">Properties for Block ' + blockType + '</p>';
+
+  // Get the block from the blocks.json file based on the blockType
+  var block = blocks.find(function(b) {
+    return b.blockelemtype === blockType;
+  });
+
+  //first block
+  var block = blocks.find(function(b) { return b.blockelemtype === blockType; }) || { fieldtypes: [] };
+  if (block.fieldtypes.length === 0) {
+    block.fieldtypes = [{name: "Name", type: "text"}];
+  }
+
+  // Check if the block and fieldtypes property exist
+  if (block && block.fieldtypes) {
+    // Generate the properties based on the field types defined in the block
+    block.fieldtypes.forEach(function(field) {
+      var inputElement;
+      if (field.type === 'text') {
+        inputElement = '<input type="text" name="' + field.name + '" placeholder="' + field.name + '">';
+      } else if (field.type === 'select') {
+        var options = field.options ? field.options.map(function(option) {
+          return '<option value="' + option + '">' + option + '</option>';
+        }).join('') : '';
+        inputElement = '<select name="' + field.name + '">' + options + '</select>';
+      }
+      div.innerHTML += '<div class="inputlabel">' + field.name + '</div><div class="inputfield">' + inputElement + '</div>';
+    });
+  }
+
+  div.innerHTML += '<div id=propswitch><div id=dataprop>Data</div><div id=alertprop>Alerts</div><div id=logsprop>Logs</div></div><div id=proplist><p class=inputlabel>Select database<div class=dropme>Database 1 <img src=assets/dropdown.svg></div><p class=inputlabel>Check properties<div class=dropme>All<img src=assets/dropdown.svg></div><div class=checkus><img src=assets/checkon.svg><p>Log on successful performance</div><div class=checkus><img src=assets/checkoff.svg><p>Give priority to this block</div></div><div id="divisionthing"></div><div id="removeblock">Delete blocks</div>';
+
+  document.getElementById("properties-container").appendChild(div);
+}
+
+function showPropertiesDiv(propId) {
+    var props = document.querySelectorAll(".properties");
+    props.forEach(function(prop) {
+        prop.style.display = 'none'; // Verberg alle properties divs
+    });
+    var activeProp = document.getElementById(propId);
+    activeProp.style.display = 'block'; // Toon de relevante properties div
+    activeProp.classList.add("expanded");
+    document.getElementById("propwrap").classList.add("itson");
+}
+
+function closePropertiesDiv() {
+    var expandedProps = document.querySelector(".properties.expanded");
+    if (expandedProps) {
+        expandedProps.classList.remove("expanded");
+        expandedProps.style.display = 'none'; // Verberg de div
+        document.getElementById("propwrap").classList.remove("itson");
+    }
+    var selectedBlock = document.querySelector(".block.selectedblock");
+    if (selectedBlock) {
+        selectedBlock.classList.remove("selectedblock");
+    }
+}
+
+document.addEventListener("click", function(event) {
+    if (event.target.closest("#close")) {
+        closePropertiesDiv();
+    }
+});
+
+var saveButton = document.getElementById("saveButton");
+saveButton.addEventListener("click", function(event) {
+
+  var json = JSON.stringify(flowy.output());    // test -> localStorage
+  var file = new File([json], "test.json", {type: "application/octet-stream"});
+  var blobUrl = (URL || webkitURL).createObjectURL(file);
+  window.location = blobUrl;
+
+});
+
 addEventListener("mousedown", beginTouch, false);
 addEventListener("mousemove", checkTouch, false);
 addEventListener("mouseup", doneTouch, false);

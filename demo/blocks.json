@@ -1,0 +1,49 @@
+[
+  {
+    "blockelemtype": "1",
+    "blocktitle": "New visitor",
+    "blockdesc": "Triggers when somebody visits a specified page",
+    "blockimg": "assets/eye.svg",
+    "blockimgblue": "assets/eyeblue.svg",
+    "blockinfo": "When a new visitor goes to Site 1",
+    "fieldtypes": [
+      {
+        "name": "Page URL",
+        "type": "text"
+      },
+      {
+        "name": "Visitor ID",
+        "type": "text"
+      },
+      {
+        "name": "Action Type",
+        "type": "select",
+        "options": ["Type 1", "Type 2", "Type 3"]
+      },
+      {
+        "name": "Action Type",
+        "type": "checkbox",
+        "options": ["Type 1", "Type 2", "Type 3"]
+      }
+    ]
+  },
+  {
+    "blockelemtype": "2",
+    "blocktitle": "Action is performed",
+    "blockdesc": "Triggers when somebody performs a specified action",
+    "blockimg": "assets/action.svg",
+    "blockimgblue": "assets/actionblue.svg",
+    "blockinfo": "When Action 1 is performed",
+    "fieldtypes": [
+      {
+        "name": "Action Type",
+        "type": "select",
+        "options": ["Type 1", "Type 2", "Type 3"]
+      },
+      {
+        "name": "Action Time",
+        "type": "datetime"
+      }
+    ]
+  }
+]
