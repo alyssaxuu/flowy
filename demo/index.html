@@ -1,164 +1,101 @@
- <!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <!-- Primary Meta Tags -->
-<title>Flowy - The simple flowchart engine</title>
-<meta name="title" content="Flowy - The simple flowchart engine">
-<meta name="description" content="Flowy is a minimal javascript library to create flowcharts. Use it for automation software, mind mapping tools, programming platforms, and more. Made by Alyssa X.">
-
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://alyssax.com/x/flowy">
-<meta property="og:title" content="Flowy - The simple flowchart engine">
-<meta property="og:description" content="Flowy is a minimal javascript library to create flowcharts. Use it for automation software, mind mapping tools, programming platforms, and more. Made by Alyssa X.">
-<meta property="og:image" content="https://alyssax.com/x/assets/meta.png">
-
-<!-- Twitter -->
-<meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="https://alyssax.com/x/flowy">
-<meta property="twitter:site" content="alyssaxuu">
-<meta property="twitter:title" content="Flowy - The simple flowchart engine">
-<meta property="twitter:description" content="Flowy is a minimal javascript library to create flowcharts. Use it for automation software, mind mapping tools, programming platforms, and more. Made by Alyssa X.">
-<meta property="twitter:image" content="https://alyssax.com/x/assets/meta.png">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
-    <link href='styles.css' rel='stylesheet' type='text/css'>
-    <link href='flowy.min.css' rel='stylesheet' type='text/css'>
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <script src="flowy.min.js"></script>
-    <script src="main.js"></script>   
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMM Agentic Workflow Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="flowy.min.css" rel="stylesheet" type="text/css">
+  <link href="styles.css" rel="stylesheet" type="text/css">
+  <script src="flowy.min.js"></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div id="navigation">
-        <div id="leftside">
-            <div id="details">
-            <div id="back"><img src="assets/arrow.svg"></div>
-            <div id="names">
-                <p id="title">Your automation pipeline</p>
-                <p id="subtitle">Marketing automation</p>
-            </div>
-        </div>            
-        </div>
-        <div id="centerswitch">
-            <div id="leftswitch">Diagram view</div>
-            <div id="rightswitch">Code editor</div>
-        </div>
-        <div id="buttonsright">
-            <div id="discard">Discard</div>
-            <div id="publish">Publish to site</div>
-        </div>
+  <header class="topbar">
+    <div>
+      <h1>PMM Agentic Workflow Designer</h1>
+      <p>Flowy-based offline workflow mapping for people, tools, load, risk, and automation potential</p>
     </div>
-    <div id="leftcard">
-        <div id="closecard">
-            <img src="assets/closeleft.svg">
-        </div>
-        <p id="header">Blocks</p>
-        <div id="search">
-            <img src="assets/search.svg">
-            <input type="text" placeholder="Search blocks">
-        </div>
-        <div id="subnav">
-            <div id="triggers" class="navactive side">Triggers</div>
-            <div id="actions" class="navdisabled side">Actions</div>
-            <div id="loggers" class="navdisabled side">Loggers</div>
-        </div>
-        <div id="blocklist">
-            <div class="blockelem create-flowy noselect">
-                <input type="hidden" name='blockelemtype' class="blockelemtype" value="1">
-                <div class="grabme">
-                    <img src="assets/grabme.svg">
-                </div>
-                <div class="blockin">
-                    <div class="blockico">
-                        <span></span>
-                        <img src="assets/eye.svg">
-                    </div>
-                    <div class="blocktext">
-                        <p class="blocktitle">New visitor</p>
-                        <p class="blockdesc">Triggers when somebody visits a specified page</p>
-                    </div>
-                </div>
-            </div>
-            <div class="blockelem create-flowy noselect">
-                <input type="hidden" name='blockelemtype' class="blockelemtype" value="2">
-                <div class="grabme">
-                    <img src="assets/grabme.svg">
-                </div>
-                <div class="blockin">
-                    <div class="blockico">
-                        <span></span>
-                        <img src="assets/action.svg">
-                    </div>
-                    <div class="blocktext">
-                        <p class="blocktitle">Action is performed</p>
-                        <p class="blockdesc">Triggers when somebody performs a specified action</p>
-                    </div>
-                </div>
-            </div>
-            <div class="blockelem create-flowy noselect">
-                <input type="hidden" name='blockelemtype' class="blockelemtype" value="3">
-                <div class="grabme">
-                    <img src="assets/grabme.svg">
-                </div>
-                <div class="blockin">
-                    <div class="blockico">
-                        <span></span>
-                        <img src="assets/time.svg">
-                    </div>
-                    <div class="blocktext">
-                        <p class="blocktitle">Time has passed</p>
-                        <p class="blockdesc">Triggers after a specified amount of time</p>
-                    </div>
-                </div>
-            </div>
-            <div class="blockelem create-flowy noselect">
-                <input type="hidden" name='blockelemtype' class="blockelemtype" value="4">
-                <div class="grabme">
-                    <img src="assets/grabme.svg">
-                </div>
-                <div class="blockin">
-                    <div class="blockico">
-                        <span></span>
-                        <img src="assets/error.svg">
-                    </div>
-                    <div class="blocktext">
-                        <p class="blocktitle">Error prompt</p>
-                        <p class="blockdesc">Triggers when a specified error happens</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="footer">
-            <a href="https://github.com/alyssaxuu/flowy/" target="_blank">GitHub</a>
-            <span>·</span>
-            <a href="https://twitter.com/alyssaxuu/status/1199724989353730048" target="_blank">Twitter</a>
-            <span>·</span>
-                <a href="https://alyssax.com" target="_blank"><p>Made with</p><img src="assets/heart.svg"><p>by</p> Alyssa X</a>
-        </div>
+    <div class="actions">
+      <button id="load-template"><img class="btn-icon" src="assets/time.svg" alt="" aria-hidden="true">Load PMM Templates</button>
+      <button id="build-starter"><img class="btn-icon" src="assets/action.svg" alt="" aria-hidden="true">Build Starter Flow</button>
+      <button id="save-local"><img class="btn-icon" src="assets/log.svg" alt="" aria-hidden="true">Save Local</button>
+      <button id="export-json"><img class="btn-icon" src="assets/database.svg" alt="" aria-hidden="true">Export JSON</button>
+      <label class="file-button">
+        <img class="btn-icon" src="assets/arrow.svg" alt="" aria-hidden="true">Import JSON
+        <input id="import-json" type="file" accept="application/json">
+      </label>
+      <button id="clear-canvas" class="danger"><img class="btn-icon" src="assets/close.svg" alt="" aria-hidden="true">Clear Canvas</button>
     </div>
-    <div id="propwrap">
-        <div id="properties">
-            <div id="close">
-                <img src="assets/close.svg">
-            </div>
-            <p id="header2">Properties</p>
-            <div id="propswitch">
-                <div id="dataprop">Data</div>
-                <div id="alertprop">Alerts</div>
-                <div id="logsprop">Logs</div>
-            </div>
-            <div id="proplist">
-                <p class="inputlabel">Select database</p>
-                <div class="dropme">Database 1 <img src="assets/dropdown.svg"></div>
-                <p class="inputlabel">Check properties</p>
-                <div class="dropme">All<img src="assets/dropdown.svg"></div>
-                <div class="checkus"><img src="assets/checkon.svg"><p>Log on successful performance</p></div>
-                <div class="checkus"><img src="assets/checkoff.svg"><p>Give priority to this block</p></div>
-            </div>
-            <div id="divisionthing"></div>
-            <div id="removeblock">Delete blocks</div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="panel">
+        <h2>Template Blocks</h2>
+        <div class="search-wrap">
+          <img class="search-icon" src="assets/search.svg" alt="" aria-hidden="true">
+          <input id="search-blocks" type="text" placeholder="Search templates">
         </div>
-    </div>
-    <div id="canvas">
-    </div>
+        <div id="blocklist" class="blocklist"></div>
+      </div>
+    </aside>
+
+    <section id="canvas-wrap">
+      <div id="canvas"></div>
+      <div id="canvas-empty" class="canvas-empty">
+        <div class="empty-icon">⬡</div>
+        <p>Drag a block from the left panel onto the canvas,<br>or jump-start with a pre-built flow.</p>
+        <button id="build-starter-hint">Build Starter Flow</button>
+      </div>
+      <div id="zoom-controls">
+        <button id="zoom-out" title="Zoom out">−</button>
+        <span id="zoom-label">100%</span>
+        <button id="zoom-in" title="Zoom in">+</button>
+        <button id="zoom-reset" title="Reset zoom">⊡</button>
+      </div>
+    </section>
+
+    <aside class="rightbar">
+      <div class="panel">
+        <h2>Step Properties</h2>
+        <form id="properties-form">
+          <label>Workflow Step<input name="label" required></label>
+          <label>Person / Role<input name="person" placeholder="PMM Manager"></label>
+          <label>Tool<input name="tool" placeholder="Notion, HubSpot"></label>
+          <label>Input<input name="input" placeholder="Brief, data pull"></label>
+          <label>Output<input name="output" placeholder="Draft, localized asset"></label>
+          <label>Data Source / DB<input name="datasource" placeholder="CRM, Product analytics"></label>
+          <label>Hours per Run<input name="loadHours" type="number" min="0" step="0.25" value="1"></label>
+          <label>Frequency per Week<input name="frequency" type="number" min="0" step="1" value="5"></label>
+          <label>Automation Potential (%)<input name="automation" type="number" min="0" max="100" value="40"></label>
+          <label>Automation Confidence (%)<input name="confidence" type="number" min="0" max="100" value="80"></label>
+          <label>Data Quality (%)<input name="dataQuality" type="number" min="0" max="100" value="85"></label>
+          <label>Risk Profile
+            <select name="risk">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+          <label>Execution Bucket
+            <select name="bucket">
+              <option value="human">Human-led</option>
+              <option value="assist">AI-assisted</option>
+              <option value="agent">Agent-executable</option>
+            </select>
+          </label>
+          <label class="check-row"><input name="approval" type="checkbox">Requires human approval gate</label>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Workday Analytics</h2>
+        <div id="analytics" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    </aside>
+  </main>
 </body>
 </html>
